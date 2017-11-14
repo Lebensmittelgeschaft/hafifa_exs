@@ -13,13 +13,13 @@ function convert(){
     let hist = [];      //hist is the histogram of the coins
 
     for(let i = 0 ; i < coins.length ; i++){
-        coins[i] = parseInt(coins[i],10);
-        hist[i] = parseInt(0,10);
         if(!($.isNumeric(coins[i])) || coins[i] < 0){
             document.getElementById("coins-final").innerHTML = "BAD COINS VALUE!";
             console.log("BAD COINS VALUE!");
             return;
         }
+        coins[i] = parseInt(coins[i],10);
+        hist[i] = parseInt(0,10);
     }
 
     if(!($.isNumeric(sum) || sum < 0)){
