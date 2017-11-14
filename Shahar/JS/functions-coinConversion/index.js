@@ -8,24 +8,30 @@ function convert(){
     let coins = [];
     sum = document.getElementById("sum").value;
     coins = document.getElementById("coins").value;
-    sum = parseInt(sum,10);
+    
     coins = coins.split(" ");
     let hist = [];      //hist is the histogram of the coins
+
     for(let i = 0 ; i < coins.length ; i++){
         coins[i] = parseInt(coins[i],10);
         hist[i] = parseInt(0,10);
+        if(!($.isNumeric(coins[i])) || coins[i] < 0){
+            document.getElementById("coins-final").innerHTML = "BAD COINS VALUE!";
+            console.log("BAD COINS VALUE!");
+            return;
+        }
     }
+
+    if(!($.isNumeric(sum) || sum < 0)){
+        document.getElementById("coins-final").innerHTML = "BAD SUM VALUE!";
+        console.log("BAD SUM VALUE!");
+        return;
+    }
+    sum = parseInt(sum,10);
 
     console.log("coins: " + coins);
     coins.sort(function(a, b){return a - b});
     coins.reverse();
-
-    if(coins[coins.length-1] <= 0){
-        document.getElementById("coins-final").innerHTML = "BAD COINS VALUE!";
-        console.log("BAD COINS VALUE!");
-        return;
-    }
-
     console.log("sorted coins: " + coins);
 
 
@@ -38,6 +44,7 @@ function convert(){
             }
         }
     }
+
     console.log("hist: " + hist);
 
     let finalString = "";
