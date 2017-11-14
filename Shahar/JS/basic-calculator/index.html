@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="index.css">
+        <style>
+
+        </style>
+        <script src="index.js"></script>
+    </head>
+
+    <body>
+        <form>
+            <div style="margin-left:18%; margin-bottom:50px; padding:1px 16px;">
+                <h2>Welcome to the Four-Operators-Calculator!</h2>
+
+                <div style="width:100%"><p style="width:50%">First Number: &emsp;<input id="num1" type="text" style="width:50%; max-width:50px;" placeholder="Num1"></input></p></div>
+                <div style="width:100%"><p style="width:50%">Second Number: <input id="num2" type="text" style="width:50%; max-width:50px;" placeholder="Num2"></input></p></div>
+
+                <p>Please select your preferred operator:</p>
+                <div>
+                    <input type="button" id="choice1" onclick="add()" name="operator" value="add">
+
+                    <input type="button" id="choice2" onclick="sub()" name="operator" value="sub">
+
+                    <input type="button" id="choice3" onclick="mult()" name="operator" value="mult">
+
+                    <input type="button" id="choice4" onclick="div()" name="operator" value="div">
+                </div> 
+                    <div><p>Result: <b style="size:15px"><span name="res" id="result">----</span></b></p></div>
+                </div>
+            
+
+        </form>
+        
+
+    </body>
+</html>

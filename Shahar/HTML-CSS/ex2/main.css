@@ -1,0 +1,322 @@
+
+
+/* © All rights reserved to Shahar Yair and Sapir IDF unit
+    Supervised by code names: J & A */
+
+/* --------------------- The Cake Is A Lie Page --------------------- */
+#cake_lie{ 
+    background: url(the-cake-is-a-lie.jpg) no-repeat center center fixed;
+    background-size: 100% 100%;
+}
+
+div.lie-cake{
+    color: white;
+}
+
+/* --------------------- transbox of the nation pages --------------------- */
+div.transbox{
+    border: 1px solid black;
+    /* text-align: center; */
+    overflow: auto;
+    min-height:400px;
+    max-height:500px;
+    max-width:700px;
+    position: fixed;
+    top: 24%;
+    left: 31%;
+    border-radius:10px;
+    color: white;
+    /* overflow: scroll; */
+}
+
+body.nations {
+    margin: 0;
+    background-color:transparent;
+}
+
+.my-text{
+    margin-left: 8px;
+}
+
+a.link{
+    color: grey;
+}
+
+/* --------------------- body of the main pages --------------------- */
+
+body {
+    margin: 0;
+    background-color:#d7ddea;
+}
+
+
+.main-ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 15%;
+    background-color: #9daccb;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+}
+
+li a.main-list, li a.active{
+    display: block;
+    color: #000;
+    font-size: 22px;
+    padding: 15px 15%;
+    text-decoration: none;
+}
+
+li a.active {
+    background-color: #3B5998;
+    color: white;
+}
+
+li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+}
+
+li a:hover:not(.active).pic{
+    background-color: transparent;
+    color: white;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 30%;
+    border-radius: 5px;
+}
+
+@-webkit-keyframes rotate {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to { 
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+#profile-photo{
+    margin-left: 15%;
+    margin-top: 2%;
+    margin-bottom: 2px;
+}
+
+#profile-photo:hover{
+    -webkit-animation-name:             rotate; 
+    -webkit-animation-duration:         1s; 
+    -webkit-animation-iteration-count:  1;
+    -webkit-animation-timing-function: linear;
+
+}
+
+#personal-info{
+    margin-left: 20%;
+    margin-bottom: 2px;
+}
+
+.icons{
+    height: 8%;
+    width: 8%;
+    margin-right: 5px;
+    margin-top: 0px;
+    min-height: 20px;
+    min-width: 20px;
+}
+
+/* --------------------- card page --------------------- */
+
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+img {
+    border-radius: 5px 5px 0 0;
+}
+
+.container {
+    padding: 2px 16px;
+}
+
+#card-holder{
+    width:100%;
+    height:100%;
+}
+
+/* .card{
+    width:10%;
+    height:50%;
+}  */
+
+/* --------------------- button page --------------------- */
+
+.button {
+    /* background-color: #4CAF50;   */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius:10px;
+
+}
+
+
+.water:hover,.earth:hover,.fire:hover,.air:hover{
+    opacity:0.7;
+    border-color: black;
+    border-width: 2px;    
+}
+.water {background-image: url(nations/water-b.jpg); color: black;} 
+.earth {background-image: url(nations/earth-b.jpg);} 
+.fire {background-image: url(nations/fire-b.jpg);}
+.air {background-image: url(nations/air-b.jpg); color: black;}
+
+#air{
+    background: url(nations/air.jpg) no-repeat center center fixed;
+}
+#water{
+    background: url(nations/water.jpg) no-repeat center center fixed;
+}
+#fire{
+    background: url(nations/fire.jpg) no-repeat center center fixed;
+}
+#earth{
+    background: url(nations/earth.jpg) no-repeat center center fixed;
+}
+
+#air, #water, #fire, #earth{
+        background-size: 100% 100%;
+}
+
+#four-nations{
+    width: 150px;
+    height: 50px;
+    background-size: 100% 100%;
+    background-image: url(four-nations.jpg);
+    background-repeat: no-repeat;
+}
+
+/* --------------------- toggle button page --------------------- */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 1.2s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #08d198;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* --------------------- spinners page --------------------- */
+
+
+.spinners{
+    height:200px;
+    weight:200px;
+}
+
+
+
+/* --------------------- tabs page --------------------- */
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    border: 1px solid grey;
+    background-color: #9DACCB;
+    border-radius: 10px;
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.7s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+    background-color: #3B5998;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+    background-color: #3B5998;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    
+}
+
+a.tab-button{
+    text-decoration: unset;
+    font: bold;
+}
+
+

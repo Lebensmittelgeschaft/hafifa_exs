@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="index.css">
+        <style>
+
+        </style>
+        <script src="index.js"></script>
+    </head>
+
+    <body>
+        <form>
+            <div style="margin-left:18%; margin-bottom:50px; padding:1px 16px;">
+                <h2>Welcome to the Arrey Swapper!</h2>
+                <p style="width:50%">The array swapper swaps the first and last elements of the array you enter. </p>
+                <p style="width:50%">Enter your array here. elements must be integers and separated by space (' ') character: </p>
+                <div style="width:100%"><input id="array" type="text" style="width:50%; max-width:200px;" placeholder="num1 num2 num3 ..."></input></div>
+
+                <div><p>Your Array: <b style="size:15px"><span name="original" id="original">---------</span></b></p></div>
+                <div><p>New Array: <b style="size:15px"><span name="new" id="new"> ---------</span></b></p></div>
+                <div>
+                    <input type="button" onclick="swap()" name="operator" value="GO!">
+                </div> 
+            
+
+        </form>
+        
+
+    </body>
+</html>
