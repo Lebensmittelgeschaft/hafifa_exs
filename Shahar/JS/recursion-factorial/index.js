@@ -13,10 +13,16 @@ function calculate(){
         return;
     }
 
-
-    document.getElementById("result").innerHTML = x;
+    document.getElementById("result").innerHTML = factorial(x, 1);
     return;
 
 }
 
+//The recursive function
+function factorial(x, mul){
+    if(x == 1){
+        return mul;
+    }
+    return factorial(x-1, mul*x);
+}
 
