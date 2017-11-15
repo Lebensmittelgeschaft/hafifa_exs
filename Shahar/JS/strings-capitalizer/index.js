@@ -12,16 +12,6 @@ function capitalize(){
     }
 
 
-
-    //Apparently, you can do this by just 'var newArray = array.slice();'
-    // for(element in array){
-    //     newArray[i] = array[i];
-    //     i++;
-    // }
-    // var tmp = newArray[0];
-    // newArray[0] = newArray[newArray.length - 1];
-    // newArray[newArray.length - 1] = tmp;
-
     document.getElementById("result").innerHTML = myText;
     
     return;
