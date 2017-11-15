@@ -2,23 +2,28 @@
 //Ex num.41.
 
 
-function swap(){
+function capitalize(){
 
-    array = document.getElementById("array").value;
-    array = array.split(" ");
-    var newArray = [];
-    var i = 0;
-    //Apparently, you can do this by just 'var newArray = array.slice();'
-    for(element in array){
-        newArray[i] = array[i];
-        i++;
+    myText = document.getElementById("myText").value;
+    
+
+    for(let i = 0 ; i < myText.length-1 ; i++){
+        myText = myText.toUpperCase();
     }
-    var tmp = newArray[0];
-    newArray[0] = newArray[newArray.length - 1];
-    newArray[newArray.length - 1] = tmp;
 
-    document.getElementById("original").innerHTML = '[' + array + ']';
-    document.getElementById("new").innerHTML = '[' + newArray + ']';
+
+
+    //Apparently, you can do this by just 'var newArray = array.slice();'
+    // for(element in array){
+    //     newArray[i] = array[i];
+    //     i++;
+    // }
+    // var tmp = newArray[0];
+    // newArray[0] = newArray[newArray.length - 1];
+    // newArray[newArray.length - 1] = tmp;
+
+    document.getElementById("result").innerHTML = myText;
+    
     return;
 
 }
