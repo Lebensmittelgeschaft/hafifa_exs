@@ -1,0 +1,15 @@
+body {
+    display: block;
+    float: left;
+    text-align: center;
+    margin: 50vh 50vw;
+}
+
+#c-temp {
+    width: 10vw;
+}
+
+input {
+    display: block;
+    float: left;
+}
