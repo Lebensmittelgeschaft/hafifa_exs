@@ -11,10 +11,8 @@ function draw(){
         let context = drawing.getContext("2d");
 
         context.fillStyle = "yellow";
-        context.fillRect (20, 20, H1, W1);
+        context.fillRect (20, 20, W1, H1);
         
         context.fillStyle = "rgba(0, 0, 200, 0.3)";
-        context.fillRect (50, 50, H2, W2);
-
-
+        context.fillRect (50, 50, W2, H2);
 }
