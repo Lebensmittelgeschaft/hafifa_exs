@@ -1,8 +1,6 @@
 body {
-    display: block;
     float: left;
     text-align: center;
-    margin: 50vh 50vw;
 }
 
 #c-temp {
@@ -10,6 +8,9 @@ body {
 }
 
 input {
-    display: block;
-    float: left;
+    margin: 5%;
+}
+
+button {
+    margin: 10%;
 }
