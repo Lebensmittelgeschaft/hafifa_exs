@@ -4,6 +4,10 @@ var currDirection = 'right';
 var snake;
 var gameloop;
 var direction_flag = 'right';
+var food = {
+    x: 25,
+    y:25
+};
 
 function start_game(){
     console.log("starting game!");
@@ -12,7 +16,7 @@ function start_game(){
     snake = mySnake();
     console.log("snake sent: " + snake);
     init_keyboard();
-    gameloop = setInterval(function (){step()}, 80);
+    gameloop = setInterval(function (){step()}, 100);
 }
 
 
@@ -84,20 +88,27 @@ function step(){
 
 }
 function throwFood(){
-
     while(true){
-        let x = Math.random(0, 50);
-        let y = Math.random(0, 50);
+        let x = getRandomInt(0, 50);
+        let y = getRandomInt(0, 50);
         if(!onSnake(x,y)){
-
-        //put food
+            //put food
+            food.x = x;
+            food.y = y;
+            console.log("food at: " + food.x + "," + food.y);
+            return;
         }
     }
 }
 
 //TODO!
 function onSnake(x, y){
-
+    for(let i = 0 ; i < snake.length ; i++){
+        if(snake[i].x == x && snake[i].y == y)
+            {
+                return true;
+            }
+    }
     return false;
 }
 
@@ -141,6 +152,16 @@ function fillBoard(array){
         ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
         ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
     }
+    ctx.fillStyle = "green";
+    ctx.fillRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
+    ctx.strokeRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
+
+    if(onSnake(food.x, food.y)){
+        //array.push({x:array[array.length-1].x, y:array[array.length-1].y})
+        throwFood();
+
+    }
+
     if(array[array.length-1].x > 48 || array[array.length-1].x < 0 || array[array.length-1].y > 48 || array[array.length-1].y < 0){
         console.log("DEAD!!");
         gameloop = clearInterval(gameloop);
@@ -148,4 +169,12 @@ function fillBoard(array){
         console.log("ALIVE!!");
 
     }
+}
+
+
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
