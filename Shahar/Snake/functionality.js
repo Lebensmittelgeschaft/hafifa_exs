@@ -12,7 +12,7 @@ function start_game(){
     snake = mySnake();
     console.log("snake sent: " + snake);
     init_keyboard();
-    gameloop = setInterval(function (){step()}, 100);
+    gameloop = setInterval(function (){step()}, 80);
 }
 
 
@@ -22,19 +22,20 @@ function init_keyboard(){
     window.addEventListener('keydown', function(event) {
     switch (event.keyCode) {
     case 37: // Left
-      currDirection = 'left';
+        if(currDirection != 'right')
+            currDirection = 'left';
     break;
-
     case 38: // Up
-      currDirection = 'up';
+        if(currDirection != 'down')
+        currDirection = 'up';
     break;
-
     case 39: // Right
-      currDirection = 'right';
+        if(currDirection != 'left')
+        currDirection = 'right';
     break;
-
     case 40: // Down
-      currDirection = 'down';
+        if(currDirection != 'up')
+        currDirection = 'down';
     break;
   }
 }, false);
@@ -78,6 +79,23 @@ function step(){
     //}
 
 }
+function throwFood(){
+
+    while(true){
+        let x = Math.random(0, 50);
+        let y = Math.random(0, 50);
+        if(!onSnake(x,y)){
+
+        //put food
+        }
+    }
+}
+
+//TODO!
+function onSnake(x, y){
+
+    return false;
+}
 
 function updateSnake(snake){
     //console.log(snake);
@@ -107,7 +125,7 @@ function fillBoard(array){
     ctx.fillStyle = "blue";
         //console.log("array[i].x"+array[i].x);
     ctx.strokeStyle = "lightblue";
-    ctx.fillRect(0, 0, 0, 0);
+    ctx.fillRect(100, 100, 0, 0);
     ctx.strokeRect(0, 0, 0, 0);
 
     //array.shift();
@@ -119,6 +137,11 @@ function fillBoard(array){
         ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
         ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
     }
-    //gameloop = clearInterval(gameloop);
+    if(array[array.length-1].x > 48 || array[array.length-1].x < 0 || array[array.length-1].y > 48 || array[array.length-1].y < 0){
+        console.log("DEAD!!");
+        gameloop = clearInterval(gameloop);
+    }else{
+        console.log("ALIVE!!");
 
+    }
 }
