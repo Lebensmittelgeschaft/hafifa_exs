@@ -3,7 +3,7 @@ var snakeSize = 10;
 var currDirection = 'right';
 var snake;
 var gameloop;
-
+var direction_flag = 'right';
 
 function start_game(){
     console.log("starting game!");
@@ -22,19 +22,19 @@ function init_keyboard(){
     window.addEventListener('keydown', function(event) {
     switch (event.keyCode) {
     case 37: // Left
-        if(currDirection != 'right')
+        if(direction_flag != 'right')
             currDirection = 'left';
     break;
     case 38: // Up
-        if(currDirection != 'down')
+        if(direction_flag != 'down')
         currDirection = 'up';
     break;
     case 39: // Right
-        if(currDirection != 'left')
+        if(direction_flag != 'left')
         currDirection = 'right';
     break;
     case 40: // Down
-        if(currDirection != 'up')
+        if(direction_flag != 'up')
         currDirection = 'down';
     break;
   }
@@ -61,15 +61,19 @@ function step(){
     updateSnake(snake);
     if(currDirection == 'right'){
         snake[snake.length-1].x++;
+        direction_flag = 'right';
     }
     if(currDirection == 'down'){
         snake[snake.length-1].y++;
+        direction_flag = 'down';
     }
     if(currDirection == 'left'){
         snake[snake.length-1].x--;
+        direction_flag = 'left';
     }
     if(currDirection == 'up'){
         snake[snake.length-1].y--;
+        direction_flag = 'up';
     }
     //console.log("end of step:");
     //console.log(snake);
