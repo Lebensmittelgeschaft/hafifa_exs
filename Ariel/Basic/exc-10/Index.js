@@ -5,7 +5,7 @@ document.getElementById("multiply").onclick = function() {
     var Numbers =  findNums();
      
     if(checkPropriety(Numbers, message)) {
-        result.textContent = +Numbers[0] / +Numbers[1];
+        result.textContent = +Numbers[0] * +Numbers[1];
     }
 };
 
