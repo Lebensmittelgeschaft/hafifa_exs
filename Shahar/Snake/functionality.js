@@ -9,9 +9,9 @@ var food = {
     y:25
 };
 
+//The main function which runs everything
 function start_game(){
-    console.log("starting game!");
-    
+    console.log("starting game!");  
     gameArea.start();
     snake = mySnake();
     console.log("snake sent: " + snake);
@@ -21,30 +21,31 @@ function start_game(){
 
 
 
-
+//creates an event listener that checks the keyboard directions entered by the user
 function init_keyboard(){
     window.addEventListener('keydown', function(event) {
-    switch (event.keyCode) {
-    case 37: // Left
-        if(direction_flag != 'right')
-            currDirection = 'left';
-    break;
-    case 38: // Up
-        if(direction_flag != 'down')
-        currDirection = 'up';
-    break;
-    case 39: // Right
-        if(direction_flag != 'left')
-        currDirection = 'right';
-    break;
-    case 40: // Down
-        if(direction_flag != 'up')
-        currDirection = 'down';
-    break;
-  }
-}, false);
-
+        switch (event.keyCode) {
+            case 37: // Left
+                if(direction_flag != 'right')
+                    currDirection = 'left';
+            break;
+            case 38: // Up
+                if(direction_flag != 'down')
+                currDirection = 'up';
+            break;
+            case 39: // Right
+                if(direction_flag != 'left')
+                currDirection = 'right';
+            break;
+            case 40: // Down
+                if(direction_flag != 'up')
+                currDirection = 'down';
+            break;
+        }
+    }, false);
 }
+
+//creates the canvas of the game
 var gameArea = {
     canvas : document.createElement("canvas"),
     //context : this.canvas.getContext("2d"),
@@ -56,11 +57,11 @@ var gameArea = {
     }
 }
 
+
+//Every step starts here. we check the direction of the snake and 
+//move it in this direction.
 function step(){
-    //console.log("step. my snake: " + snake);
-    //console.log(snake);
-    var headX = snake[snake.length-1].x; 
-    var headY = snake[snake.length-1].y; 
+
     console.log("currDirection: " + currDirection);
     updateSnake(snake);
     if(currDirection == 'right'){
@@ -79,14 +80,10 @@ function step(){
         snake[snake.length-1].y--;
         direction_flag = 'up';
     }
-    //console.log("end of step:");
-    //console.log(snake);
-
-    //for (var i = 0; i < snake.length; i++) {
         fillBoard(snake);
-    //}
-
 }
+
+//creates food at a random place
 function throwFood(){
     while(true){
         let x = getRandomInt(0, 50);
@@ -101,7 +98,7 @@ function throwFood(){
     }
 }
 
-//TODO!
+//checks if a point on the board is located on the snake.
 function onSnake(x, y){
     for(let i = 0 ; i < snake.length ; i++){
         if(snake[i].x == x && snake[i].y == y)
@@ -112,13 +109,11 @@ function onSnake(x, y){
     return false;
 }
 
+//moves the array representing the snake foreward
 function updateSnake(snake){
-    //console.log(snake);
     for(let i = 0 ; i < snake.length-1 ; i++){
-    //console.log(i + " " +snake[i].y + "=" + snake[i+1].y);
         Object.assign(snake[i], snake[i+1]);
     }
-    //console.log(snake);
 }
 
 //initiate my snake.
@@ -132,6 +127,7 @@ function mySnake(){
     return array;
 }
 
+//the important function which prints the current position of the snake on the canvas
 function fillBoard(array){
     console.log("FILLBOARD");
     var ctx = gameArea.context;
@@ -172,9 +168,10 @@ function fillBoard(array){
 }
 
 
-
+//used for getting a random location for the food. returns an integer in range
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
+
