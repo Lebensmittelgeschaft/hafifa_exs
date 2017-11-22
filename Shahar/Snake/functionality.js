@@ -549,7 +549,7 @@ function printSnake(snake){
 //speed escalated every time a food is eaten, to a point.
 function escalate_speed(){
     if(currentSpeed > 70){
-        currentSpeed-=1;
+        currentSpeed-=2;
     }
 }
 
@@ -596,3 +596,4 @@ function empty_cell(x, y){
 
     return false;
 }
+
