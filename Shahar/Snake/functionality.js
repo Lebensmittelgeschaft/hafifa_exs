@@ -11,8 +11,9 @@ var food = {
 var canvas_height= 40;
 var canvas_width= 50;
 var score = 0;
-var high_score = 3;
+var high_score = 2;
 var game_running = false;
+var count_steps = 0;
 
 
 //The main function which runs everything
@@ -74,7 +75,7 @@ var gameArea = {
         this.canvas.width = canvas_width*snakeSize;
         this.canvas.height = canvas_height*snakeSize;
         this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        document.body.insertBefore(this.canvas, document.body.childNodes[4]);
     }
 }
 
@@ -102,6 +103,7 @@ function step(){
         direction_flag = 'up';
     }
         fillBoard(snake);
+    count_steps++;
 }
 
 //creates food at a random place
@@ -130,6 +132,18 @@ function onSnake(x, y){
     return false;
 }
 
+//checks if a point on the board is located on the snake body (without the head).
+function onSnakeBody(x,y){
+    for(let i = 0 ; i < snake.length-1 ; i++){
+        if(snake[i].x == x && snake[i].y == y)
+            {
+                return true;
+            }
+    }
+    return false;
+
+}
+
 //moves the array representing the snake foreward
 function updateSnake(snake){
     for(let i = 0 ; i < snake.length-1 ; i++){
@@ -154,17 +168,21 @@ function fillBoard(array){
     var ctx = gameArea.context;
     //console.log(ctx.width + "," + ctx.height);
     ctx.clearRect(0, 0, canvas_width*snakeSize,canvas_height*snakeSize);
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = "lightblue";
         //console.log("array[i].x"+array[i].x);
-    ctx.strokeStyle = "lightblue";
+    ctx.strokeStyle = "blue";
     ctx.fillRect(0, 0, 0, 0);
     ctx.strokeRect(0, 0, 0, 0);
 
 
     //GAME OVER
-    if(array[array.length-1].x > canvas_width-1 || array[array.length-1].x < 0 || array[array.length-1].y > canvas_height-1 || array[array.length-1].y < 0){
+    if(array[array.length-1].x > canvas_width-1 || array[array.length-1].x < 0 ||
+         array[array.length-1].y > canvas_height-1 || array[array.length-1].y < 0
+        || onSnakeBody(array[array.length-1].x, array[array.length-1].y)){
         console.log("DEAD!! (" + array[array.length-1].x + "," + array[array.length-1].y + ")");
-
+        ctx.fillStyle = "red";
+        ctx.fillRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
+        ctx.strokeRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
         gameloop = clearInterval(gameloop);
         if(score > high_score){
             high_score = score;
@@ -172,27 +190,44 @@ function fillBoard(array){
         }
         game_running = false;
     }
-    for(let i = 0 ; i < array.length ; i++){
-        //console.log("array[i].x"+array[i].x);
+    //paint snake body
+    for(let i = 0 ; i < array.length-1 ; i++){
         ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
         ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+    }
+
+    //paint dots on the body
+    ctx.fillStyle = "blue";
+    for(let i = 0 ; i < array.length-1 ; i++){
+        ctx.fillRect(array[i].x*snakeSize + snakeSize/2 -1, array[i].y*snakeSize + snakeSize/2 -1, 2, 2);
+        ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+    }
+
+    //paint head in different color
+    ctx.fillStyle = "blue";
+    ctx.fillRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
+    ctx.strokeRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
+
+    //paint the food
+    if(count_steps%2 == 0){
+        ctx.strokeStyle = "lightgreen";
     }
     ctx.fillStyle = "green";
     ctx.fillRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
     ctx.strokeRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
 
+    if(score > high_score && (count_steps % 8 < 4 )){
+        document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
+    }else{
+        document.getElementById("high_score").innerHTML = "";
+        }
     //if the snake has eaten the food
     if(onSnake(food.x, food.y)){
         array.push({x:array[array.length-1].x, y:array[array.length-1].y})
         throwFood();
         score++;
         document.getElementById("score").innerHTML = score;
-        if(score > high_score){
-            document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
-        }
     }
-
-
 }
 
 
