@@ -13,10 +13,14 @@ var direction_flag;
 var canvas_height= 50;
 var canvas_width= 60;
 var score = 0;
-var high_score = 2;
+// var high_score = 2;
+
 var game_running = false;
 var count_steps = 0;
 var currentSpeed = 95;
+var super_counter = 0;
+var high_score_announcer = 30;
+var color_change = 15;
 
 
 /* When the user clicks on the button, 
@@ -40,7 +44,14 @@ window.onclick = function(event) {
   }
 }
 
-
+var super_food = {
+    x : -1,
+    y: -1,
+    color:{ 
+        first: "#ff3232",   //bright red
+        second: "#ff0000"   //red
+    }
+}
 
 var reverse = false;
 
@@ -59,6 +70,11 @@ var green_snake = {
     body:"lightgreen"
 }
 
+var red_snake = {
+    head: "red",
+    body: "orange"
+}
+
 function change_color(clr){
     switch(clr){
         case 'blue':
@@ -70,8 +86,13 @@ function change_color(clr){
         case 'green':
             snake_color = green_snake;
             break;
+        case 'red':
+            snake_color = red_snake;
+            break;
     }
-        init();
+        
+    //init();
+        
 }
 
 var food = {
@@ -85,12 +106,12 @@ var food = {
 
 var portals = {
     p1:{
-        color:"orange",
+        color:"#9975b9",//bright purple
         x: -1,
         y: -1
     },
     p2:{
-        color:"purple",
+        color:"lightblue",
         x: -1,
         y: -1
     },
@@ -133,12 +154,17 @@ function init(){
     score = 0;
     document.getElementById("score").innerHTML = score;
     document.getElementById("high_score").innerHTML = "";
-    document.getElementById("curr_high_score").innerHTML = high_score;
+    document.getElementById("curr_high_score").innerHTML = localStorage.high_score;
     step();
 }
 
 function start_game(){
     console.log("starting game!"); 
+    if (!localStorage.high_score) {
+        localStorage.high_score = 1;
+    }
+    currentSpeed = 95;
+    high_score_announcer = 30;
     gameloop = setInterval(function (){step()}, currentSpeed);
 }
 
@@ -169,15 +195,18 @@ function init_keyboard(){
                 if(direction_flag != 'up')
                 currDirection = 'down';
                 break;
-            case 49: // Down
-                change_color('blue')
-                break;
-            case 50: // Down
-                change_color('orange')
-                break;
-            case 51: // Down
-                change_color('green')
-                break;
+            // case 49: // 1
+            //     change_color('blue')
+            //     break;
+            // case 50: // 2
+            //     change_color('orange')
+            //     break;
+            // case 51: // 3
+            //     change_color('green')
+            //     break;
+            // case 52: // 4
+            //     change_color('red')
+            //     break;
         }
     }, false);
 }
@@ -200,7 +229,7 @@ var gameArea = {
 //move it in this direction.
 function step(){
 
-    console.log("currDirection: " + currDirection);
+    //console.log("currDirection: " + currDirection);
     updateSnake(snake);
     if(currDirection == 'right'){
         snake[snake.length-1].x++;
@@ -226,69 +255,64 @@ function step(){
 
 //creates food at a random place
 function throwFood(){
+    let point = get_random_empty_point();
+    food.x = point.x;
+    food.y = point.y;    
+    escalate_speed();
+    clearInterval(gameloop);
+    gameloop = setInterval(function (){step()}, currentSpeed);
+    //every 3 foods, open portal
+    if(score%3 == 0){
+        throw_portals();
+    }
+    if(super_counter <= 0 && (getRandomInt(0, 11)%2 == 0)){
+        console.log("THROWING SUPER!");
+        throw_super();
+        super_counter = 50;
+        super_food.on_map = true;
+    }
+    return;
+}
+
+
+function get_random_empty_point(){
     while(true){
         let x = getRandomInt(0, canvas_width);
         let y = getRandomInt(0, canvas_height);
-        if(!onSnake(x,y)){
-            //put food
-            food.x = x;
-            food.y = y;
-            console.log("food at: " + food.x + "," + food.y);
-            escalate_speed();
-            clearInterval(gameloop);
-            gameloop = setInterval(function (){step()}, currentSpeed);
-            //every 5 foods, a bonus is distributed
-            // if(score%2 == 0 && !bonus.on_map){
-            //     throw_bonus();
-            // }
-
-            //every 3 foods, open portal
-            if(score%3 == 0){
-                throw_portals();
-            }
-            return;
+        if(empty_cell(x,y)){
+            return {x : x , y : y};
         }
     }
 }
 
 //creates bonus at a random place
 function throw_bonus(){
-    while(true){
-        let x = getRandomInt(0, canvas_width);
-        let y = getRandomInt(0, canvas_height);
-        if(!onSnake(x,y) && (bonus.x != food.x || bonus.y != food.y)){
-            //put bonus
-            bonus.x = x;
-            bonus.y = y;
-            bonus.on_map = true;
-            console.log("bonus at: " + food.x + "," + food.y);
-            return;
-        }
-    }
+    let point = get_random_empty_point();
+    //put bonus
+    bonus.x = point.x;
+    bonus.y = point.y;
+    bonus.on_map = true;
+    console.log("bonus at: " + food.x + "," + food.y);
+    return;
 }
 
-
-
 function throw_portals(){
-     while(true){
-        let x1 = getRandomInt(5, canvas_width-5);
-        let y1 = getRandomInt(5, canvas_height-5);
-        let x2 = getRandomInt(5, canvas_width-5);
-        let y2 = getRandomInt(5, canvas_height-5);
-        console.log("portals at: " + x1 + "," + y1 + "<>" + x2 + "," + y2);
-        if((empty_cell(x1,y1)) && (empty_cell(x2,y2))){
-            //put bonus
-            portals.p1.x = x1;
-            portals.p1.y = y1;
-            portals.p2.x = x2;
-            portals.p2.y = y2;
-            portals.on_map = true;
-            console.log("*****portals at: " + x1 + "," + y1 + "<>" + x2 + "," + y2);
-            return;
-        }else{
-            console.log("BAD PORTALS! " + x1 + "," + y1 + "<>" + x2 + "," + y2); 
-        }
-    }   
+    let point1 = get_random_empty_point();
+    let point2 = get_random_empty_point();
+    portals.p1.x = point1.x;
+    portals.p1.y = point1.y;
+    portals.p2.x = point2.x;
+    portals.p2.y = point2.y;
+    portals.on_map = true;
+    //console.log("*****portals at: " + x1 + "," + y1 + "<>" + x2 + "," + y2);
+    return;
+}
+
+function throw_super(){
+    let point = get_random_empty_point();
+    super_food.x = point.x;
+    super_food.y = point.y;
+    console.log("SUPER: " + super_food.x + "." + super_food.y);
 }
 
 //checks if a point on the board is located on the snake.
@@ -361,12 +385,24 @@ function fillBoard(array){
         ctx.fillStyle = "red";
         paint_cell(ctx, array[head].x, array[head].y);
         gameloop = clearInterval(gameloop);
-        if(score > high_score){
-            high_score = score;
-            console.log("HIGH SCORE: " + high_score);
+        if(score > localStorage.high_score){
+            localStorage.high_score = score;
+            console.log("HIGH SCORE: " + localStorage.high_score);
         }
         game_running = false;
     }
+
+    //snake changes color by score!
+    if(score <= color_change){
+        change_color('orange');
+    }else if(score > color_change && score <= 2*color_change){
+        change_color('green');
+    }else if(score > 2*color_change && score <= 3*color_change){
+        change_color('blue');
+    }else if(score > 3*color_change){
+        change_color('red');
+    }
+
     //paint snake body
     if(head == 0){
         for(let i = array.length-1 ; i > 0 ; i--){
@@ -418,11 +454,32 @@ function fillBoard(array){
         paint_cell(ctx, portals.p2.x, portals.p2.y);   
     }
 
+    //paint super food
+    if(super_food.on_map){
+        if(count_steps%2 == 0){
+            ctx.fillStyle = super_food.color.first;   
+        }else{
+            ctx.fillStyle = super_food.color.second;
+        }
+        paint_cell(ctx, super_food.x, super_food.y); 
+        super_counter--;
+        if(super_counter < 0){
+            super_food.on_map = false;
+        }
+    }
+
+
     //check a new high score
-    if(score > high_score && (count_steps % 8 < 4 )){
-        document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
+    if(high_score_announcer > 0){
+        if(score > localStorage.high_score && (count_steps % 8 < 4 )){
+            document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
+            high_score_announcer--;
+        }else{
+            document.getElementById("high_score").innerHTML = " ";
+        }
+        
     }else{
-        document.getElementById("high_score").innerHTML = " ";
+        document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
     }
     //if the snake has eaten the food
     if(onSnake(food.x, food.y)){
@@ -433,6 +490,21 @@ function fillBoard(array){
         if(!reverse){
             head++;
         }
+    }
+
+    if(onSnake(super_food.x, super_food.y) && super_food.on_map){
+        for(let i = 0 ; i < 3 ; i++){
+            array.push({x:array[array.length-1].x, y:array[array.length-1].y})
+        }
+        score+=3;
+        
+        currentSpeed = ((currentSpeed < 73) ? 70 : currentSpeed-3);
+        document.getElementById("score").innerHTML = score;
+        if(!reverse){
+            head+=3;
+        }
+        super_counter = 0;
+        super_food.on_map = false;
     }
 
     //if the snake has eaten the bonus
