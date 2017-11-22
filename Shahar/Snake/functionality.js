@@ -1,46 +1,66 @@
 
 var snakeSize = 10;
-var currDirection = 'right';
+var currDirection;
 var snake;
 var gameloop;
-var direction_flag = 'right';
+var direction_flag;
 var food = {
     x: 25,
-    y:25
+    y:12
 };
+var canvas_height= 40;
+var canvas_width= 50;
+var score = 0;
+var high_score = 3;
+var game_running = false;
+
 
 //The main function which runs everything
-function start_game(){
-    console.log("starting game!");  
+function init(){    
     gameArea.start();
     snake = mySnake();
-    console.log("snake sent: " + snake);
     init_keyboard();
-    gameloop = setInterval(function (){step()}, 100);
+    currDirection = 'right';
+    direction_flag = 'right';
+    score = 0;
+    document.getElementById("score").innerHTML = score;
+    document.getElementById("high_score").innerHTML = "";
+    document.getElementById("curr_high_score").innerHTML = high_score;
+    step();
 }
 
-
+function start_game(){
+    console.log("starting game!"); 
+    gameloop = setInterval(function (){step()}, 100);
+}
 
 //creates an event listener that checks the keyboard directions entered by the user
 function init_keyboard(){
     window.addEventListener('keydown', function(event) {
         switch (event.keyCode) {
+            case 13:
+                if(game_running == false){
+                    init();
+                    start_game();
+                    game_running = true;
+                }
+                break;
             case 37: // Left
                 if(direction_flag != 'right')
                     currDirection = 'left';
-            break;
+                break;
             case 38: // Up
                 if(direction_flag != 'down')
                 currDirection = 'up';
-            break;
+                break;
             case 39: // Right
                 if(direction_flag != 'left')
                 currDirection = 'right';
-            break;
+                break;
             case 40: // Down
                 if(direction_flag != 'up')
                 currDirection = 'down';
-            break;
+                break;
         }
     }, false);
 }
@@ -50,8 +70,9 @@ var gameArea = {
     canvas : document.createElement("canvas"),
     //context : this.canvas.getContext("2d"),
     start : function(){
-        this.canvas.width = 500;
-        this.canvas.height = 500;
+        
+        this.canvas.width = canvas_width*snakeSize;
+        this.canvas.height = canvas_height*snakeSize;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     }
@@ -86,8 +107,8 @@ function step(){
 //creates food at a random place
 function throwFood(){
     while(true){
-        let x = getRandomInt(0, 50);
-        let y = getRandomInt(0, 50);
+        let x = getRandomInt(0, canvas_width);
+        let y = getRandomInt(0, canvas_height);
         if(!onSnake(x,y)){
             //put food
             food.x = x;
@@ -118,12 +139,12 @@ function updateSnake(snake){
 
 //initiate my snake.
 function mySnake(){
-    //console.log("mySnake");
+    
     var array = [];
-    for(let i = -1 ; i < 4 ; i++){
+    for(let i = -1 ; i < 2 ; i++){
         array.push({x:i, y:0});
     }
-    //fillBoard(array);
+    printSnake(array);
     return array;
 }
 
@@ -132,17 +153,25 @@ function fillBoard(array){
     console.log("FILLBOARD");
     var ctx = gameArea.context;
     //console.log(ctx.width + "," + ctx.height);
-    ctx.clearRect(0, 0, 500, 500);
+    ctx.clearRect(0, 0, canvas_width*snakeSize,canvas_height*snakeSize);
     ctx.fillStyle = "blue";
         //console.log("array[i].x"+array[i].x);
     ctx.strokeStyle = "lightblue";
-    ctx.fillRect(100, 100, 0, 0);
+    ctx.fillRect(0, 0, 0, 0);
     ctx.strokeRect(0, 0, 0, 0);
 
-    //array.shift();
-    //console.log("the array: ");
-    console.log(snake);
 
+    //GAME OVER
+    if(array[array.length-1].x > canvas_width-1 || array[array.length-1].x < 0 || array[array.length-1].y > canvas_height-1 || array[array.length-1].y < 0){
+        console.log("DEAD!! (" + array[array.length-1].x + "," + array[array.length-1].y + ")");
+
+        gameloop = clearInterval(gameloop);
+        if(score > high_score){
+            high_score = score;
+            console.log("HIGH SCORE: " + high_score);
+        }
+        game_running = false;
+    }
     for(let i = 0 ; i < array.length ; i++){
         //console.log("array[i].x"+array[i].x);
         ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
@@ -152,19 +181,18 @@ function fillBoard(array){
     ctx.fillRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
     ctx.strokeRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
 
+    //if the snake has eaten the food
     if(onSnake(food.x, food.y)){
-        //array.push({x:array[array.length-1].x, y:array[array.length-1].y})
+        array.push({x:array[array.length-1].x, y:array[array.length-1].y})
         throwFood();
-
+        score++;
+        document.getElementById("score").innerHTML = score;
+        if(score > high_score){
+            document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
+        }
     }
 
-    if(array[array.length-1].x > 48 || array[array.length-1].x < 0 || array[array.length-1].y > 48 || array[array.length-1].y < 0){
-        console.log("DEAD!!");
-        gameloop = clearInterval(gameloop);
-    }else{
-        console.log("ALIVE!!");
 
-    }
 }
 
 
@@ -175,3 +203,13 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
+
+function printSnake(snake){
+    console.log("PRINTING SNAKE!");
+    let str = "";
+    for(let i = 0 ; i < snake.length ; i++){
+        str+="[" +  snake[i].x + "," + snake[i].y + "]";
+    }
+    console.log(str);
+
+}
