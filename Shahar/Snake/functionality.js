@@ -4,23 +4,62 @@ var currDirection;
 var snake;
 var gameloop;
 var direction_flag;
-var food = {
-    x: 25,
-    y:12
-};
+
 var canvas_height= 40;
 var canvas_width= 50;
 var score = 0;
 var high_score = 2;
 var game_running = false;
 var count_steps = 0;
+var currentSpeed = 100;
 
+var reverse = false;
+
+var blue_snake = {
+    head:"blue",
+    body:"lightblue"
+}
+
+var yellow_snake = {
+    head:"orange",
+    body:"yellow"
+}
+
+var food = {
+    x: (canvas_width/2)-1,
+    y: (canvas_height/2)-1,
+    color : {
+        fill:"green",
+        border:"lightgreen"
+    }
+};
+
+var tail = {
+    location:0,
+    direction:'left'
+}
+
+var bonus = {
+    x: -1,
+    y: -1,
+    // x: (canvas_width/2)-4,
+    // y: (canvas_height/2)-4,
+    on_map : true,
+    color : {
+        fill:"red",
+        border:"orange"
+    }
+}
+var snake_color = yellow_snake;
+var init_length = 6;
+var head;
 
 //The main function which runs everything
 function init(){    
     gameArea.start();
     snake = mySnake();
     init_keyboard();
+    head = init_length-1;
     currDirection = 'right';
     direction_flag = 'right';
     score = 0;
@@ -32,7 +71,7 @@ function init(){
 
 function start_game(){
     console.log("starting game!"); 
-    gameloop = setInterval(function (){step()}, 100);
+    gameloop = setInterval(function (){step()}, currentSpeed);
 }
 
 //creates an event listener that checks the keyboard directions entered by the user
@@ -104,6 +143,8 @@ function step(){
     }
         fillBoard(snake);
     count_steps++;
+
+
 }
 
 //creates food at a random place
@@ -116,6 +157,29 @@ function throwFood(){
             food.x = x;
             food.y = y;
             console.log("food at: " + food.x + "," + food.y);
+            escalate_speed();
+            clearInterval(gameloop);
+            gameloop = setInterval(function (){step()}, currentSpeed);
+            //every 5 foods, a bonus is distributed
+            if(score%2 == 0 && !bonus.on_map){
+                throw_bonus();
+            }
+            return;
+        }
+    }
+}
+
+//creates bonus at a random place
+function throw_bonus(){
+    while(true){
+        let x = getRandomInt(0, canvas_width);
+        let y = getRandomInt(0, canvas_height);
+        if(!onSnake(x,y) && (bonus.x != food.x || bonus.y != food.y)){
+            //put bonus
+            bonus.x = x;
+            bonus.y = y;
+            bonus.on_map = true;
+            console.log("bonus at: " + food.x + "," + food.y);
             return;
         }
     }
@@ -134,11 +198,21 @@ function onSnake(x, y){
 
 //checks if a point on the board is located on the snake body (without the head).
 function onSnakeBody(x,y){
-    for(let i = 0 ; i < snake.length-1 ; i++){
-        if(snake[i].x == x && snake[i].y == y)
-            {
-                return true;
-            }
+    if(head == snake.length-1){
+        for(let i = 0 ; i < head ; i++){
+            if(snake[i].x == x && snake[i].y == y)
+                {
+                    return true;
+                }
+        }
+    }
+    else{
+        for(let i = head ; i > 0; i--){
+            if(snake[i].x == x && snake[i].y == y)
+                {
+                    return true;
+                }
+        }
     }
     return false;
 
@@ -153,9 +227,8 @@ function updateSnake(snake){
 
 //initiate my snake.
 function mySnake(){
-    
     var array = [];
-    for(let i = -1 ; i < 2 ; i++){
+    for(let i = 0 ; i < init_length ; i++){
         array.push({x:i, y:0});
     }
     printSnake(array);
@@ -164,25 +237,24 @@ function mySnake(){
 
 //the important function which prints the current position of the snake on the canvas
 function fillBoard(array){
-    console.log("FILLBOARD");
+    //console.log("FILLBOARD");
     var ctx = gameArea.context;
-    //console.log(ctx.width + "," + ctx.height);
     ctx.clearRect(0, 0, canvas_width*snakeSize,canvas_height*snakeSize);
-    ctx.fillStyle = "lightblue";
-        //console.log("array[i].x"+array[i].x);
-    ctx.strokeStyle = "blue";
+    ctx.fillStyle = snake_color.body;
+    ctx.strokeStyle = snake_color.head;
     ctx.fillRect(0, 0, 0, 0);
     ctx.strokeRect(0, 0, 0, 0);
 
 
     //GAME OVER
-    if(array[array.length-1].x > canvas_width-1 || array[array.length-1].x < 0 ||
-         array[array.length-1].y > canvas_height-1 || array[array.length-1].y < 0
-        || onSnakeBody(array[array.length-1].x, array[array.length-1].y)){
-        console.log("DEAD!! (" + array[array.length-1].x + "," + array[array.length-1].y + ")");
+    if(array[head].x > canvas_width-1 || array[head].x < 0 ||
+         array[head].y > canvas_height-1 || array[head].y < 0
+       || onSnakeBody(array[head].x, array[head].y)){
+
+        console.log("DEAD!! (" + array[head].x + "," + array[head].y + ")");
         ctx.fillStyle = "red";
-        ctx.fillRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
-        ctx.strokeRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
+        ctx.fillRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
+        ctx.strokeRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
         gameloop = clearInterval(gameloop);
         if(score > high_score){
             high_score = score;
@@ -191,42 +263,71 @@ function fillBoard(array){
         game_running = false;
     }
     //paint snake body
-    for(let i = 0 ; i < array.length-1 ; i++){
-        ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
-        ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+    if(head == 0){
+        for(let i = array.length-1 ; i > 0 ; i--){
+            ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+            ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+        }
+    }else{
+        for(let i = 0 ; i < array.length-1 ; i++){
+            ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+            ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+        }
     }
 
+
     //paint dots on the body
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = snake_color.head;
     for(let i = 0 ; i < array.length-1 ; i++){
         ctx.fillRect(array[i].x*snakeSize + snakeSize/2 -1, array[i].y*snakeSize + snakeSize/2 -1, 2, 2);
         ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
     }
 
     //paint head in different color
-    ctx.fillStyle = "blue";
-    ctx.fillRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
-    ctx.strokeRect(array[array.length-1].x*snakeSize, array[array.length-1].y*snakeSize, snakeSize, snakeSize);
+    ctx.fillStyle = snake_color.head;
+    ctx.fillRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
+    ctx.strokeRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
 
     //paint the food
     if(count_steps%2 == 0){
-        ctx.strokeStyle = "lightgreen";
+        ctx.strokeStyle = food.color.border;
     }
-    ctx.fillStyle = "green";
+    ctx.fillStyle = food.color.fill;
     ctx.fillRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
     ctx.strokeRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
+
+    // //paint the bonus
+    if(bonus.on_map){
+        if(count_steps%2 == 0){
+            ctx.strokeStyle = bonus.color.border;
+        }
+        ctx.fillStyle = bonus.color.fill;
+        ctx.fillRect(bonus.x*snakeSize, bonus.y*snakeSize, snakeSize, snakeSize);
+        ctx.strokeRect(bonus.x*snakeSize, bonus.y*snakeSize, snakeSize, snakeSize);
+    }
 
     if(score > high_score && (count_steps % 8 < 4 )){
         document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
     }else{
         document.getElementById("high_score").innerHTML = "";
-        }
+    }
     //if the snake has eaten the food
     if(onSnake(food.x, food.y)){
         array.push({x:array[array.length-1].x, y:array[array.length-1].y})
         throwFood();
         score++;
         document.getElementById("score").innerHTML = score;
+        if(!reverse){
+            head++;
+        }
+    }
+
+    //if the snake has eaten the bonus
+    if(onSnake(bonus.x, bonus.y) && bonus.on_map){
+        console.log("***CANGING DIRECTION!")
+        change_direction();
+        reverse = !reverse;
+        bonus.on_map = false;
     }
 }
 
@@ -239,6 +340,7 @@ function getRandomInt(min, max) {
 }
 
 
+//console print
 function printSnake(snake){
     console.log("PRINTING SNAKE!");
     let str = "";
@@ -248,3 +350,43 @@ function printSnake(snake){
     console.log(str);
 
 }
+
+//speed escalated every time a food is eaten, to a point.
+function escalate_speed(){
+    if(currentSpeed > 70){
+        currentSpeed-=1;
+    }
+}
+
+
+//For the bonus
+function change_direction(){
+    head = (head == 0 ? snake.length-1 : 0);
+    let temp = {};
+    Object.assign(snake[snake.length-1-head], temp);
+    Object.assign(snake[head], snake[snake.length-1-head]);
+    Object.assign(temp, snake[head]);
+    
+    console.log("head changed to: " + head);
+    switch(currDirection){
+        case 'right':
+            currDirection = 'left';
+            direction_flag = 'left';
+            break;
+        case 'left':
+            currDirection = 'right';
+            direction_flag = 'right';
+            break;
+        case 'up':
+            currDirection = 'down';
+            direction_flag = 'down';
+            break;
+        case 'down':
+            currDirection = 'up';
+            direction_flag = 'up';
+            break;
+        }
+}
+
+
+
