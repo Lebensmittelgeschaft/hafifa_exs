@@ -34,6 +34,20 @@ var food = {
     }
 };
 
+var portals = {
+    p1:{
+        color:"orange",
+        x: -1,
+        y: -1
+    },
+    p2:{
+        color:"purple",
+        x: -1,
+        y: -1
+    },
+    on_map:false
+};
+
 var tail = {
     location:0,
     direction:'left'
@@ -56,6 +70,7 @@ var head;
 
 //The main function which runs everything
 function init(){    
+    //console.log("Three randoms: " + Math.random()  + " " + Math.random() +  " "+ Math.random()  + " ");
     gameArea.start();
     snake = mySnake();
     init_keyboard();
@@ -161,8 +176,13 @@ function throwFood(){
             clearInterval(gameloop);
             gameloop = setInterval(function (){step()}, currentSpeed);
             //every 5 foods, a bonus is distributed
-            if(score%2 == 0 && !bonus.on_map){
-                throw_bonus();
+            // if(score%2 == 0 && !bonus.on_map){
+            //     throw_bonus();
+            // }
+
+            //every 3 foods, open portal
+            if(score%5 == 0){
+                throw_portals();
             }
             return;
         }
@@ -185,6 +205,30 @@ function throw_bonus(){
     }
 }
 
+
+
+function throw_portals(){
+     while(true){
+        let x1 = getRandomInt(5, canvas_width-5);
+        let y1 = getRandomInt(5, canvas_height-5);
+        let x2 = getRandomInt(5, canvas_width-5);
+        let y2 = getRandomInt(5, canvas_height-5);
+        console.log("portals at: " + x1 + "," + y1 + "<>" + x2 + "," + y2);
+        if((empty_cell(x1,y1)) && (empty_cell(x2,y2))){
+            //put bonus
+            portals.p1.x = x1;
+            portals.p1.y = y1;
+            portals.p2.x = x2;
+            portals.p2.y = y2;
+            portals.on_map = true;
+            console.log("*****portals at: " + x1 + "," + y1 + "<>" + x2 + "," + y2);
+            return;
+        }else{
+            console.log("BAD PORTALS! " + x1 + "," + y1 + "<>" + x2 + "," + y2); 
+        }
+    }   
+}
+
 //checks if a point on the board is located on the snake.
 function onSnake(x, y){
     for(let i = 0 ; i < snake.length ; i++){
@@ -198,7 +242,7 @@ function onSnake(x, y){
 
 //checks if a point on the board is located on the snake body (without the head).
 function onSnakeBody(x,y){
-    if(head == snake.length-1){
+    if(!reverse){
         for(let i = 0 ; i < head ; i++){
             if(snake[i].x == x && snake[i].y == y)
                 {
@@ -253,8 +297,7 @@ function fillBoard(array){
 
         console.log("DEAD!! (" + array[head].x + "," + array[head].y + ")");
         ctx.fillStyle = "red";
-        ctx.fillRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
-        ctx.strokeRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
+        paint_cell(ctx, array[head].x, array[head].y);
         gameloop = clearInterval(gameloop);
         if(score > high_score){
             high_score = score;
@@ -265,13 +308,11 @@ function fillBoard(array){
     //paint snake body
     if(head == 0){
         for(let i = array.length-1 ; i > 0 ; i--){
-            ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
-            ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+            paint_cell(ctx, array[i].x, array[i].y);
         }
     }else{
         for(let i = 0 ; i < array.length-1 ; i++){
-            ctx.fillRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
-            ctx.strokeRect(array[i].x*snakeSize, array[i].y*snakeSize, snakeSize, snakeSize);
+            paint_cell(ctx, array[i].x, array[i].y);
         }
     }
 
@@ -285,27 +326,33 @@ function fillBoard(array){
 
     //paint head in different color
     ctx.fillStyle = snake_color.head;
-    ctx.fillRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
-    ctx.strokeRect(array[head].x*snakeSize, array[head].y*snakeSize, snakeSize, snakeSize);
+    paint_cell(ctx, array[head].x, array[head].y);
 
     //paint the food
     if(count_steps%2 == 0){
         ctx.strokeStyle = food.color.border;
     }
     ctx.fillStyle = food.color.fill;
-    ctx.fillRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
-    ctx.strokeRect(food.x*snakeSize, food.y*snakeSize, snakeSize, snakeSize);
+    paint_cell(ctx, food.x, food.y);
 
-    // //paint the bonus
+    //paint the bonus
     if(bonus.on_map){
         if(count_steps%2 == 0){
             ctx.strokeStyle = bonus.color.border;
         }
         ctx.fillStyle = bonus.color.fill;
-        ctx.fillRect(bonus.x*snakeSize, bonus.y*snakeSize, snakeSize, snakeSize);
-        ctx.strokeRect(bonus.x*snakeSize, bonus.y*snakeSize, snakeSize, snakeSize);
+        paint_cell(ctx, bonus.x, bonus.y);
     }
 
+    //print portals
+    if(portals.on_map){
+        ctx.fillStyle = portals.p1.color;
+        paint_cell(ctx, portals.p1.x, portals.p1.y);    
+        ctx.fillStyle = portals.p2.color;
+        paint_cell(ctx, portals.p2.x, portals.p2.y);   
+    }
+
+    //check a new high score
     if(score > high_score && (count_steps % 8 < 4 )){
         document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
     }else{
@@ -329,6 +376,16 @@ function fillBoard(array){
         reverse = !reverse;
         bonus.on_map = false;
     }
+
+    //if the snake has entered a portal
+    if(snake[head].x == portals.p1.x && snake[head].y == portals.p1.y){
+        snake[head].x = portals.p2.x;
+        snake[head].y = portals.p2.y;
+    }else if(snake[head].x == portals.p2.x && snake[head].y == portals.p2.y){
+        snake[head].x = portals.p1.x;
+        snake[head].y = portals.p1.y;
+    }
+
 }
 
 
@@ -388,5 +445,16 @@ function change_direction(){
         }
 }
 
+function paint_cell(ctx, x, y){
+            ctx.fillRect(x*snakeSize, y*snakeSize, snakeSize, snakeSize);
+            ctx.strokeRect(x*snakeSize, y*snakeSize, snakeSize, snakeSize);
+}
 
 
+function empty_cell(x, y){
+    if(!(x = food.x && y == food.y) && !(x == bonus.x && y == bonus.y) && (!onSnake(x,y))){
+        return true;
+    }
+
+    return false;
+}
