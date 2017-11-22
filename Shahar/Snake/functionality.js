@@ -5,13 +5,37 @@ var snake;
 var gameloop;
 var direction_flag;
 
-var canvas_height= 40;
-var canvas_width= 50;
+var canvas_height= 30;
+var canvas_width= 40;
 var score = 0;
 var high_score = 2;
 var game_running = false;
 var count_steps = 0;
 var currentSpeed = 100;
+
+
+/* When the user clicks on the button, 
+toggle between hiding and showing the dropdown content */
+function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
+
 
 var reverse = false;
 
@@ -23,6 +47,26 @@ var blue_snake = {
 var yellow_snake = {
     head:"orange",
     body:"yellow"
+}
+
+var green_snake = {
+    head:"green",
+    body:"lightgreen"
+}
+
+function change_color(clr){
+    switch(clr){
+        case 'blue':
+            snake_color = blue_snake;
+            break;
+        case 'orange':
+            snake_color = yellow_snake;
+            break;
+        case 'green':
+            snake_color = green_snake;
+            break;
+    }
+        init();
 }
 
 var food = {
@@ -58,7 +102,7 @@ var bonus = {
     y: -1,
     // x: (canvas_width/2)-4,
     // y: (canvas_height/2)-4,
-    on_map : true,
+    on_map : false,
     color : {
         fill:"red",
         border:"orange"
@@ -71,6 +115,9 @@ var head;
 //The main function which runs everything
 function init(){    
     //console.log("Three randoms: " + Math.random()  + " " + Math.random() +  " "+ Math.random()  + " ");
+    if(game_running){
+        return;
+    }
     gameArea.start();
     snake = mySnake();
     init_keyboard();
@@ -116,6 +163,15 @@ function init_keyboard(){
                 if(direction_flag != 'up')
                 currDirection = 'down';
                 break;
+            case 49: // Down
+                change_color('blue')
+                break;
+            case 50: // Down
+                change_color('orange')
+                break;
+            case 51: // Down
+                change_color('green')
+                break;
         }
     }, false);
 }
@@ -129,7 +185,7 @@ var gameArea = {
         this.canvas.width = canvas_width*snakeSize;
         this.canvas.height = canvas_height*snakeSize;
         this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[4]);
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     }
 }
 
@@ -329,9 +385,7 @@ function fillBoard(array){
     paint_cell(ctx, array[head].x, array[head].y);
 
     //paint the food
-    if(count_steps%2 == 0){
-        ctx.strokeStyle = food.color.border;
-    }
+    ctx.strokeStyle = "lightgreen";
     ctx.fillStyle = food.color.fill;
     paint_cell(ctx, food.x, food.y);
 
@@ -344,7 +398,13 @@ function fillBoard(array){
         paint_cell(ctx, bonus.x, bonus.y);
     }
 
+    
     //print portals
+    if(count_steps%2 == 0){
+        ctx.strokeStyle = food.color.border;
+    }else{
+        ctx.strokeStyle = "orange";
+    }
     if(portals.on_map){
         ctx.fillStyle = portals.p1.color;
         paint_cell(ctx, portals.p1.x, portals.p1.y);    
@@ -356,7 +416,7 @@ function fillBoard(array){
     if(score > high_score && (count_steps % 8 < 4 )){
         document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
     }else{
-        document.getElementById("high_score").innerHTML = "";
+        document.getElementById("high_score").innerHTML = " ";
     }
     //if the snake has eaten the food
     if(onSnake(food.x, food.y)){
