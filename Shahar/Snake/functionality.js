@@ -1,17 +1,22 @@
 
+
+//© All rights reserved to Shahar Yair, under Sapir unit.
+//Mentors: J&A
+//PortalSnake game in js 
+
 var snakeSize = 10;
 var currDirection;
 var snake;
 var gameloop;
 var direction_flag;
 
-var canvas_height= 30;
-var canvas_width= 40;
+var canvas_height= 50;
+var canvas_width= 60;
 var score = 0;
 var high_score = 2;
 var game_running = false;
 var count_steps = 0;
-var currentSpeed = 100;
+var currentSpeed = 95;
 
 
 /* When the user clicks on the button, 
@@ -119,6 +124,7 @@ function init(){
         return;
     }
     gameArea.start();
+    gameArea.canvas.setAttribute('style', "position: absolute;  left: 50%;margin-left:-400px; top: 50%;margin-top:-250px; border:2px solid black");
     snake = mySnake();
     init_keyboard();
     head = init_length-1;
@@ -237,7 +243,7 @@ function throwFood(){
             // }
 
             //every 3 foods, open portal
-            if(score%5 == 0){
+            if(score%3 == 0){
                 throw_portals();
             }
             return;
