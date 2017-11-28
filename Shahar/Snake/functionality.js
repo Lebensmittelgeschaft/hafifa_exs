@@ -15,8 +15,8 @@ var score = 0;
 
 var game_running = false;
 var count_steps = 0;
-var startingSpeed = 40;
-var minSpeed = 30;
+var startingSpeed = 60;
+var minSpeed = 44;
 var currentSpeed;
 var super_counter = 0;
 var high_score_announcer = 30;
@@ -519,6 +519,10 @@ function empty_cell(x, y){
     return false;
 }
 
+
+
+
+//The AI of the snake!
 function AI(){
     //if the food is on my right
     if(snake[head].x < food.x){
