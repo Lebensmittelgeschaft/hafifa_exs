@@ -1,5 +1,3 @@
-
-
 //© All rights reserved to Shahar Yair, under Sapir unit.
 //Mentors: J&A
 //PortalSnake game in js 
@@ -10,14 +8,16 @@ var snake;
 var gameloop;
 var direction_flag;
 
-var canvas_height= 50;
-var canvas_width= 60;
+var canvas_height= 30;
+var canvas_width= 50;
 var score = 0;
 // var high_score = 2;
 
 var game_running = false;
 var count_steps = 0;
-var currentSpeed = 95;
+var startingSpeed = 40;
+var minSpeed = 30;
+var currentSpeed;
 var super_counter = 0;
 var high_score_announcer = 30;
 var color_change = 15;
@@ -52,8 +52,6 @@ var super_food = {
         second: "#ff0000"   //red
     }
 }
-
-var reverse = false;
 
 var blue_snake = {
     head:"blue",
@@ -123,17 +121,6 @@ var tail = {
     direction:'left'
 }
 
-var bonus = {
-    x: -1,
-    y: -1,
-    // x: (canvas_width/2)-4,
-    // y: (canvas_height/2)-4,
-    on_map : false,
-    color : {
-        fill:"red",
-        border:"orange"
-    }
-}
 var snake_color = yellow_snake;
 var init_length = 6;
 var head;
@@ -163,7 +150,7 @@ function start_game(){
     if (!localStorage.high_score) {
         localStorage.high_score = 1;
     }
-    currentSpeed = 95;
+    currentSpeed = startingSpeed;
     high_score_announcer = 30;
     gameloop = setInterval(function (){step()}, currentSpeed);
 }
@@ -172,7 +159,7 @@ function start_game(){
 function init_keyboard(){
     window.addEventListener('keydown', function(event) {
         switch (event.keyCode) {
-            case 13:
+            case 13:    //enter
                 if(game_running == false){
                     init();
                     start_game();
@@ -195,6 +182,7 @@ function init_keyboard(){
                 if(direction_flag != 'up')
                 currDirection = 'down';
                 break;
+            //functionality of changing colors on the go
             // case 49: // 1
             //     change_color('blue')
             //     break;
@@ -228,7 +216,7 @@ var gameArea = {
 //Every step starts here. we check the direction of the snake and 
 //move it in this direction.
 function step(){
-
+    AI();
     //console.log("currDirection: " + currDirection);
     updateSnake(snake);
     if(currDirection == 'right'){
@@ -266,7 +254,6 @@ function throwFood(){
         throw_portals();
     }
     if(super_counter <= 0 && (getRandomInt(0, 11)%2 == 0)){
-        console.log("THROWING SUPER!");
         throw_super();
         super_counter = 50;
         super_food.on_map = true;
@@ -285,16 +272,6 @@ function get_random_empty_point(){
     }
 }
 
-//creates bonus at a random place
-function throw_bonus(){
-    let point = get_random_empty_point();
-    //put bonus
-    bonus.x = point.x;
-    bonus.y = point.y;
-    bonus.on_map = true;
-    console.log("bonus at: " + food.x + "," + food.y);
-    return;
-}
 
 function throw_portals(){
     let point1 = get_random_empty_point();
@@ -312,7 +289,6 @@ function throw_super(){
     let point = get_random_empty_point();
     super_food.x = point.x;
     super_food.y = point.y;
-    console.log("SUPER: " + super_food.x + "." + super_food.y);
 }
 
 //checks if a point on the board is located on the snake.
@@ -328,21 +304,11 @@ function onSnake(x, y){
 
 //checks if a point on the board is located on the snake body (without the head).
 function onSnakeBody(x,y){
-    if(!reverse){
-        for(let i = 0 ; i < head ; i++){
-            if(snake[i].x == x && snake[i].y == y)
-                {
-                    return true;
-                }
-        }
-    }
-    else{
-        for(let i = head ; i > 0; i--){
-            if(snake[i].x == x && snake[i].y == y)
-                {
-                    return true;
-                }
-        }
+    for(let i = 0 ; i < head ; i++){
+        if(snake[i].x == x && snake[i].y == y)
+            {
+                return true;
+            }
     }
     return false;
 
@@ -382,7 +348,12 @@ function fillBoard(array){
        || onSnakeBody(array[head].x, array[head].y)){
 
         console.log("DEAD!! (" + array[head].x + "," + array[head].y + ")");
-        ctx.fillStyle = "red";
+        if(snake_color == red_snake){
+            ctx.fillStyle = "purple"
+        }else{
+            ctx.fillStyle = "red";
+        }
+
         paint_cell(ctx, array[head].x, array[head].y);
         gameloop = clearInterval(gameloop);
         if(score > localStorage.high_score){
@@ -390,6 +361,7 @@ function fillBoard(array){
             console.log("HIGH SCORE: " + localStorage.high_score);
         }
         game_running = false;
+        printSnake(array);
     }
 
     //snake changes color by score!
@@ -431,14 +403,6 @@ function fillBoard(array){
     ctx.fillStyle = food.color.fill;
     paint_cell(ctx, food.x, food.y);
 
-    //paint the bonus
-    if(bonus.on_map){
-        if(count_steps%2 == 0){
-            ctx.strokeStyle = bonus.color.border;
-        }
-        ctx.fillStyle = bonus.color.fill;
-        paint_cell(ctx, bonus.x, bonus.y);
-    }
 
     
     //print portals
@@ -487,9 +451,7 @@ function fillBoard(array){
         throwFood();
         score++;
         document.getElementById("score").innerHTML = score;
-        if(!reverse){
-            head++;
-        }
+        head++;
     }
 
     if(onSnake(super_food.x, super_food.y) && super_food.on_map){
@@ -498,21 +460,11 @@ function fillBoard(array){
         }
         score+=3;
         
-        currentSpeed = ((currentSpeed < 73) ? 70 : currentSpeed-3);
+        currentSpeed = ((currentSpeed < minSpeed) ? minSpeed : currentSpeed-3);
         document.getElementById("score").innerHTML = score;
-        if(!reverse){
-            head+=3;
-        }
+        head+=3;
         super_counter = 0;
         super_food.on_map = false;
-    }
-
-    //if the snake has eaten the bonus
-    if(onSnake(bonus.x, bonus.y) && bonus.on_map){
-        console.log("***CANGING DIRECTION!")
-        change_direction();
-        reverse = !reverse;
-        bonus.on_map = false;
     }
 
     //if the snake has entered a portal
@@ -548,39 +500,9 @@ function printSnake(snake){
 
 //speed escalated every time a food is eaten, to a point.
 function escalate_speed(){
-    if(currentSpeed > 70){
+    if(currentSpeed > minSpeed){
         currentSpeed-=2;
     }
-}
-
-
-//For the bonus
-function change_direction(){
-    head = (head == 0 ? snake.length-1 : 0);
-    let temp = {};
-    Object.assign(snake[snake.length-1-head], temp);
-    Object.assign(snake[head], snake[snake.length-1-head]);
-    Object.assign(temp, snake[head]);
-    
-    console.log("head changed to: " + head);
-    switch(currDirection){
-        case 'right':
-            currDirection = 'left';
-            direction_flag = 'left';
-            break;
-        case 'left':
-            currDirection = 'right';
-            direction_flag = 'right';
-            break;
-        case 'up':
-            currDirection = 'down';
-            direction_flag = 'down';
-            break;
-        case 'down':
-            currDirection = 'up';
-            direction_flag = 'up';
-            break;
-        }
 }
 
 function paint_cell(ctx, x, y){
@@ -590,10 +512,119 @@ function paint_cell(ctx, x, y){
 
 
 function empty_cell(x, y){
-    if(!(x = food.x && y == food.y) && !(x == bonus.x && y == bonus.y) && (!onSnake(x,y))){
+    if(!(x = food.x && y == food.y) && noOpsticle(x,y)){
         return true;
     }
 
     return false;
 }
 
+function AI(){
+    //if the food is on my right
+    if(snake[head].x < food.x){
+        //if my current direction is left then I can't just change it to right
+        if(currDirection == 'left'){
+            //check if the cell above is empty for changing direction
+            if(noOpsticle(snake[head].x,snake[head].y-1)){
+                console.log("RIGHT going ^");
+                currDirection = 'up';
+                return;
+            }else{
+                console.log("RIGHT going v");
+                currDirection = 'down';
+                return;
+            }
+        }
+        //if the cell on my right is empty then go right
+        else if(noOpsticle(snake[head].x+1,snake[head].y)){
+            console.log("RIGHT going >    " + (snake[head].x+1) + "," + snake[head].y);
+            currDirection = 'right';
+        }else{
+            console.log("RIGHT going vv    " + (snake[head].x) + "," + snake[head].y+1);
+            currDirection = 'down';  
+            return;          
+        }
+    //else if the food is on my left
+    }else if(snake[head].x > food.x){
+        //if my current direction is right then I can't just change it to left
+        if(currDirection == 'right'){
+            //check if the cell above is empty for changing direction
+            if(noOpsticle(snake[head].x,snake[head].y-1)){
+                console.log("LEFT going ^");
+                currDirection = 'up';
+                return;
+            }else if(noOpsticle(snake[head].x,snake[head].y+1)){
+                console.log("LEFT going v");
+                currDirection = 'down';
+                return;
+            }else{
+                console.log("LEFT going >>");
+                currDirection = 'right';
+                return;
+            }
+        }else if(noOpsticle(snake[head].x-1,snake[head].y)){
+            console.log("LEFT going <");
+            currDirection = 'left';
+            return;
+        }else if(noOpsticle(snake[head].x,snake[head].y-1)){
+            console.log("LEFT going ^^");
+            currDirection = 'up';
+            return;            
+        }
+    //if the food is above me
+    }else if(snake[head].y > food.y){
+        //if my current direction is down then I can't just change it to up
+        if(currDirection == 'down'){
+            //check if the cell on the right is empty for changing direction
+            if(noOpsticle(snake[head].x+1,snake[head].y)){
+                console.log("UP going >");
+                currDirection = 'right';
+                return;
+            }else{
+                console.log("UP going <");
+                currDirection = 'left';
+                return;
+            }
+        }else if(noOpsticle(snake[head].x,snake[head].y-1)){
+            console.log("UP going ^");
+            currDirection = 'up';
+            return;
+        }
+        else{
+            console.log("UP going >>    " + (snake[head].x) + "," + snake[head].y-1);
+            currDirection = 'right';            
+        }       
+    }
+    //the food has to be below
+    else if(snake[head].y < food.y){
+        //if my current direction is up then I can't just change it to down
+        if(currDirection == 'up'){
+            //check if the cell on the left is empty for changing direction
+            if(noOpsticle(snake[head].x-1,snake[head].y)){
+                console.log("DOWN going <");
+                currDirection = 'left';
+                return;
+            }else{
+                console.log("DOWN going >");
+                currDirection = 'right';
+                return;
+            }
+        }else if(noOpsticle(snake[head].x,snake[head].y+1)){
+            console.log("DOWN going v" + (snake[head].x+1) + "," + snake[head].y);
+            currDirection = 'down';
+            return;
+        }              
+    }else{
+        console.log("IMPOSSIBLE!!");
+    }
+
+}
+
+
+function noOpsticle(x,y){
+    if((!onSnake(x,y)) && (x >= 0 && x <= canvas_width) && (y >= 0 && y <= canvas_height)){
+        return true;
+    }
+
+    return false;
+}
