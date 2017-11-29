@@ -1,0 +1,73 @@
+
+body {
+    background-color: black;
+    color: white;
+    text-shadow: -2px 0 grey, 0 1px grey, 1px 0 grey, 0 -1px grey;
+    text-align: center;
+}
+
+h1 {
+    font-size: 400%;
+     color: white;
+}
+
+canvas {
+    width: 750px;
+    height: 450px;
+    background-color: black;
+    border: 5px solid black;
+    /*margin: 5vw 40vh;*/
+    text-align: center;
+}
+
+
+.live {
+    width : 30px;
+    height : 30px;
+}
+
+#lives {
+    margin: 1vw 0vh;
+    
+}
+
+#pannel {
+    font-size: 150%;
+    color: white;
+    margin: 5vw 55vh;
+    width: 40%;
+}
+
+#gameOver {
+    font-size: 300%;
+    text-align: center;
+    display: none;
+}
+
+#winner {
+    font-size: 300%;
+    text-align: center;
+    display: none;
+}
+
+#winMessage {
+    width: 30%;
+    height: 20%;
+}
+
+#pause {
+    margin: 2vw 0vh;
+    color: white;
+    text-shadow: -2px 0 red, 0 1px red, 1px 0 red, 0 -1px red;
+    font-size: 500%;
+    display: none;
+}
+
+#livesDiv, #data, #scoreDiv {
+    float: left;
+    width: 33%;
+}
+
+#confetti {
+    display: none;
+}

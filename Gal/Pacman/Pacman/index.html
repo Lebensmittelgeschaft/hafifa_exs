@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Pacman</title>
+    <link href="pacman.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onload="startGame()">
+    <div>
+        <h1> My Pacman </h1>
+    </div>
+    <div id="gameOver">
+        <img src="images/GameOver.gif"> 
+        <label id="finalScore"></label>
+    </div>
+    <label id="pause">Pause</label>
+    <div id="pannel">
+        <label>Lives:</label>
+        <div id="lives" class="a">
+            <img src="images/pacman.png" class="live">
+            <img src="images/pacman.png" class="live">
+            <img src="images/pacman.png" class="live">
+        </div>
+        <label id="score">score: </label>
+        <!--div id="score" class="a"></div-->
+        <div id="enemyNumber"></div>
+        <div id="level"></div>
+    </div>
+    <script src="new.js"></script>
+</body>
+
+</html>
