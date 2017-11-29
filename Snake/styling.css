@@ -1,0 +1,13 @@
+/* © All rights reserved to Shahar Yair, under Sapir unit.
+Mentors: J&A
+PortalSnake game in js   */
+
+#high_score{
+    color: red;
+}
+
+
+html { 
+  background: url(background.jpg) no-repeat center center fixed; 
+
+}
