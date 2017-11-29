@@ -1,13 +1,19 @@
 
 var isValued = false;
-var intArray;
+var input = "";
+var intArray = [];
 
 while(!isValued) {
-    intArray = prompt("Please insert an array of integer numbers (Split by ',')").split(",");
-    if(intArray == null) {
+    input = prompt("Please insert an array of integer numbers (Split by ',')");
+    
+    if(input == null) {
         alert("Good bye (-:");
-        window.close();   
-    }
+        window.close();
+        
+        break;
+    } 
+    
+    intArray = input.split(",")
 
     if(intArray == "") {
         alert("Please enter at least one integer number: ");
@@ -33,7 +39,7 @@ while(!isValued) {
             isValued = true;
         }
     }
+    
+    [intArray[0], intArray[intArray.length - 1]] = [intArray[intArray.length - 1], intArray[0]]
+    alert("The array after the swap is: " + intArray);
 }
-
-[intArray[0], intArray[intArray.length - 1]] = [intArray[intArray.length - 1], intArray[0]]
-alert("The array after the swap is: " + intArray);
