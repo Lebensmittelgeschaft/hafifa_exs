@@ -56,45 +56,45 @@ var super_food = {
     first: "#ff3232",   //bright red
     second: "#ff0000"   //red
   }
-}
+};
 
-var blue_snake = {
+const BLUE_SNAKE = {
   head: "blue",
   body: "lightblue"
-}
+};
 
-var yellow_snake = {
+const YELLOW_SNAKE = {
   head: "orange",
   body: "yellow"
-}
+};
 
-var green_snake = {
+const GREEN_SNAKE = {
   head: "green",
   body: "lightgreen"
-}
+};
 
-var red_snake = {
+const RED_SNAKE = {
   head: "red",
   body: "orange"
+};
+
+const PURPLE_SNAKE = {
+  head: "purple",
+  body: "pink"
+};
+
+const BLACK_SNAKE = {
+  head: "black",
+  body: "grey"  
+};
+
+const SNAKE_COLOR_ARRAY = [YELLOW_SNAKE, GREEN_SNAKE, BLUE_SNAKE, RED_SNAKE, PURPLE_SNAKE, BLACK_SNAKE];
+
+function get_snake_color(){
+  let index = parseInt((score/(COLOR_CHANGE)),10)%(COLOR_CHANGE*SNAKE_COLOR_ARRAY.length);
+  snake_color = SNAKE_COLOR_ARRAY[index];
 }
 
-function change_color(clr) {
-  switch (clr) {
-    case 'blue':
-      snake_color = blue_snake;
-      break;
-    case 'orange':
-      snake_color = yellow_snake;
-      break;
-    case 'green':
-      snake_color = green_snake;
-      break;
-    case 'red':
-      snake_color = red_snake;
-      break;
-  }
-
-}
 
 var food = {
   x: (CANVAS_WIDTH / 2) - 1,
@@ -119,7 +119,7 @@ var portals = {
   on_map: false
 };
 
-var snake_color = yellow_snake;
+var snake_color = SNAKE_COLOR_ARRAY[0];
 var head;
 
 //The main function which runs everything
@@ -128,7 +128,7 @@ function init() {
     return;
   }
   gameArea.start();
-  gameArea.canvas.setAttribute('style', "position: absolute;  left: 50%;margin-left:-400px; top: 50%;margin-top:-250px; border:2px solid black");
+  gameArea.canvas.setAttribute('style', "position: absolute;  left: 50%;margin-left:-400px; top: 15%; border:2px solid black");
   snake = mySnake();
   init_keyboard();
   head = INIT_LENGTH - 1;
@@ -249,7 +249,7 @@ function get_random_empty_point() {
   while (true) {
     let x = get_random_int(0, CANVAS_WIDTH);
     let y = get_random_int(0, CANVAS_HEIGHT);
-    if (empty_cell(x, y)) {
+    if (is_empty_cell(x, y)) {
       return { x: x, y: y };
     }
   }
@@ -321,39 +321,10 @@ function fillBoard(array) {
   ctx.fillRect(0, 0, 0, 0);
   ctx.strokeRect(0, 0, 0, 0);
 
-
-  //GAME OVER
-  if (array[head].x > CANVAS_WIDTH - 1 || array[head].x < 0 ||
-    array[head].y > CANVAS_HEIGHT - 1 || array[head].y < 0
-    || is_on_snakeBody(array[head].x, array[head].y)) {
-
-    console.log("DEAD!! (" + array[head].x + "," + array[head].y + ")");
-    if (snake_color == red_snake) {
-      ctx.fillStyle = "purple"
-    } else {
-      ctx.fillStyle = "red";
-    }
-
-    paint_cell(ctx, array[head].x, array[head].y);
-    gameLoop = clearInterval(gameLoop);
-    if (score > localStorage.high_score) {
-      localStorage.high_score = score;
-      console.log("HIGH SCORE: " + localStorage.high_score);
-    }
-    game_running = false;
-    print_snake(array);
-  }
+  check_game_over(ctx, array);
 
   //snake changes color by score!
-  if (score <= COLOR_CHANGE) {
-    change_color('orange');
-  } else if (score > COLOR_CHANGE && score <= 2 * COLOR_CHANGE) {
-    change_color('green');
-  } else if (score > 2 * COLOR_CHANGE && score <= 3 * COLOR_CHANGE) {
-    change_color('blue');
-  } else if (score > 3 * COLOR_CHANGE) {
-    change_color('red');
-  }
+  get_snake_color();
 
   //paint snake body
   if (head == 0) {
@@ -365,7 +336,6 @@ function fillBoard(array) {
       paint_cell(ctx, array[i].x, array[i].y);
     }
   }
-
 
   //paint dots on the body
   ctx.fillStyle = snake_color.head;
@@ -382,8 +352,6 @@ function fillBoard(array) {
   ctx.strokeStyle = "lightgreen";
   ctx.fillStyle = food.color.fill;
   paint_cell(ctx, food.x, food.y);
-
-
 
   //print portals
   if (count_steps % 2 == 0) {
@@ -416,47 +384,10 @@ function fillBoard(array) {
   }
 
   //check a new high score
-  if (high_score_announcer > 0) {
-    if (score > localStorage.high_score && (count_steps % 8 < 4)) {
-      document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
-      high_score_announcer--;
-    } else {
-      document.getElementById("high_score").innerHTML = " ";
-    }
+  check_high_score(array);
 
-  } else {
-    document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
-  }
-  //if the snake has eaten the food
-  if (is_on_snake(food.x, food.y)) {
-    array.push({ x: array[array.length - 1].x, y: array[array.length - 1].y })
-    throw_food();
-    score++;
-    document.getElementById("score").innerHTML = score;
-    head++;
-  }
-
-  if (is_on_snake(super_food.x, super_food.y) && super_food.on_map) {
-    for (let i = 0; i < 3; i++) {
-      array.push({ x: array[array.length - 1].x, y: array[array.length - 1].y })
-    }
-    score += 3;
-
-    currentSpeed = ((currentSpeed < MIN_SPEED) ? MIN_SPEED : currentSpeed - 3);
-    document.getElementById("score").innerHTML = score;
-    head += 3;
-    super_counter = 0;
-    super_food.on_map = false;
-  }
-
-  //if the snake has entered a portal
-  if (snake[head].x == portals.p1.x && snake[head].y == portals.p1.y) {
-    snake[head].x = portals.p2.x;
-    snake[head].y = portals.p2.y;
-  } else if (snake[head].x == portals.p2.x && snake[head].y == portals.p2.y) {
-    snake[head].x = portals.p1.x;
-    snake[head].y = portals.p1.y;
-  }
+  //if the snake has eaten something or entered a portal
+  check_special_occurences(array);
 
 }
 
@@ -493,16 +424,13 @@ function paint_cell(ctx, x, y) {
 }
 
 
-function empty_cell(x, y) {
+function is_empty_cell(x, y) {
   if (!(x = food.x && y == food.y) && !is_obsticle(x, y)) {
     return true;
   }
 
   return false;
 }
-
-
-
 
 function is_obsticle(x, y) {
   if ((!is_on_snake(x, y)) && (x >= 0 && x <= CANVAS_WIDTH) && (y >= 0 && y <= CANVAS_HEIGHT)) {
@@ -551,4 +479,75 @@ function check_direction(j) {
 
 function take_over() {
   AI_running = !AI_running;
+}
+
+function check_game_over(ctx, array) {
+  if (array[head].x > CANVAS_WIDTH - 1 || array[head].x < 0 ||
+    array[head].y > CANVAS_HEIGHT - 1 || array[head].y < 0
+    || is_on_snakeBody(array[head].x, array[head].y)) {
+
+    console.log("DEAD!! (" + array[head].x + "," + array[head].y + ")");
+    if (snake_color == RED_SNAKE) {
+      ctx.fillStyle = "purple"
+    } else {
+      ctx.fillStyle = "red";
+    }
+
+    paint_cell(ctx, array[head].x, array[head].y);
+    gameLoop = clearInterval(gameLoop);
+    if (score > localStorage.high_score) {
+      localStorage.high_score = score;
+      console.log("HIGH SCORE: " + localStorage.high_score);
+    }
+    game_running = false;
+    print_snake(array);
+  }
+}
+
+function check_high_score(array){
+  if (high_score_announcer > 0) {
+    if (score > localStorage.high_score && (count_steps % 8 < 4)) {
+      document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
+      high_score_announcer--;
+    } else {
+      document.getElementById("high_score").innerHTML = ". ";
+    }
+  } else {
+    document.getElementById("high_score").innerHTML = "A NEW HIGH SCORE!!";
+  }
+}
+
+
+function check_special_occurences(array){
+  //if the snake has eaten the food
+  if (is_on_snake(food.x, food.y)) {
+    array.push({ x: array[array.length - 1].x, y: array[array.length - 1].y })
+    throw_food();
+    score++;
+    document.getElementById("score").innerHTML = score;
+    head++;
+  }
+
+  //if the snake has eaten the super food
+  if (is_on_snake(super_food.x, super_food.y) && super_food.on_map) {
+    for (let i = 0; i < 3; i++) {
+      array.push({ x: array[array.length - 1].x, y: array[array.length - 1].y })
+    }
+    score += 3;
+    currentSpeed = ((currentSpeed < MIN_SPEED) ? MIN_SPEED : currentSpeed - 3);
+    document.getElementById("score").innerHTML = score;
+    head += 3;
+    super_counter = 0;
+    super_food.on_map = false;
+  }
+
+  //if the snake has entered a portal
+  if (snake[head].x == portals.p1.x && snake[head].y == portals.p1.y) {
+    snake[head].x = portals.p2.x;
+    snake[head].y = portals.p2.y;
+  } else if (snake[head].x == portals.p2.x && snake[head].y == portals.p2.y) {
+    snake[head].x = portals.p1.x;
+    snake[head].y = portals.p1.y;
+  }
+
 }
