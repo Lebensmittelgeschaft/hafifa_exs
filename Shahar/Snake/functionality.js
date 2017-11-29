@@ -11,6 +11,30 @@ const COLOR_CHANGE = 15;
 const INIT_LENGTH = 6;
 const OFF_CANVAS = -1;
 
+const RIGHT = {
+  name: 'right',
+  RL: 1,
+  UD: 0
+};
+const LEFT = {
+  name: 'left',
+  RL: -1,
+  UD: 0
+};
+const UP = {
+  name: 'up',
+  RL: 0,
+  UD: -1
+};
+const DOWN = {
+  name: 'down',
+  RL: 0,
+  UD: 1
+};
+
+const directions_array = [RIGHT, UP, LEFT, DOWN];
+
+
 var curr_direction;
 var snake;
 var gameLoop;
@@ -95,11 +119,6 @@ var portals = {
   on_map: false
 };
 
-var tail = {
-  location: 0,
-  direction: 'left'
-}
-
 var snake_color = yellow_snake;
 var head;
 
@@ -113,8 +132,8 @@ function init() {
   snake = mySnake();
   init_keyboard();
   head = INIT_LENGTH - 1;
-  curr_direction = 'right';
-  direction_flag = 'right';
+  curr_direction = RIGHT.name;
+  direction_flag = RIGHT.name;
   score = 0;
   document.getElementById("score").innerHTML = score;
   document.getElementById("high_score").innerHTML = " ";
@@ -144,20 +163,20 @@ function init_keyboard() {
         }
         break;
       case 37: // Left
-        if (direction_flag != 'right')
-          curr_direction = 'left';
+        if (direction_flag != RIGHT.name)
+          curr_direction = LEFT.name;
         break;
       case 38: // Up
-        if (direction_flag != 'down')
-          curr_direction = 'up';
+        if (direction_flag != DOWN.name)
+          curr_direction = UP.name;
         break;
       case 39: // Right
-        if (direction_flag != 'left')
-          curr_direction = 'right';
+        if (direction_flag != LEFT.name)
+          curr_direction = RIGHT.name;
         break;
       case 40: // Down
-        if (direction_flag != 'up')
-          curr_direction = 'down';
+        if (direction_flag != UP.name)
+          curr_direction = DOWN.name;
         break;
     }
   }, false);
@@ -183,21 +202,21 @@ function step() {
     run_AI();
   }
   update_snake(snake);
-  if (curr_direction == 'right') {
+  if (curr_direction == RIGHT.name) {
     snake[snake.length - 1].x++;
-    direction_flag = 'right';
+    direction_flag = RIGHT.name;
   }
-  if (curr_direction == 'down') {
+  if (curr_direction == DOWN.name) {
     snake[snake.length - 1].y++;
-    direction_flag = 'down';
+    direction_flag = DOWN.name;
   }
-  if (curr_direction == 'left') {
+  if (curr_direction == LEFT.name) {
     snake[snake.length - 1].x--;
-    direction_flag = 'left';
+    direction_flag = LEFT.name;
   }
-  if (curr_direction == 'up') {
+  if (curr_direction == UP.name) {
     snake[snake.length - 1].y--;
-    direction_flag = 'up';
+    direction_flag = UP.name;
   }
   fillBoard(snake);
   count_steps++;
@@ -392,7 +411,7 @@ function fillBoard(array) {
       super_food.on_map = false;
     }
   }
-  if(count_steps % 500 == 0){
+  if (count_steps % 500 == 0) {
     throw_portals();
   }
 
@@ -485,118 +504,6 @@ function empty_cell(x, y) {
 
 
 
-//The AI of the snake!
-//its really dumb and not really an AI, just a lot of conditions to to avoid being overly stupid.
-function run_AI() {
-  //if the food is on my right
-  if (snake[head].x < food.x) {
-    //if my current direction is left then I can't just change it to right
-    if (curr_direction == 'left') {
-      //check if the cell above is empty for changing direction
-      if (!is_obsticle(snake[head].x, snake[head].y - 1)) {
-        console.log("RIGHT going ^");
-        curr_direction = 'up';
-        return;
-      } else {
-        console.log("RIGHT going v");
-        curr_direction = 'down';
-        return;
-      }
-    }
-    //if the cell on my right is empty then go right
-    else if (!is_obsticle(snake[head].x + 1, snake[head].y)) {
-      console.log("RIGHT going >    " + (snake[head].x + 1) + "," + snake[head].y);
-      curr_direction = 'right';
-    } else if(!is_obsticle(snake[head].x, snake[head].y+1)){
-      console.log("RIGHT going vv    " + (snake[head].x) + "," + snake[head].y + 1);
-      curr_direction = 'down';
-      return;
-    } else{
-      console.log("RIGHT going <<    " + (snake[head].x-1) + "," + snake[head].y);
-      curr_direction = 'left';
-      return;
-    }
-    //else if the food is on my left
-  } else if (snake[head].x > food.x) {
-    //if my current direction is right then I can't just change it to left
-    if (curr_direction == 'right') {
-      //check if the cell above is empty for changing direction
-      if (!is_obsticle(snake[head].x, snake[head].y - 1)) {
-        console.log("LEFT going ^");
-        curr_direction = 'up';
-        return;
-      } else if (!is_obsticle(snake[head].x, snake[head].y + 1)) {
-        console.log("LEFT going v");
-        curr_direction = 'down';
-        return;
-      } else {
-        console.log("LEFT going >>");
-        curr_direction = 'right';
-        return;
-      }
-    } else if (!is_obsticle(snake[head].x - 1, snake[head].y)) {
-      console.log("LEFT going <");
-      curr_direction = 'left';
-      return;
-    } else if (!is_obsticle(snake[head].x, snake[head].y - 1)) {
-      console.log("LEFT going ^^");
-      curr_direction = 'up';
-      return;
-    }
-    //if the food is above me
-  } else if (snake[head].y > food.y) {
-    //if my current direction is down then I can't just change it to up
-    if (curr_direction == 'down') {
-      //check if the cell on the right is empty for changing direction
-      if (!is_obsticle(snake[head].x + 1, snake[head].y)) {
-        console.log("UP going >");
-        curr_direction = 'right';
-        return;
-      } else {
-        console.log("UP going <");
-        curr_direction = 'left';
-        return;
-      }
-    } else if (!is_obsticle(snake[head].x, snake[head].y - 1)) {
-      console.log("UP going ^");
-      curr_direction = 'up';
-      return;
-    }
-    else if(curr_direction != 'left'){
-      console.log("UP going >>    " + (snake[head].x) + "," + (snake[head].y - 1));
-      curr_direction = 'right';
-    }
-  }
-  //the food has to be below
-  else if (snake[head].y < food.y) {
-    //if my current direction is up then I can't just change it to down
-    if (curr_direction == 'up') {
-      //check if the cell on the left is empty for changing direction
-      if (!is_obsticle(snake[head].x - 1, snake[head].y)) {
-        console.log("DOWN going <");
-        curr_direction = 'left';
-        return;
-      } else {
-        console.log("DOWN going >");
-        curr_direction = 'right';
-        return;
-      }
-    } else if (!is_obsticle(snake[head].x, snake[head].y + 1)) {
-      console.log("DOWN going v" + (snake[head].x + 1) + "," + snake[head].y);
-      curr_direction = 'down';
-      return;
-    }
-    else{
-      curr_direction = 'left';
-      return; 
-    }
-  } else {
-    console.log("IMPOSSIBLE!!");
-  }
-
-}
-
-
 function is_obsticle(x, y) {
   if ((!is_on_snake(x, y)) && (x >= 0 && x <= CANVAS_WIDTH) && (y >= 0 && y <= CANVAS_HEIGHT)) {
     return false;
@@ -605,8 +512,43 @@ function is_obsticle(x, y) {
   return true;
 }
 
+//The AI of the snake!
+//its really dumb and not really an AI, just a lot of conditions to to avoid being overly stupid.
+function run_AI() {
+  //food is on my right
+  if (snake[head].x < food.x) {
+    check_direction(0);
+  }
+  //food is above me
+  else if (snake[head].y > food.y) {
+    check_direction(1);
+  }
+  //food is on my left
+  else if (snake[head].x > food.x) {
+    check_direction(2);
+  }
+  //food is below me
+  else if (snake[head].y < food.y) {
+    check_direction(3);
+  } else {
+    console.log("IMPOSSIBLE!");
+  }
+}
 
+function check_direction(j) {
+  for (let i = 0; i < 4; i++) {
+    //console.log(directions_array[(i + j) % 4].RL + "," + directions_array[(i + j) % 4].UD);
+    if (!is_obsticle(snake[head].x + directions_array[(i + j) % 4].RL, snake[head].y + directions_array[(i + j) % 4].UD)
+      && curr_direction != directions_array[(i + j + 2) % 4]) {
+      curr_direction = directions_array[(i + j) % 4].name;
+      //console.log(directions_array[(i + j) % 4].name);
+      return;
+    }
+  }
+  console.log("STUCK!");
+  return;
+}
 
-function takeOver() {
+function take_over() {
   AI_running = !AI_running;
 }
