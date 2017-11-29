@@ -21,6 +21,7 @@ var currentSpeed;
 var super_counter = 0;
 var high_score_announcer = 30;
 var color_change = 15;
+var AI_running = false;
 
 
 /* When the user clicks on the button, 
@@ -208,7 +209,7 @@ var gameArea = {
         this.canvas.width = canvas_width*snakeSize;
         this.canvas.height = canvas_height*snakeSize;
         this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        document.body.insertBefore(this.canvas, document.body.childNodes[3]);
     }
 }
 
@@ -216,7 +217,9 @@ var gameArea = {
 //Every step starts here. we check the direction of the snake and 
 //move it in this direction.
 function step(){
-    AI();
+    if(AI_running){
+        AI();
+    }
     //console.log("currDirection: " + currDirection);
     updateSnake(snake);
     if(currDirection == 'right'){
@@ -631,4 +634,10 @@ function noOpsticle(x,y){
     }
 
     return false;
+}
+
+
+
+function takeOver(){
+     AI_running = !AI_running;
 }
