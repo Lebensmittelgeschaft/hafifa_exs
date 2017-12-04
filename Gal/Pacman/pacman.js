@@ -571,7 +571,7 @@ function enemyCollision() {
 }
 
 
-//------------------------------Creating Elements--------------------------------
+//------------------------------Creating Elements-------------------------------
 
 
 // This function create obsacles according to the input.
@@ -721,7 +721,7 @@ function createFood() {
 }
 
 
-//------------------------------Lives--------------------------------
+//------------------------------Lives-------------------------------------------
 
 
 // This function try to find an empty area to give the user option to get a new life.
@@ -772,7 +772,7 @@ function restartLives(length) {
 }
 
 
-//------------------------------Movement--------------------------------
+//------------------------------Movement----------------------------------------
 
 
 // This function update the movement of the given comp by it's key.
@@ -912,7 +912,7 @@ function moveEnemy(enemy) {
 }
 
 
-//------------------------------Updates--------------------------------
+//------------------------------Updates-----------------------------------------
 
 
 // This function updtae the score on the board.
