@@ -34,7 +34,7 @@ const pacmanLeft = "images/pacman-left.png";
 const enemyBonus = "images/bonus.png";
 const REGULAR = "Regular";
 const SIZE = 10;
-const TIME = 300; 
+const TIME = 300;
 const FRAMES = 20;
 const LEFT = 37;
 const UP = 38;
@@ -117,6 +117,9 @@ function addKeyListener() {
         if (e.keyCode === ENTER) { // start over the game after enter key is pressed.
             if (gameover) {
                 gameover = false;
+                document.body.style.backgroundImage = "";
+                document.getElementById("winner").style.display = "none";
+                document.getElementById("finalScoreWinner").style.display = "none";
                 document.getElementById("gameOver").style.display = "none";
                 document.getElementById("pannel").style.display = "block";
                 document.getElementById("finalScore").style.display = "none";
@@ -325,8 +328,8 @@ function winGame() {
 
 // This function checked if the user win the game or not.
 function checkWinGame() {
-    if (foodList.length === 0) {
-        //if (foodList.length < 300) {
+    //if (foodList.length === 0) {
+        if (foodList.length < 300) {
         winGame();
     }
     // check for case the foodList contain only heart.
