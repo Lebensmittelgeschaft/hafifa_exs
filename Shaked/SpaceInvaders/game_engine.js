@@ -68,7 +68,7 @@ class AlienShip extends Ship {
 class Game {
     
     static menu() {
-        
+
     }
 
     static initializeBoard() {
@@ -83,3 +83,4 @@ class Game {
 
     }
 }
+
