@@ -4,7 +4,7 @@ if(input == null) {
     alert("Good bye (-:");
     window.close();
 } else {
-    while(new RegExp(/^[^a-zA-Z]/).test(input) || input =="") {
+    while(new RegExp(/^[^a-zA-Z\s]/).test(input)) {
         alert("Invalid value");
         input = prompt("Please enter a string that start with an english letter");
     }
