@@ -10,8 +10,12 @@ let CONFIG = {
     "GAME_TITLE_FONT": "30px Arial",
     "GAME_TEXT_FONT": "16px Arial",
     "GAME_FONT_COLOR": "white",
+    "WIN_FONT_COLOR": "gold",
+    "LOSE_FONT_COLOR": "red",
+    "GAME_TEXT_WIN": "YOU WIN!",
+    "GAME_TEXT_LOSE": "YOU LOSE :(",
     "GAME_FONT_POSITION": "center",
-    "GAME_NAME": "Space Invaders",
+    "GAME_NAME": "Space Invaders",    
     "SPACESHIP_IMAGE": "./images/spaceship.png",
     "SPACESHIP_HEIGHT": 40,
     "SPACESHIP_WIDTH": 50,
@@ -25,8 +29,9 @@ let CONFIG = {
     "ALIENS_ROW": 5,
     "ALIENS_MOVEMENT": {
         'X': 20,
-        'Y': -20
+        'Y': 20
     },
+    "ALIENS_SPEED": 40,
     get ALIEN_START_POS_X() { return this.GAME_WIDTH / 6 },
     get ALIEN_START_POS_Y() { return this.GAME_HEIGHT / 10 },
     "KEY_ENTER": 13,
@@ -40,10 +45,10 @@ let CONFIG = {
 }
 
 let GAME_STATUS = {
-    "MENU": 0,
-    "START": 1,
-    "PLAY": 2,
-    "END": 3
+    "MENU": 0,    
+    "PLAY": 1,
+    "WIN": 2,
+    "LOSE": 3
 }
 
 let DIR_VEC = {
@@ -115,6 +120,7 @@ class Game {
 
         this.status = GAME_STATUS.MENU;
         this.aliens = new Array(CONFIG.ALIENS_COUNT);
+        this.aliens_speed = CONFIG.ALIENS_SPEED;
         this.tick_count = 0;
         this.player = undefined;        
         this.aliens_movement = {
@@ -168,10 +174,9 @@ class Game {
     /*
      * Sets the game status to MENU and shows the menu of the game
      */
-    menu() {
-        this.status = GAME_STATUS.MENU;
+    menu() {        
         this.cleanBoard();
-
+        this.status = GAME_STATUS.MENU;
         this.game_context.font = CONFIG.GAME_TITLE_FONT;
         this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
         this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
@@ -263,16 +268,20 @@ class Game {
     gameLoop() {
 
         // Stops the game loop interval
-        if (this.status == GAME_STATUS.END) {
+        if (this.status == GAME_STATUS.WIN || this.status == GAME_STATUS.LOSE) {
             clearInterval(this.gameLoopInterval);
             // Show end game
+            this.endGame();
+            return;
         }
 
         // Update movement tick count for the aliens
         this.tick_count++;        
         // Update aliens positions if they need to move
-        if (this.tick_count % 10 == 0) {
+        if (this.tick_count % this.aliens_speed == 0) {
             this.updateAliens();
+            this.tick_count = 0;
+            this.checkEndGame();
         }
 
         this.cleanBoard();
@@ -287,11 +296,43 @@ class Game {
 
     }
 
+    checkEndGame() {
+
+        // Find the bottom alien that still alive
+        let bottom_alien_index = undefined;
+
+        for (let index = this.aliens.length - 1; index >= 0 && !bottom_alien_index; index--) {
+            if (this.aliens[index].alive) {
+                bottom_alien_index = index;
+            }
+        }
+
+        if (!bottom_alien_index) {
+            this.status = GAME_STATUS.WIN;
+        } else if (this.aliens[bottom_alien_index].location.y + CONFIG.ALIENSHIP_HEIGHT / 2 >= this.player.location.y) {
+            this.status = GAME_STATUS.LOSE;           
+        }
+
+        
+    }    
+
+    endGame() {     
+
+        let [font_color, text_endgame] = (this.status == GAME_STATUS.WIN ? 
+                                        [CONFIG.WIN_FONT_COLOR , CONFIG.GAME_TEXT_WIN] : [CONFIG.LOSE_FONT_COLOR, CONFIG.GAME_TEXT_LOSE]);
+        this.menu();        
+        this.game_context.font = CONFIG.GAME_TITLE_FONT;        
+        this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
+        this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
+        this.game_context.fillStyle = font_color;
+        this.game_context.fillText(text_endgame, CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 + 40);
+    }
+
     static isValidLocation(location) {
-        return ((location.x <= CONFIG.GAME_WIDTH ||
-            location.x >= CONFIG.GAME_WIDTH) &&
-            (location.y <= CONFIG.GAME_HEIGHT ||
-                location.y >= CONFIG > GAME_HEIGHT));
+        return ((location.x < CONFIG.GAME_WIDTH &&
+                 location.x >= 0) &&
+                (location.y < CONFIG.GAME_HEIGHT &&
+                 location.y >= 0));
     }
 }
 
