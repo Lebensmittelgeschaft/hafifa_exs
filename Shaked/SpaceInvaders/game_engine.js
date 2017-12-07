@@ -19,7 +19,7 @@ let CONFIG = {
     "SPACESHIP_IMAGE": "./images/spaceship.png",
     "SPACESHIP_HEIGHT": 40,
     "SPACESHIP_WIDTH": 50,
-    "SPACESHIP_SPEED": 20,
+    "SPACESHIP_SPEED": 10,
     "BULLET_HEIGHT": 10,
     "BULLET_WIDTH": 5,
     "BULLET_MOVEMENT": 20,    
@@ -166,29 +166,13 @@ class Game {
             "x": CONFIG.ALIENS_MOVEMENT.X,
             "y": CONFIG.ALIENS_MOVEMENT.Y
         }
-        this.gameLoopInterval = undefined;        
+        this.gameLoopInterval = undefined;
+        this.keys_down = {};        
         window.addEventListener("keydown", (event) => {
             let key_pressed = event.keyCode;
+            this.keys_down[key_pressed] = true;
 
-            switch (key_pressed) {
-                case (CONFIG.KEY_SPACE):
-                    if (this.status != GAME_STATUS.PAUSE) {
-                        // Perform shooting
-                        this.player.shoot();
-                    }
-                    break;
-                case (CONFIG.KEY_RIGHT):
-                    if (this.status != GAME_STATUS.PAUSE) {
-                        this.player.direction = CONFIG.RIGHT_DIR;
-                        this.player.update();
-                    }
-                    break;
-                case (CONFIG.KEY_LEFT):
-                    if (this.status != GAME_STATUS.PAUSE) {
-                        this.player.direction = CONFIG.LEFT_DIR;
-                        this.player.update();
-                    }
-                    break;
+            switch (key_pressed) {           
 
                 case (CONFIG.KEY_ENTER):
                     if (this.status == GAME_STATUS.MENU) {
@@ -210,6 +194,10 @@ class Game {
                 default:
                     break;
             }
+        });
+
+        window.addEventListener("keyup", (event) => {
+            this.keys_down[event.keyCode] = false;
         });
     }
 
@@ -293,6 +281,21 @@ class Game {
         };
     }
 
+    updateKeyInput() {
+
+        if (this.keys_down[CONFIG.KEY_SPACE]) {
+            this.player.shoot();
+        }
+        if (this.keys_down[CONFIG.KEY_RIGHT]) {
+            this.player.direction = CONFIG.RIGHT_DIR;
+            this.player.update();
+        }
+        if (this.keys_down[CONFIG.KEY_LEFT]) {
+            this.player.direction = CONFIG.LEFT_DIR;
+            this.player.update();
+        }
+    }
+
     updateGame() {
 
         // Check for all collisions and delete the collision   
@@ -367,7 +370,7 @@ class Game {
 
         if (this.status != GAME_STATUS.PAUSE) {
             this.cleanBoard();
-
+            this.updateKeyInput();
             this.updateGame();
 
             // Update movement tick count for the aliens
