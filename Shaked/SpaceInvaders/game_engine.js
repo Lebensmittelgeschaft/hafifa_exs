@@ -20,6 +20,9 @@ let CONFIG = {
     "SPACESHIP_HEIGHT": 40,
     "SPACESHIP_WIDTH": 50,
     "SPACESHIP_SPEED": 20,
+    "BULLET_HEIGHT": 10,
+    "BULLET_WIDTH": 5,
+    "BULLET_MOVEMENT": 20,    
     get PLAYER_START_POS_X() { return this.GAME_WIDTH / 2 },
     get PLAYER_START_POS_Y() { return this.GAME_HEIGHT - (this.GAME_HEIGHT / 6) },
     "ALIENSHIP_IMAGE": "./images/alienship.png",
@@ -65,7 +68,7 @@ class Point {
     }
 }
 
-/* Represent ship in the game */
+/* Represent element in the game */
 class Ship {
 
     constructor(image, width, height, location) {
@@ -90,10 +93,28 @@ class SpaceShip extends Ship {
         this.health = health;
         this.speed = CONFIG.SPACESHIP_SPEED;
         this.direction = 1;
+        this.bullets = [];
+        this.bullets_max_size = 1;
     }
 
     update() {
         this.location.x += this.speed * this.direction;
+    }
+
+    updateBullets() {
+        for (let index = 0; index < this.bullets.length; index++) {
+            if (this.bullets[index].location.y < 0) {
+                this.bullets.splice(index, 1);
+            } else {
+                this.bullets[index].location.y -= CONFIG.BULLET_MOVEMENT;
+            }            
+        }
+    }
+
+    shoot() {
+        if (this.bullets.length != this.bullets_max_size) {
+            this.bullets.push(new Bullet(CONFIG.BULLET_WIDTH, CONFIG.BULLET_HEIGHT, new Point(this.location.x + this.width / 2, this.location.y)));
+        }
     }
 }
 
@@ -104,9 +125,18 @@ class AlienShip extends Ship {
         super(image, width, height, location, moveX, moveY);
         this.alive = true;
     }
+}
 
+class Bullet {
+    constructor(width, height, location) {        
+        this.width = width;
+        this.height = height;
+        this.location = location;
+    }
 
-
+    draw(canvas_context) {
+        canvas_context.fillRect(this.location.x, this.location.y, this.width, this.height);
+    }
 }
 
 class Game {
@@ -134,7 +164,7 @@ class Game {
             switch (key_pressed) {
                 case (CONFIG.KEY_SPACE):
                     // Perform shooting
-
+                    this.player.shoot();
                     break;
                 case (CONFIG.KEY_RIGHT):
                     this.player.direction = CONFIG.RIGHT_DIR;
@@ -153,6 +183,8 @@ class Game {
                         this.gameLoopInterval = setInterval(() => {this.gameLoop();}, 1000/CONFIG.GAME_FPS);
                     }
                     break;
+                
+                /* TODO - Add pause option */
 
                 default:
                     break;
@@ -229,7 +261,7 @@ class Game {
     updateGame() {
 
         // Check for all collisions and delete the collision   
-
+        this.player.updateBullets();
         // Draw all aliens
         
         for (let index = 0; index < this.aliens.length; index++) {
@@ -238,9 +270,14 @@ class Game {
                 //console.log(this.aliens[index].location);
             }
         }
+        // Draw player's bullets
+        
+        for (let index = 0; index < this.player.bullets.length; index++) {
+            this.player.bullets[index].draw(this.game_context);
+        }       
 
         // Draw player
-        this.player.draw(this.game_context);
+        this.player.draw(this.game_context);       
     }
 
     updateAliens() {
@@ -326,6 +363,9 @@ class Game {
         this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
         this.game_context.fillStyle = font_color;
         this.game_context.fillText(text_endgame, CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 + 40);
+        
+        // Return font_color to the previous one
+        this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
     }
 
     static isValidLocation(location) {
