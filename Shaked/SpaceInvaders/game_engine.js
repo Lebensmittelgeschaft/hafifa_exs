@@ -100,7 +100,14 @@ class SpaceShip extends Ship {
     }
 
     update() {
-        this.location.x += this.speed * this.direction;
+        let test_location = new Point(this.location.x + this.speed * this.direction, this.location.y);        
+        if (this.direction == CONFIG.RIGHT_DIR) {
+            test_location.x += this.width / 2;
+        }
+        
+        if (Game.isValidLocation(test_location)) {
+            this.location.x += this.speed * this.direction;
+        }
     }
 
     updateBullets() {
