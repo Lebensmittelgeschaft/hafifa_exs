@@ -38,6 +38,7 @@ let CONFIG = {
     get ALIEN_START_POS_X() { return this.GAME_WIDTH / 6 },
     get ALIEN_START_POS_Y() { return this.GAME_HEIGHT / 10 },
     "KEY_ENTER": 13,
+    "KEY_ESC": 27,
     "KEY_SPACE": 32,
     "KEY_LEFT": 37,
     "KEY_UP": 38,
@@ -50,8 +51,9 @@ let CONFIG = {
 let GAME_STATUS = {
     "MENU": 0,    
     "PLAY": 1,
-    "WIN": 2,
-    "LOSE": 3
+    "PAUSE": 2,
+    "WIN": 3,
+    "LOSE": 4
 }
 
 let DIR_VEC = {
@@ -163,16 +165,22 @@ class Game {
 
             switch (key_pressed) {
                 case (CONFIG.KEY_SPACE):
-                    // Perform shooting
-                    this.player.shoot();
+                    if (this.status != GAME_STATUS.PAUSE) {
+                        // Perform shooting
+                        this.player.shoot();
+                    }
                     break;
                 case (CONFIG.KEY_RIGHT):
-                    this.player.direction = CONFIG.RIGHT_DIR;
-                    this.player.update();
+                    if (this.status != GAME_STATUS.PAUSE) {
+                        this.player.direction = CONFIG.RIGHT_DIR;
+                        this.player.update();
+                    }
                     break;
                 case (CONFIG.KEY_LEFT):
-                    this.player.direction = CONFIG.LEFT_DIR;
-                    this.player.update();
+                    if (this.status != GAME_STATUS.PAUSE) {
+                        this.player.direction = CONFIG.LEFT_DIR;
+                        this.player.update();
+                    }
                     break;
 
                 case (CONFIG.KEY_ENTER):
@@ -181,9 +189,15 @@ class Game {
                         this.tick_count = 0;
                         this.gameStart();
                         this.gameLoopInterval = setInterval(() => {this.gameLoop();}, 1000/CONFIG.GAME_FPS);
+                    } else if (this.status == GAME_STATUS.PAUSE) {
+                        this.status = GAME_STATUS.PLAY;
                     }
                     break;
                 
+                case (CONFIG.KEY_ESC):
+                    if (this.status == GAME_STATUS.PLAY) {
+                        this.pause();
+                    }
                 /* TODO - Add pause option */
 
                 default:
@@ -215,7 +229,19 @@ class Game {
         this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
         this.game_context.fillText(CONFIG.GAME_NAME, CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 - 40);
         this.game_context.font = CONFIG.GAME_TEXT_FONT;
-        this.game_context.fillText("Press 'Enter' to start.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);
+        this.game_context.fillText("Press 'Enter' to start.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);        
+    }
+
+    pause() {
+        this.cleanBoard();
+        this.status = GAME_STATUS.PAUSE;
+        this.game_context.font = CONFIG.GAME_TITLE_FONT;
+        this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
+        this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
+        this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
+        this.game_context.fillText(CONFIG.GAME_NAME + " Paused", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 - 40);
+        this.game_context.font = CONFIG.GAME_TEXT_FONT;
+        this.game_context.fillText("Press 'Enter' to unpause.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);        
     }
 
     /**
@@ -332,17 +358,19 @@ class Game {
             return;
         }       
 
-        this.cleanBoard();
+        if (this.status != GAME_STATUS.PAUSE) {
+            this.cleanBoard();
 
-        this.updateGame();
+            this.updateGame();
 
-        // Update movement tick count for the aliens
-        this.tick_count++;        
-        // Update aliens positions if they need to move
-        if (this.tick_count % this.aliens_speed == 0) {
-            this.updateAliens();
-            this.tick_count = 0;
-            this.checkEndGame();
+            // Update movement tick count for the aliens
+            this.tick_count++;        
+            // Update aliens positions if they need to move
+            if (this.tick_count % this.aliens_speed == 0) {
+                this.updateAliens();
+                this.tick_count = 0;
+                this.checkEndGame();
+            }
         }
     }
 
