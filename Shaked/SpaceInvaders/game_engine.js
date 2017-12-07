@@ -231,6 +231,8 @@ class Game {
      */
     initializeObjects() {
 
+        this.aliens_movement.x = CONFIG.ALIENS_MOVEMENT.X;
+
         let alien_current_location = new Point(CONFIG.ALIEN_START_POS_X, CONFIG.ALIEN_START_POS_Y);
         let player_start_location = new Point(CONFIG.PLAYER_START_POS_X, CONFIG.PLAYER_START_POS_Y);
 
@@ -328,7 +330,11 @@ class Game {
             // Show end game
             this.endGame();
             return;
-        }
+        }       
+
+        this.cleanBoard();
+
+        this.updateGame();
 
         // Update movement tick count for the aliens
         this.tick_count++;        
@@ -338,31 +344,21 @@ class Game {
             this.tick_count = 0;
             this.checkEndGame();
         }
-
-        this.cleanBoard();
-
-        this.updateGame();
-
-        if (this.status == GAME_STATUS.PLAY) {
-            // requestAnimationFrame(() => {
-            //     this.gameLoop();
-            // });
-        }
-
     }
 
     checkEndGame() {
 
         // Find the bottom alien that still alive
         let bottom_alien_index = undefined;
-
+        let aliens_alive = 0;
         for (let index = this.aliens.length - 1; index >= 0 && !bottom_alien_index; index--) {
             if (this.aliens[index].alive) {
                 bottom_alien_index = index;
+                aliens_alive += 1;
             }
         }
 
-        if (!bottom_alien_index) {
+        if (!aliens_alive) {
             this.status = GAME_STATUS.WIN;
         } else if (this.aliens[bottom_alien_index].location.y + CONFIG.ALIENSHIP_HEIGHT / 2 >= this.player.location.y) {
             this.status = GAME_STATUS.LOSE;           
