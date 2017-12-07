@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="main.js" type="text/javascript"></script>
+        <style>
+            input[type="text"] {
+                width: 30%;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="width: 400px">
+            <label>1st Number: </label>
+            <input type="text" id="num1"><br/>
+            <label>2nd Number: </label>
+            <input type="text" id="num2"><br/>
+            <input type="button" id="mul" value="Multiply" onclick="mul((+document.getElementById('num1').value),
+                                                                        (+document.getElementById('num2').value))">
+            <input type="button" id="div" value="Divide" onclick="div((+document.getElementById('num1').value),
+                                                                      (+document.getElementById('num2').value))">
+            <input type="button" id="add" value="Add" onclick="add((+document.getElementById('num1').value),
+                                                                   (+document.getElementById('num2').value))">
+            <input type="button" id="sub" value="Subtract" onclick="sub((+document.getElementById('num1').value),
+                                                                        (+document.getElementById('num2').value))">
+            <br/><br/>
+            <a>The result is:<br/></a>
+            <a id="result"></a>
+        </div>
+    </body>
+</html>

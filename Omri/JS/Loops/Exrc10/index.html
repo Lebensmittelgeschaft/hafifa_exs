@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="main.js" type="text/javascript"></script>
+        <style>
+            input[type="text"] {
+                width: 30%;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="width: 400px">
+            <label>Enter Your Diamond's Height: </label>
+            <input type="text" id="height"><br/>
+            <input type="button" value="Draw a Diamond" onclick="diamond(+document.getElementById('height').value)">
+            <br/><br/>
+            <a>The result is:<br/></a>
+            <a id="result"></a>
+        </div>
+    </body>
+</html>

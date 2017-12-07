@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="main.js" type="text/javascript"></script>
+        <style>
+            input[type="text"] {
+                width: 30%;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="width: 400px">
+            <label>String: </label>
+            <input type="text" id="string"><br/>
+            <input type="button" value="Find first not repeated character" onclick="find(document.getElementById('string').value)">
+            <br/><br/>
+            <a>The result is:<br/></a>
+            <a id="result"></a>
+        </div>
+    </body>
+</html>

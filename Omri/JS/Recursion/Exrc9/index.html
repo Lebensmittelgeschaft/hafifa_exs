@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="main.js" type="text/javascript"></script>
+        <style>
+            input[type="text"] {
+                width: 30%;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="width: 400px">
+            <label>Enter your array seperate the elements with ',': </label>
+            <input type="text" id="array"><br/>
+            <input type="button" value="Sort the Array" onclick="sort(document.getElementById('array').value.split(','))">
+            <br/><br/>
+            <a>The result is:<br/></a>
+            <a id="result"></a>
+        </div>
+    </body>
+</html>
