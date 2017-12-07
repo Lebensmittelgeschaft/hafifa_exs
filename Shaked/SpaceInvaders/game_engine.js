@@ -262,6 +262,7 @@ class Game {
 
         // Check for all collisions and delete the collision   
         this.player.updateBullets();
+        this.updateBulletsCollisions();
         // Draw all aliens
         
         for (let index = 0; index < this.aliens.length; index++) {
@@ -302,6 +303,23 @@ class Game {
         }
     }
 
+    updateBulletsCollisions() {
+
+        for (let index = 0; index < this.player.bullets.length; index++) {            
+            for (let alien_index = this.aliens.length - 1; alien_index >= 0; alien_index--) {
+                if (this.aliens[alien_index].alive && 
+                    (this.player.bullets[index].location.x <= this.aliens[alien_index].location.x + this.aliens[alien_index].width &&
+                     this.player.bullets[index].location.x >= this.aliens[alien_index].location.x) &&
+                    (this.player.bullets[index].location.y <= this.aliens[alien_index].location.y + this.aliens[alien_index].height &&
+                     this.player.bullets[index].location.y >= this.aliens[alien_index].location.y)) {
+                    this.aliens[alien_index].alive = false;
+                    this.player.bullets.splice(index, 1);
+                    break;
+                }
+            }
+        }
+
+    }
     gameLoop() {
 
         // Stops the game loop interval
