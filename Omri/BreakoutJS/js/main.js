@@ -60,9 +60,7 @@ class Circle {
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#' + (+this.color.split('#')[1] * 0.5) << 0;
-        ctx.stroke();
+        //ctx.stroke();
     }
 }
 
