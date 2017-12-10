@@ -48,6 +48,7 @@ const LEVELS = [LEVEL1];
 var paddle;
 var ball;
 
+// This class represents a drawable circle.
 class Circle {
     constructor(x, y, radius, color) {
         this.x = x;
@@ -60,10 +61,10 @@ class Circle {
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
         ctx.fillStyle = this.color;
         ctx.fill();
-        //ctx.stroke();
     }
 }
 
+// This class represents a drawable, collidable and moving ball.
 class Ball extends Circle {
     constructor(x, y, radius, color, speed) {
         super(x, y, radius, color);
@@ -152,6 +153,7 @@ class Buff {
     }
 }
 
+// This class represents a drawable rectangle.
 class Rectangle {
     constructor(x, y, width, height, color) {
         this.x = x;
@@ -167,6 +169,7 @@ class Rectangle {
     }
 }
 
+// This class represents the game's paddle which hits the ball and is moved by the player.
 class Paddle extends Rectangle {
     constructor(x, y, width, height, color, speed) {
         super(x, y, width, height, color);
@@ -179,9 +182,13 @@ class Paddle extends Rectangle {
             this.x += this.dir * this.speed;
         }
     }
+
+    setDir(dir) {
+        this.dir = dir;
+    }
 }
 
-
+// This class represents a brick in the level with a buff which is applied when being hit.
 class Brick extends Rectangle {
     constructor(x, y, width, height, color, buff) {
         super(x, y, width, height, color);
@@ -189,6 +196,7 @@ class Brick extends Rectangle {
     }
 }
 
+// This class represents a level in the game, it includes the name of the level and the bricks board in it.
 class Level {
     constructor(level, width, height) {
         this.width = width;
@@ -227,6 +235,7 @@ class Level {
     }
 }
 
+// This class represents a game instance, it's doing the drawing and updating of the game's state.
 class Game {
     constructor(displayWidth, displayHeight, ctx, levels) {
         this.displayWidth = displayWidth;
@@ -235,7 +244,7 @@ class Game {
         this.levels = levels;
         this.setLevel(0);
         this.state = GAME_PAUSED;
-        paddle.dir = 0;
+        paddle.setDir(0);
         document.onkeydown = this.keyPresses;
         document.onkeyup = this.keyReleases;
         ctx.canvas.width = CANVAS_WIDTH;
@@ -269,13 +278,13 @@ class Game {
         e = e || window.event;
         switch (e.keyCode) {
             case 37: { // Left arrow.
-                paddle.dir = PADDLE_DIR_LEFT;
+                paddle.setDir(PADDLE_DIR_LEFT);
 
                 break;
             }
 
             case 39: { // Right arrow.
-                paddle.dir = PADDLE_DIR_RIGHT;
+                paddle.setDir(PADDLE_DIR_RIGHT);
 
                 break;
             }
@@ -293,7 +302,7 @@ class Game {
         switch (e.keyCode) {
             case 37:
             case 39: {
-                paddle.dir = 0;
+                paddle.setDir(0);
 
                 break;
             }
@@ -336,6 +345,7 @@ class Game {
     }
 }
 
+// Loads all levels, the paddle and ball and initializes the game.
 function startGame() {
     let levels = [];
     for (let i = 0; i < LEVELS.length; i++) {
