@@ -6,39 +6,41 @@ const FRAMES_PER_SECOND = 60;
 const GAME_PAUSED = 0;
 const GAME_PLAYING = 1;
 const GAME_OVER = 2;
-const BRICKS_OFFSET_X = 10;
-const BRICKS_OFFSET_Y = 20;
+const BRICKS_IN_ROW = 20;
+const BRICKS_OFFSET_X = 20;
+const BRICKS_OFFSET_Y = 30;
 const BRICKS_BOARD_WIDTH = CANVAS_WIDTH - BRICKS_OFFSET_X;
 const BRICKS_BOARD_HEIGHT = CANVAS_HEIGHT;
-const BRICK_WIDTH = CANVAS_WIDTH / 40;
+const BRICK_WIDTH = CANVAS_WIDTH / BRICKS_IN_ROW;
 const BRICK_HEIGHT = CANVAS_HEIGHT / 50;
 const PADDLE_WIDTH = CANVAS_WIDTH / 15;
 const PADDLE_HEIGHT = CANVAS_HEIGHT / 60;
 const PADDLE_START_X = (CANVAS_WIDTH - PADDLE_WIDTH) / 2;
 const PADDLE_START_Y = CANVAS_HEIGHT * 9.5 / 10;
 const PADDLE_COLOR = "#FFFFFF";
-const PADDLE_SPEED = CANVAS_WIDTH / 80;
+const PADDLE_SPEED = CANVAS_WIDTH / 160;
 const CLEAR_SCREEN_COLOR = "#000000";
 const BUFF_EFFECTS = [{effect: "speed", multiplier: 2, duration: [10, 20, 30]},
                       {effect: "width", multiplier: 2, duration: [10, 30, 40]},
                       {effect: "radius", multiplier: 3, duration: [10, 15, 20]},
                       {effect: "pierce", multiplier: 3, duration: [10, 15, 30]}];
 const PADDLE_BUFFS = [BUFF_EFFECTS[0], BUFF_EFFECTS[1]];
+const RELATIVE_PADDLE_BALL_BOUNCE = 1;
 const BALL_BUFFS = [BUFF_EFFECTS[0], BUFF_EFFECTS[2], BUFF_EFFECTS[3]];
 const BALL_RADIUS = BRICK_HEIGHT / 2;
 const BALL_START_X = (CANVAS_WIDTH - BALL_RADIUS) / 2;
 const BALL_START_Y = (CANVAS_HEIGHT - BALL_RADIUS) / 2;
 const BALL_COLOR = PADDLE_COLOR;
-const BALL_SPEED = 4;
+const BALL_SPEED = {x: 2, y: -4};
 const PADDLE_DIR_LEFT = -1;
 const PADDLE_DIR_RIGHT = 1;
 
 const LEVEL1 = {name: "Rainbow Road", pattern:[{length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
                 {length: 3, space: 1, basecolor: [255, 127, 0], colorshift: [255, 127, 0], hasbuff: true},
-                {length: 2, space: 1, basecolor: [255, 255, 0], colorshift: [255, 255, 0], hasbuff: true},
+                {length: 2, space: 0, basecolor: [255, 255, 0], colorshift: [255, 255, 0], hasbuff: true},
                 {length: 1, space: 0, basecolor: [0, 255, 0], colorshift: [0, 255, 0], hasbuff: false},
-                {length: 4, space: 2, basecolor: [0, 0, 255], colorshift: [0, 0, 255], hasbuff: false},
-                {length: 6, space: 1, basecolor: [75, 0, 130], colorshift: [75, 0, 130], hasbuff: false},
+                {length: 4, space: 1, basecolor: [0, 0, 255], colorshift: [0, 0, 255], hasbuff: false},
+                {length: 6, space: 0, basecolor: [75, 0, 130], colorshift: [75, 0, 130], hasbuff: false},
                 {length: 4, space: 1, basecolor: [148, 0, 211], colorshift: [148, 0, 211], hasbuff: false}]};
 const LEVELS = [LEVEL1];
 
@@ -59,36 +61,37 @@ class Circle {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.lineWidth = 3;
-        ctx.strokeStyle = '#' + (+this.color.split('#')[1] * 0.9) << 0;
+        ctx.strokeStyle = '#' + (+this.color.split('#')[1] * 0.5) << 0;
         ctx.stroke();
     }
 }
 
 class Ball extends Circle {
-    constructor(x, y, radius, color, speed, dir) {
+    constructor(x, y, radius, color, speed) {
         super(x, y, radius, color);
         this.speed = speed;
-        this.dir = dir;
     }
 
     update(paddle, board) {
         let targetHit = null;
 
         // Paddle hit detection.
-        if (this.y >= paddle.y && this.y <= paddle.y + this.speed*this.dir.y) {
-            if (this.x >= paddle.x && this.x <= paddle.x + PADDLE_WIDTH) {
-                this.dir.y = -this.dir.y;
+        if (this.y + this.radius >= paddle.y && this.y + this.radius <= paddle.y + paddle.height) {
+            if (this.x + this.radius >= paddle.x && this.x + this.radius <= paddle.x + paddle.width) {
+                this.speed.y = -this.speed.y;
                 targetHit = paddle;
+                let relLocationHit = (this.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
+                this.speed.x += relLocationHit * RELATIVE_PADDLE_BALL_BOUNCE;
             }
         }
         
         // Wall hit detection.
         if (this.y <= 0) {
-            this.dir.y = -this.dir.y;
+            this.speed.y = -this.speed.y;
         }
 
-        if (this.x <= 0 || this.x >= CANVAS_WIDTH) {
-            this.dir.x = -this.dir.x;
+        if (this.x - this.radius <= 0 || this.x + this.radius >= CANVAS_WIDTH) {
+            this.speed.x = -this.speed.x;
         }
 
         // Bricks hit detection.
@@ -97,14 +100,14 @@ class Ball extends Circle {
                 if (board[i][j]) {
                     if (this.y >= board[i][j].y && this.y <= board[i][j].y + board[i][j].height) { // Hit the brick.
                         if (this.x >= board[i][j].x && this.x <= board[i][j].x + board[i][j].width) {
-                            if ((this.y - this.speed * this.dir.y <= board[i][j].y) ||
-                                (this.y - this.speed * this.dir.y >= board[i][j].y + board[i][j].height)) { // Hit from the top or the bottom of the brick.
-                                this.dir.y = -this.dir.y;
+                            if ((this.y - this.speed.y <= board[i][j].y) ||
+                                (this.y - this.speed.y >= board[i][j].y + board[i][j].height)) { // Hit from the top or the bottom of the brick.
+                                this.speed.y = -this.speed.y;
                             }
 
-                            if ((this.x - this.speed * this.dir.x <= board[i][j].x) ||
-                                (this.x - this.speed * this.dir.x >= board[i][j].x + board[i][j].width)) { // Hit from the left or the right of the brick.
-                                    this.dir.x = -this.dir.x;
+                            if ((this.x - this.speed.x <= board[i][j].x) ||
+                                (this.x - this.speed.x >= board[i][j].x + board[i][j].width)) { // Hit from the left or the right of the brick.
+                                    this.speed.x = -this.speed.x;
                             }
 
                             targetHit = board[i][j];
@@ -116,8 +119,8 @@ class Ball extends Circle {
         }
 
         // Update the ball's location with its speed and direction.
-        this.x += this.speed * this.dir.x;
-        this.y += this.speed * this.dir.y;
+        this.x += this.speed.x;
+        this.y += this.speed.y;
 
         return targetHit;
     }
@@ -142,14 +145,10 @@ class Buff {
         switch (Math.floor(Math.random() * 2)) {
             case 0: { // Paddle buff.
                 return new Buff(paddle, PADDLE_BUFFS[Math.floor(Math.random() * PADDLE_BUFFS.length)]);
-
-                break;
             }
 
             case 1: { // Ball buff.
                 return new Buff(ball, BALL_BUFFS[Math.floor(Math.random() * BALL_BUFFS.length)]);
-
-                break;
             }
         }
     }
@@ -174,12 +173,12 @@ class Paddle extends Rectangle {
     constructor(x, y, width, height, color, speed) {
         super(x, y, width, height, color);
         this.speed = speed;
+        this.dir = 0;
     }
 
-    move(dir) {
-        dir /= Math.abs(dir);
-        if (this.x + dir * this.speed >= 0 && this.x + dir * this.speed <= CANVAS_WIDTH) {
-            this.x += dir * this.speed;
+    move() {
+        if (this.x + this.dir * this.speed >= 0 && this.x + this.dir * this.speed + this.width <= CANVAS_WIDTH) {
+            this.x += this.dir * this.speed;
         }
     }
 }
@@ -238,7 +237,9 @@ class Game {
         this.levels = levels;
         this.setLevel(0);
         this.state = GAME_PAUSED;
+        paddle.dir = 0;
         document.onkeydown = this.keyPresses;
+        document.onkeyup = this.keyReleases;
         ctx.canvas.width = CANVAS_WIDTH;
         ctx.canvas.height = CANVAS_HEIGHT;
     }
@@ -248,7 +249,7 @@ class Game {
     }
 
     setLevel (level) {
-        if (level >=0 && level <= this.levels.length) {
+        if (level >= 0 && level <= this.levels.length) {
             this.currLevel = this.levels[level];
             document.getElementById('lvlname').innerHTML = this.levels[level].name;
         }
@@ -270,19 +271,31 @@ class Game {
         e = e || window.event;
         switch (e.keyCode) {
             case 37: { // Left arrow.
-                paddle.move(PADDLE_DIR_LEFT);
+                paddle.dir = PADDLE_DIR_LEFT;
 
                 break;
             }
 
             case 39: { // Right arrow.
-                paddle.move(PADDLE_DIR_RIGHT);
+                paddle.dir = PADDLE_DIR_RIGHT;
 
                 break;
             }
 
             case 27 : { // Escape key.
                 this.state != this.state;
+
+                break;
+            }
+        }
+    }
+    
+    keyReleases(e) {
+        e = e || window.event;
+        switch (e.keyCode) {
+            case 37:
+            case 39: {
+                paddle.dir = 0;
 
                 break;
             }
@@ -310,6 +323,10 @@ class Game {
     }
 
     update() {
+        if (paddle.dir) {
+            paddle.move();
+        }
+
         let targetHit = ball.update(paddle, this.currLevel.board);
         if (targetHit) {
             if (targetHit instanceof Brick) {
@@ -328,7 +345,7 @@ function startGame() {
     }
     
     paddle = new Paddle(PADDLE_START_X, PADDLE_START_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_COLOR, PADDLE_SPEED);
-    ball = new Ball(BALL_START_X, BALL_START_Y, BALL_RADIUS, BALL_COLOR, BALL_SPEED, {x: Math.random() * 2 - 1, y: Math.random() * 2 - 1});
+    ball = new Ball(BALL_START_X, BALL_START_Y, BALL_RADIUS, BALL_COLOR, BALL_SPEED);
     let game = new Game(CANVAS_WIDTH, CANVAS_HEIGHT, document.getElementById('canvas').getContext('2d'), levels);
     game.init();
 }
