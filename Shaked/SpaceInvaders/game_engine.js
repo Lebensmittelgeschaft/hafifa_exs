@@ -37,6 +37,9 @@ let CONFIG = {
     },
     "ALIENS_SPEED": 40,
     "ALIENS_KILL_SCORE": 50,
+    "ALIENS_MAX_BULLETS": 5,
+    "ALIENS_SHOOT_FREQ": 5,
+    "ALIENS_SHOOT_FREQ_RANGE": 10,
     get ALIEN_START_POS_X() { return this.GAME_WIDTH / 6 },
     get ALIEN_START_POS_Y() { return this.GAME_HEIGHT / 10 },
     "KEY_ENTER": 13,
@@ -117,7 +120,7 @@ class SpaceShip extends Ship {
             if (this.bullets[index].location.y < 0) {
                 this.bullets.splice(index, 1);
             } else {
-                this.bullets[index].location.y -= CONFIG.BULLET_MOVEMENT;
+                this.bullets[index].update( - CONFIG.BULLET_MOVEMENT);
             }            
         }
     }
@@ -148,6 +151,10 @@ class Bullet {
     draw(canvas_context) {
         canvas_context.fillRect(this.location.x, this.location.y, this.width, this.height);
     }
+
+    update(movement_y) {
+        this.location.y += movement_y;
+    }
 }
 
 class Game {
@@ -168,13 +175,19 @@ class Game {
 
         this.status = GAME_STATUS.MENU;
         this.aliens = new Array(CONFIG.ALIENS_COUNT);
+        this.aliens_bullets = [];
+        this.aliens_shoot_freq = CONFIG.ALIENS_SHOOT_FREQ;
+        this.aliens_shoot_freq_range = CONFIG.ALIENS_SHOOT_FREQ_RANGE;
+        this.aliens_max_bullets = CONFIG.ALIENS_MAX_BULLETS;
         this.aliens_speed = CONFIG.ALIENS_SPEED;
-        this.tick_count = 0;
-        this.player = undefined;        
         this.aliens_movement = {
             "x": CONFIG.ALIENS_MOVEMENT.X,
             "y": CONFIG.ALIENS_MOVEMENT.Y
         }
+        this.tick_count = 0;
+
+        this.player = undefined;      
+
         this.gameLoopInterval = undefined;
         this.keys_down = {};        
         window.addEventListener("keydown", (event) => {
@@ -197,8 +210,7 @@ class Game {
                 case (CONFIG.KEY_ESC):
                     if (this.status == GAME_STATUS.PLAY) {
                         this.pause();
-                    }
-                /* TODO - Add pause option */
+                    }                
 
                 default:
                     break;
@@ -246,10 +258,18 @@ class Game {
         this.game_context.fillText(CONFIG.GAME_NAME + " Paused", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 - 40);
         this.game_context.font = CONFIG.GAME_TEXT_FONT;
         this.game_context.fillText("Press 'Enter' to unpause.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);        
+    }    
+
+    /**
+     * Initialize the game board for first play
+     */
+    initializeBoard() {
+        this.cleanBoard();        
+        this.initializeObjects();
+        this.initializeInfo();
     }
 
-    initializeInfo() { 
-        
+    initializeInfo() {         
         let game_info_div = document.getElementById("game-info");
         game_info_div.innerHTML = "";
         
@@ -274,15 +294,6 @@ class Game {
         game_info_div.appendChild(this.game_info.score);
         game_info_div.appendChild(this.game_info.player_lives);
         game_info_div.appendChild(this.game_info.level);
-    }
-
-    /**
-     * Initialize the game board for first play
-     */
-    initializeBoard() {
-        this.cleanBoard();        
-        this.initializeObjects();
-        this.initializeInfo();
     }
 
     /**
@@ -343,19 +354,25 @@ class Game {
         // Check for all collisions and delete the collision   
         this.player.updateBullets();
         this.updateBulletsCollisions();
+        this.updateAliensBullets();
         // Draw all aliens
         
         for (let index = 0; index < this.aliens.length; index++) {
             if (this.aliens[index].alive) {
-                this.aliens[index].draw(this.game_context);
-                //console.log(this.aliens[index].location);
+                this.aliens[index].draw(this.game_context);                
             }
         }
         // Draw player's bullets
         
         for (let index = 0; index < this.player.bullets.length; index++) {
             this.player.bullets[index].draw(this.game_context);
-        }       
+        }
+        
+        // Draw aliens bullets
+
+        for (let index = 0; index < this.aliens_bullets.length; index++) {
+            this.aliens_bullets[index].draw(this.game_context);
+        }
 
         // Draw player
         this.player.draw(this.game_context);       
@@ -370,15 +387,39 @@ class Game {
         }       
         
         let alien_location = new Point(this.aliens[index].location.x, this.aliens[index].location.y);        
-        alien_location.x += this.aliens_movement.x;
+        alien_location.x += this.aliens_movement.x;       
+
+        let dir_move = 'x';
+
         if (!Game.isValidLocation(alien_location)) {
             this.aliens_movement.x *= -1;
-            for (let index = 0; index < this.aliens.length; index++) {
-                this.aliens[index].location.y += this.aliens_movement.y;
+            dir_move = 'y';            
+        }
+
+        for (let index = 0; index < this.aliens.length; index++) {
+            let random_shooter = Math.round(Math.random() * this.aliens_shoot_freq_range);
+            if ((this.aliens[index].alive) && (random_shooter == this.aliens_shoot_freq) && (this.aliens_bullets.length < this.aliens_max_bullets)) {
+                let bullet_location = new Point(this.aliens[index].location.x - this.aliens[index].width / 2, this.aliens[index].location.y);
+                this.aliens_bullets.push(new Bullet(CONFIG.BULLET_WIDTH, CONFIG.BULLET_HEIGHT, bullet_location));
             }
-        } else {
-            for (let index = 0; index < this.aliens.length; index++) {
-                this.aliens[index].location.x += this.aliens_movement.x;
+            this.aliens[index].location[dir_move] += this.aliens_movement[dir_move];
+        }
+    }
+
+    updateAliensBullets() {
+        for (let index = 0; index < this.aliens_bullets.length; index++) {
+            if (this.aliens_bullets[index].location.y > CONFIG.GAME_WIDTH) {
+                this.aliens_bullets.splice(index, 1);
+            } else if ((this.aliens_bullets[index].location.x <= this.player.location.x + this.player.width &&
+                        this.aliens_bullets[index].location.x >= this.player.location.x) &&
+                       (this.aliens_bullets[index].location.y <= this.player.location.y + this.player.height &&
+                        this.aliens_bullets[index].location.y >= this.player.location.y)) {
+
+                // TODO - Add damage to the player and check if the player died for ending the game                
+                
+                this.aliens_bullets.splice(index, 1);                
+            } else {
+                this.aliens_bullets[index].update(CONFIG.BULLET_MOVEMENT);
             }
         }
     }
@@ -400,7 +441,6 @@ class Game {
                 }
             }
         }
-
     }
     gameLoop() {
 
