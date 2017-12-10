@@ -20,6 +20,7 @@ let CONFIG = {
     "SPACESHIP_HEIGHT": 40,
     "SPACESHIP_WIDTH": 50,
     "SPACESHIP_SPEED": 10,
+    "SPACESHIP_HEALTH": 3,
     "BULLET_HEIGHT": 10,
     "BULLET_WIDTH": 5,
     "BULLET_MOVEMENT": 20,    
@@ -35,6 +36,7 @@ let CONFIG = {
         'Y': 20
     },
     "ALIENS_SPEED": 40,
+    "ALIENS_KILL_SCORE": 50,
     get ALIEN_START_POS_X() { return this.GAME_WIDTH / 6 },
     get ALIEN_START_POS_Y() { return this.GAME_HEIGHT / 10 },
     "KEY_ENTER": 13,
@@ -93,7 +95,7 @@ class SpaceShip extends Ship {
     constructor(image, width, height, location, health, speed) {
         super(image, width, height, location);
         this.health = health;
-        this.speed = CONFIG.SPACESHIP_SPEED;
+        this.speed = speed;
         this.direction = 1;
         this.bullets = [];
         this.bullets_max_size = 1;
@@ -156,6 +158,13 @@ class Game {
         this.game_canvas.height = CONFIG.GAME_HEIGHT;
         this.game_canvas.style.backgroundColor = CONFIG.GAME_BACKGROUND_COLOR;
         this.game_context = this.game_canvas.getContext('2d');
+
+        // Will include info about the game - health, level, score
+        this.game_info = {};
+
+        // TODO - Need to implement score and level
+        this.score = 0;
+        this.level = 0;
 
         this.status = GAME_STATUS.MENU;
         this.aliens = new Array(CONFIG.ALIENS_COUNT);
@@ -239,12 +248,41 @@ class Game {
         this.game_context.fillText("Press 'Enter' to unpause.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);        
     }
 
+    initializeInfo() { 
+        
+        let game_info_div = document.getElementById("game-info");
+        game_info_div.innerHTML = "";
+        
+        let player_lives_image = document.createElement("img");
+        player_lives_image.src = CONFIG.SPACESHIP_IMAGE;
+        player_lives_image.height = CONFIG.SPACESHIP_HEIGHT;
+        player_lives_image.width = CONFIG.SPACESHIP_WIDTH;        
+        let lives_text = document.createTextNode("Lives: " + (this.player ? this.player.health : CONFIG.SPACESHIP_HEALTH));        
+
+        this.game_info.player_lives = document.createElement("h1");
+        this.game_info.player_lives.appendChild(lives_text);
+        this.game_info.player_lives.appendChild(player_lives_image);
+        
+        let level_text = document.createTextNode("Level: " + this.level);
+        this.game_info.level = document.createElement("h1");
+        this.game_info.level.appendChild(level_text);
+        
+        let score_text = document.createTextNode("Score: " + this.score);
+        this.game_info.score = document.createElement("h1");
+        this.game_info.score.appendChild(score_text);        
+        
+        game_info_div.appendChild(this.game_info.score);
+        game_info_div.appendChild(this.game_info.player_lives);
+        game_info_div.appendChild(this.game_info.level);
+    }
+
     /**
      * Initialize the game board for first play
      */
     initializeBoard() {
-        this.cleanBoard();
+        this.cleanBoard();        
         this.initializeObjects();
+        this.initializeInfo();
     }
 
     /**
@@ -260,7 +298,7 @@ class Game {
         let player_image = new Image();
         player_image.src = CONFIG.SPACESHIP_IMAGE;
         player_image.onload = () => {
-            this.player = new SpaceShip(player_image, CONFIG.SPACESHIP_WIDTH, CONFIG.SPACESHIP_HEIGHT, player_start_location);
+            this.player = new SpaceShip(player_image, CONFIG.SPACESHIP_WIDTH, CONFIG.SPACESHIP_HEIGHT, player_start_location, CONFIG.SPACESHIP_HEALTH, CONFIG.SPACESHIP_SPEED);
             this.player.draw(this.game_context);
         };
 
@@ -279,6 +317,10 @@ class Game {
                 }
             }            
         };
+    }
+
+    updateScore() {
+        this.game_info.score.innerHTML = "Score: " + this.score;
     }
 
     updateKeyInput() {
@@ -352,6 +394,8 @@ class Game {
                      this.player.bullets[index].location.y >= this.aliens[alien_index].location.y)) {
                     this.aliens[alien_index].alive = false;
                     this.player.bullets.splice(index, 1);
+                    this.score += CONFIG.ALIENS_KILL_SCORE;
+                    this.updateScore();
                     break;
                 }
             }
@@ -418,6 +462,7 @@ class Game {
         
         // Return font_color to the previous one
         this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
+        this.score = 0;
     }
 
     static isValidLocation(location) {

@@ -3,3 +3,13 @@
     margin-top: 5%;
     border: 2px double black;    
 }
+
+#game-info {    
+    position: absolute;
+    margin: 0 auto;
+    right: 65%;
+    bottom: 65%;
+    left: 5%;
+    border-radius: 50px;
+    border: 4px double black;
+}
