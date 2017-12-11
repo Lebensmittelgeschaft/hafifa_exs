@@ -26,7 +26,7 @@
                 margin-top: 20px;
             }
 
-            #lvlname::before {
+            #lvlselect::before {
                 content: "Level: ";
             }
         </style>
@@ -35,7 +35,9 @@
         <div id="game">
             <canvas id="canvas"></canvas>
             <div id="info">
-                <a id="lvlname"></a>
+                <select id="lvlselect" onchange="game.changeLevel()">
+
+                </select>
             </div>
         </div>
         <script>

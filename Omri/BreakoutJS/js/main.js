@@ -46,7 +46,9 @@ const LEVEL1 = {name: "Rainbow Road", pattern:[{length: 2, space: 0, basecolor: 
                 {length: 4, space: 0, basecolor: [75, 0, 130], colorshift: [0, 0, 255], hasbuff: false},
                 {length: 1, space: 0, basecolor: [75, 0, 130], colorshift: [148, 0, 211], hasbuff: false},
                 {length: 4, space: 0, basecolor: [148, 0, 211], colorshift: [148, 0, 211], hasbuff: false}]};
-const LEVELS = [LEVEL1];
+const LEVEL2 = {name: "Rainbow Road", pattern: [{length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
+                {length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false}]};
+const LEVELS = [LEVEL1, LEVEL2];
 
 // Globals Definition
 var paddle;
@@ -281,10 +283,15 @@ class Game {
 
     setLevel (level) {
         if (level >= 0 && level <= this.levels.length) {
-            this.currLevel = this.levels[level];
             this.levelindex = level;
-            document.getElementById('lvlname').innerHTML = this.currLevel.name;
+            this.restart();
+            this.currLevel = this.levels[level];
         }
+    }
+
+    changeLevel() {
+        let e = document.getElementById('lvlselect');
+        this.setLevel(+e.options[e.selectedIndex].value);
     }
 
     init() {
@@ -466,6 +473,19 @@ class Game {
             setTimeout(() => {this.restart();}, RESTART_TIMEOUT);
         }
 
+        let isLevelOver = true;
+        for (let i = 0; i < this.currLevel.board.length; i++) {
+            for (let j = 0; j < this.currLevel.board[i].length; j++) {
+                if (this.currLevel.board[i][j]) {
+                    isLevelOver = false;
+                }
+            }
+        }
+
+        if (isLevelOver) {
+            this.changeLevel((this.levelindex + 1) % this.levels.length);
+        }
+
         if (targetHit) {
             if (targetHit instanceof Brick) {
                 // Play sfx.
@@ -479,10 +499,12 @@ class Game {
 // Loads all levels, the paddle and ball and initializes the game.
 function startGame() {
     let levels = [];
+    document.getElementById('lvlselect').innerHTML = "";
     for (let i = 0; i < LEVELS.length; i++) {
         levels.push(new Level(LEVELS[i], BRICKS_BOARD_WIDTH, BRICKS_BOARD_HEIGHT));
+        document.getElementById('lvlselect').innerHTML += "<option value=" + i +">" + levels[i].name + "</option>";
     }
-    
+
     paddle = new Paddle(PADDLE_START_X, PADDLE_START_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_COLOR, PADDLE_SPEED);
     ball = new Ball(BALL_START_X, BALL_START_Y, BALL_RADIUS, BALL_COLOR, BALL_SPEED);
     game = new Game(CANVAS_WIDTH, CANVAS_HEIGHT, document.getElementById('canvas').getContext('2d'), levels);
