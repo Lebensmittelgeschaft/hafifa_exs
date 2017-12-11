@@ -12,7 +12,7 @@ const BRICKS_OFFSET_Y = 30;
 const BRICKS_BOARD_WIDTH = CANVAS_WIDTH - BRICKS_OFFSET_X;
 const BRICKS_BOARD_HEIGHT = CANVAS_HEIGHT;
 const BRICK_WIDTH = CANVAS_WIDTH / BRICKS_IN_ROW;
-const BRICK_HEIGHT = CANVAS_HEIGHT / 50;
+const BRICK_HEIGHT = CANVAS_HEIGHT / 40;
 const PADDLE_WIDTH = CANVAS_WIDTH / 15;
 const PADDLE_HEIGHT = CANVAS_HEIGHT / 60;
 const PADDLE_START_X = (CANVAS_WIDTH - PADDLE_WIDTH) / 2;
@@ -27,13 +27,15 @@ const BUFF_EFFECTS = [{effect: "speed", multiplier: 2, duration: [10, 20, 30]},
 const PADDLE_BUFFS = [BUFF_EFFECTS[0], BUFF_EFFECTS[1]];
 const RELATIVE_PADDLE_BALL_BOUNCE = 1;
 const BALL_BUFFS = [BUFF_EFFECTS[0], BUFF_EFFECTS[2], BUFF_EFFECTS[3]];
-const BALL_RADIUS = BRICK_HEIGHT / 2;
+const BALL_RADIUS = BRICK_HEIGHT / 2.5;
 const BALL_START_X = (CANVAS_WIDTH - BALL_RADIUS) / 2;
 const BALL_START_Y = (CANVAS_HEIGHT - BALL_RADIUS) / 2;
 const BALL_COLOR = PADDLE_COLOR;
 const BALL_SPEED = {x: 2, y: -4};
 const PADDLE_DIR_LEFT = -1;
 const PADDLE_DIR_RIGHT = 1;
+const AI_REACTION_FRAMES = FRAMES_PER_SECOND / 2;
+const RESTART_TIMEOUT = 2000;
 const EASTER_EGG = [38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
 
 const LEVEL1 = {name: "Rainbow Road", pattern:[{length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
@@ -70,7 +72,7 @@ class Circle {
 class Ball extends Circle {
     constructor(x, y, radius, color, speed) {
         super(x, y, radius, color);
-        this.speed = speed;
+        this.speed = {x: speed.x, y: speed.y};
     }
 
     update(paddle, board) {
@@ -123,11 +125,11 @@ class Ball extends Circle {
     isColliding(rect) {
         let collide = false;
         let x, y;
-        if (this.x + this.radius >= rect.x && this.x - this.radius <= rect.x + rect.width) {
-            if (this.y + this.radius >= rect.y && this.y - this.radius <= rect.y + rect.height) {
+        if (this.x + this.radius + this.speed.x >= rect.x && this.x - this.radius + this.speed.x <= rect.x + rect.width) {
+            if (this.y + this.radius + this.speed.y >= rect.y && this.y - this.radius + this.speed.y <= rect.y + rect.height) {
                 for (let i = rect.x; i < rect.x + rect.width && !collide; i++) {
                     for(let j = rect.y; j < rect.y + rect.height && !collide; j++) {
-                        let dist = Math.sqrt((i - this.x) ** 2 + (j - this.y) ** 2);
+                        let dist = Math.sqrt((this.x + this.speed.x - i) ** 2 + (this.y + this.speed.y - j) ** 2);
                         if (dist <= this.radius) {
                             collide = true;
                             console.log(i, j);
@@ -258,10 +260,13 @@ class Game {
         this.displayHeight = displayHeight;
         this.ctx = ctx;
         this.levels = levels;
+        this.levelindex = 0;
+        this.currLevel = null;
         this.setLevel(0);
         this.state = GAME_PAUSED;
         this.AI = null;
         this.keys = [];
+        this.gameloop = null;
         paddle.setDir(0);
         document.onkeydown = this.keyPresses;
         document.onkeyup = this.keyReleases;
@@ -276,13 +281,14 @@ class Game {
     setLevel (level) {
         if (level >= 0 && level <= this.levels.length) {
             this.currLevel = this.levels[level];
-            document.getElementById('lvlname').innerHTML = this.levels[level].name;
+            this.levelindex = level;
+            document.getElementById('lvlname').innerHTML = this.currLevel.name;
         }
     }
 
     init() {
         this.state = GAME_PLAYING;
-        setInterval(() => {this.gameLoop();}, 1000 / FRAMES_PER_SECOND);
+        this.gameloop = setInterval(() => {this.gameLoop();}, 1000 / FRAMES_PER_SECOND);
     }
 
     gameLoop() {
@@ -292,9 +298,22 @@ class Game {
         }
     }
 
-    checkSequence() {
+    restart() {
+        paddle = new Paddle(PADDLE_START_X, PADDLE_START_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_COLOR, PADDLE_SPEED);
+        ball = new Ball(BALL_START_X, BALL_START_Y, BALL_RADIUS, BALL_COLOR, BALL_SPEED);
+        this.disableAI();
+        this.keys = [];
+
+        this.levels = [];
+        for (let i = 0; i < LEVELS.length; i++) {
+            this.levels.push(new Level(LEVELS[i], BRICKS_BOARD_WIDTH, BRICKS_BOARD_HEIGHT));
+        }
         
-        for (let i = 0; i < this.keys.length; i++) {
+        this.currLevel = this.levels[this.levelindex];
+    }
+
+    checkSequence() {
+        for (let i = 0; i < this.keys.length && i < EASTER_EGG.length; i++) {
             if (this.keys[i] != EASTER_EGG[i]) {
                 this.keys = [];
             }
@@ -402,7 +421,7 @@ class Game {
     }
 
     activateAI() {
-        this.AI = setInterval(() => {this.AIPaddle();}, 1000 / FRAMES_PER_SECOND / 2);
+        this.AI = setInterval(() => {this.AIPaddle();}, 1000 / AI_REACTION_FRAMES);
         this.keys = [];
         paddle.setDir(0);
     }
@@ -425,6 +444,7 @@ class Game {
                 }
             }
         }
+
         this.ctx.closePath();
     }
 
@@ -438,6 +458,13 @@ class Game {
         }
 
         let targetHit = ball.update(paddle, this.currLevel.board);
+        if (ball.y >= paddle.y + paddle.height) {
+            this.ctx.font = "40px Courier New";
+            this.ctx.fillStyle = "red";
+            this.ctx.fillText("YOU LOST!", BRICKS_BOARD_WIDTH / 2.7, BRICKS_BOARD_HEIGHT / 2);
+            setTimeout(() => {this.restart();}, RESTART_TIMEOUT);
+        }
+
         if (targetHit) {
             if (targetHit instanceof Brick) {
                 // Play sfx.
@@ -452,7 +479,7 @@ class Game {
 function startGame() {
     let levels = [];
     for (let i = 0; i < LEVELS.length; i++) {
-        levels.push(new Level(LEVELS[0], BRICKS_BOARD_WIDTH, BRICKS_BOARD_HEIGHT));
+        levels.push(new Level(LEVELS[i], BRICKS_BOARD_WIDTH, BRICKS_BOARD_HEIGHT));
     }
     
     paddle = new Paddle(PADDLE_START_X, PADDLE_START_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_COLOR, PADDLE_SPEED);
