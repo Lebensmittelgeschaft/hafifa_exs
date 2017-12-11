@@ -46,8 +46,9 @@ const LEVEL1 = {name: "Rainbow Road", pattern:[{length: 2, space: 0, basecolor: 
                 {length: 4, space: 0, basecolor: [75, 0, 130], colorshift: [0, 0, 255], hasbuff: false},
                 {length: 1, space: 0, basecolor: [75, 0, 130], colorshift: [148, 0, 211], hasbuff: false},
                 {length: 4, space: 0, basecolor: [148, 0, 211], colorshift: [148, 0, 211], hasbuff: false}]};
-const LEVEL2 = {name: "Rainbow Road", pattern: [{length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
-                {length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false}]};
+const LEVEL2 = {name: "World 1-1", pattern: [{length: 1, space: 1, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
+                {length: 2, space: 2, basecolor: [255, 127, 0], colorshift: [148, 0, 211], hasbuff: false},
+                {length: 3, space: 3, basecolor: [75, 0, 130], colorshift: [0, 0, 255], hasbuff: false},]};
 const LEVELS = [LEVEL1, LEVEL2];
 
 // Globals Definition
@@ -483,7 +484,7 @@ class Game {
         }
 
         if (isLevelOver) {
-            this.changeLevel((this.levelindex + 1) % this.levels.length);
+            setTimeout(() => {this.setLevel((this.levelindex + 1) % this.levels.length);}, RESTART_TIMEOUT);
         }
 
         if (targetHit) {
