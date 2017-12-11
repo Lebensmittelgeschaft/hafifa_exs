@@ -75,13 +75,19 @@ class Ball extends Circle {
         let targetHit = null;
 
         // Paddle hit detection.
-        if (this.y + this.radius >= paddle.y && this.y + this.radius <= paddle.y + paddle.height) {
+        /*if (this.y + this.radius >= paddle.y && this.y + this.radius <= paddle.y + paddle.height) {
             if (this.x + this.radius >= paddle.x && this.x + this.radius <= paddle.x + paddle.width) {
                 this.speed.y = -this.speed.y;
                 targetHit = paddle;
                 let relLocationHit = (this.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
                 this.speed.x += relLocationHit * RELATIVE_PADDLE_BALL_BOUNCE;
             }
+        }*/
+
+        if (this.isColliding(new Paddle(paddle.x, paddle.y, paddle.width, this.speed.y))) {
+            this.speed.y = - this.speed.y;
+            this.speed.x += (this.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2) * RELATIVE_PADDLE_BALL_BOUNCE;
+            targetHit = paddle;
         }
         
         // Wall hit detection.
@@ -94,24 +100,13 @@ class Ball extends Circle {
         }
 
         // Bricks hit detection.
-        for (let i = 0; i < board.length; i++) {
-            for (let j = 0; j < board[i].length; j++) {
+        for (let i = 0; i < board.length && !targetHit; i++) {
+            for (let j = 0; j < board[i].length && !targetHit; j++) {
                 if (board[i][j]) {
-                    if (this.y >= board[i][j].y && this.y <= board[i][j].y + board[i][j].height) { // Hit the brick.
-                        if (this.x >= board[i][j].x && this.x <= board[i][j].x + board[i][j].width) {
-                            if ((this.y - this.speed.y <= board[i][j].y) ||
-                                (this.y - this.speed.y >= board[i][j].y + board[i][j].height)) { // Hit from the top or the bottom of the brick.
-                                this.speed.y = -this.speed.y;
-                            }
-
-                            if ((this.x - this.speed.x <= board[i][j].x) ||
-                                (this.x - this.speed.x >= board[i][j].x + board[i][j].width)) { // Hit from the left or the right of the brick.
-                                    this.speed.x = -this.speed.x;
-                            }
-
-                            targetHit = board[i][j];
-                            board[i][j] = null;
-                        }
+                    if (this.isColliding(board[i][j])) {
+                        this.collide(board[i][j]);
+                        targetHit = board[i][j];
+                        board[i][j] = null;
                     }
                 }
             }
@@ -122,6 +117,38 @@ class Ball extends Circle {
         this.y += this.speed.y;
 
         return targetHit;
+    }
+
+    collide(rect) {
+        if (rect instanceof Brick) {
+            if (this.x <= rect.x || this.x >= rect.x + rect.width) { // Left or right side.
+                this.speed.x = -this.speed.x;
+            }
+        }
+
+        if (this.y <= rect.y || this.y >= rect.y + rect.height) { // Up or bottom side.
+            this.speed.y = -this.speed.y;
+        }
+    }
+
+    isColliding(rect) {
+        let collide = false;
+        let x, y;
+        if (this.x + this.radius >= rect.x && this.x - this.radius <= rect.x + rect.width) {
+            if (this.y + this.radius >= rect.y && this.y - this.radius <= rect.y + rect.height) {
+                for (let i = rect.x; i < rect.x + rect.width && !collide; i++) {
+                    for(let j = rect.y; j < rect.y + rect.height && !collide; j++) {
+                        let dist = Math.sqrt((i - this.x) ** 2 + (j - this.y) ** 2);
+                        if (dist <= this.radius) {
+                            collide = true;
+                            console.log(i, j);
+                        }
+                    }
+                }
+            }
+        }
+
+        return collide;
     }
 }
 
