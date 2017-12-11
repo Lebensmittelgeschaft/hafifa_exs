@@ -36,6 +36,7 @@ let CONFIG = {
         'Y': 20
     },
     "ALIENS_SPEED": 40,
+    "ALIENS_SPEED_REDUCE": 4,
     "ALIENS_KILL_SCORE": 50,
     "ALIENS_MAX_BULLETS": 5,
     "ALIENS_SHOOT_FREQ": 5,
@@ -343,6 +344,7 @@ class Game {
             "y": CONFIG.ALIENS_MOVEMENT.Y
         };
         this.aliens_bullets = [];
+        this.aliens_speed = CONFIG.ALIENS_SPEED;
 
         let alien_current_location = new Location(CONFIG.ALIEN_START_POS_X, CONFIG.ALIEN_START_POS_Y);
         let player_start_location = new Location(CONFIG.PLAYER_START_POS_X, CONFIG.PLAYER_START_POS_Y);
@@ -443,7 +445,10 @@ class Game {
 
         if (!Game.isValidLocation(alien_location)) {
             this.aliens_movement.x *= -1;
-            dir_move = 'y';            
+            dir_move = 'y';
+            if (this.aliens_speed > CONFIG.ALIENS_SPEED_REDUCE) {
+                this.aliens_speed -= CONFIG.ALIENS_SPEED_REDUCE;
+            }
         }
 
         for (let index = 0; index < this.aliens.length; index++) {
