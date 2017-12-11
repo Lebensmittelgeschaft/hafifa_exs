@@ -6,7 +6,7 @@ const FRAMES_PER_SECOND = 60;
 const GAME_PAUSED = 0;
 const GAME_PLAYING = 1;
 const GAME_OVER = 2;
-const BRICKS_IN_ROW = 20;
+const BRICKS_IN_ROW = 19;
 const BRICKS_OFFSET_X = 20;
 const BRICKS_OFFSET_Y = 30;
 const BRICKS_BOARD_WIDTH = CANVAS_WIDTH - BRICKS_OFFSET_X;
@@ -75,15 +75,6 @@ class Ball extends Circle {
         let targetHit = null;
 
         // Paddle hit detection.
-        /*if (this.y + this.radius >= paddle.y && this.y + this.radius <= paddle.y + paddle.height) {
-            if (this.x + this.radius >= paddle.x && this.x + this.radius <= paddle.x + paddle.width) {
-                this.speed.y = -this.speed.y;
-                targetHit = paddle;
-                let relLocationHit = (this.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
-                this.speed.x += relLocationHit * RELATIVE_PADDLE_BALL_BOUNCE;
-            }
-        }*/
-
         if (this.isColliding(new Paddle(paddle.x, paddle.y, paddle.width, this.speed.y))) {
             this.speed.y = - this.speed.y;
             this.speed.x += (this.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2) * RELATIVE_PADDLE_BALL_BOUNCE;
@@ -120,13 +111,9 @@ class Ball extends Circle {
     }
 
     collide(rect) {
-        if (rect instanceof Brick) {
-            if (this.x <= rect.x || this.x >= rect.x + rect.width) { // Left or right side.
-                this.speed.x = -this.speed.x;
-            }
-        }
-
-        if (this.y <= rect.y || this.y >= rect.y + rect.height) { // Up or bottom side.
+        if (rect instanceof Brick && (this.x <= rect.x || this.x >= rect.x + rect.width)) { // Left or right side.
+            this.speed.x = -this.speed.x;
+        } else if (this.y <= rect.y || this.y >= rect.y + rect.height) { // Up or bottom side.
             this.speed.y = -this.speed.y;
         }
     }
