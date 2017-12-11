@@ -34,6 +34,7 @@ const BALL_COLOR = PADDLE_COLOR;
 const BALL_SPEED = {x: 2, y: -4};
 const PADDLE_DIR_LEFT = -1;
 const PADDLE_DIR_RIGHT = 1;
+const EASTER_EGG = [38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
 
 const LEVEL1 = {name: "Rainbow Road", pattern:[{length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
                 {length: 3, space: 1, basecolor: [255, 127, 0], colorshift: [255, 127, 0], hasbuff: true},
@@ -47,6 +48,7 @@ const LEVELS = [LEVEL1];
 // Globals Definition
 var paddle;
 var ball;
+var game;
 
 // This class represents a drawable circle.
 class Circle {
@@ -258,6 +260,8 @@ class Game {
         this.levels = levels;
         this.setLevel(0);
         this.state = GAME_PAUSED;
+        this.AI = null;
+        this.keys = [];
         paddle.setDir(0);
         document.onkeydown = this.keyPresses;
         document.onkeyup = this.keyReleases;
@@ -288,23 +292,82 @@ class Game {
         }
     }
 
+    checkSequence() {
+        
+        for (let i = 0; i < this.keys.length; i++) {
+            if (this.keys[i] != EASTER_EGG[i]) {
+                this.keys = [];
+            }
+        }
+
+        return this.keys.length > 0 && this.keys.length == EASTER_EGG.length;
+    }
+
     keyPresses(e) {
         e = e || window.event;
+        if (!game.AI) {
+            switch (e.keyCode) {
+                case 37: { // Left arrow.
+                    paddle.setDir(PADDLE_DIR_LEFT);
+                    game.keys.push(37);
+
+                    break;
+                }
+
+                case 38: { // Up arrow.
+                    game.keys.push(38);
+                    
+                    break;
+                }
+
+                case 39: { // Right arrow.
+                    paddle.setDir(PADDLE_DIR_RIGHT);
+                    game.keys.push(39);
+
+                    break;
+                }
+
+                case 40: { // Down arrow.
+                    game.keys.push(40);
+
+                    break;
+                }
+
+                case 65: { // 'a' key.
+                    game.keys.push(65);
+
+                    break;
+                }
+
+                case 66: { // 'b' key.
+                    game.keys.push(66);
+
+                    break;
+                }
+
+                default: {
+
+                    break;
+                }
+            }
+        }
+
         switch (e.keyCode) {
-            case 37: { // Left arrow.
-                paddle.setDir(PADDLE_DIR_LEFT);
+            case 27: { // Escape key.
+                game.state != game.state;
 
                 break;
             }
 
-            case 39: { // Right arrow.
-                paddle.setDir(PADDLE_DIR_RIGHT);
+            case 32: { // Space key.
+                if (game.AI) {
+                    game.disableAI();
+                }
 
                 break;
             }
 
-            case 27 : { // Escape key.
-                this.state != this.state;
+            default: {
 
                 break;
             }
@@ -328,6 +391,28 @@ class Game {
         this.ctx.fillRect(0, 0, this.displayWidth, this.displayHeight);
     }
 
+    AIPaddle() {
+        if (paddle.x + paddle.width / 3 > ball.x) {
+            paddle.setDir(PADDLE_DIR_LEFT);
+        } else if (paddle.x + paddle.width * 2 / 3 < ball.x) {
+            paddle.setDir(PADDLE_DIR_RIGHT);
+        } else {
+            paddle.setDir(0);
+        }
+    }
+
+    activateAI() {
+        this.AI = setInterval(() => {this.AIPaddle();}, 1000 / FRAMES_PER_SECOND / 2);
+        this.keys = [];
+        paddle.setDir(0);
+    }
+
+    disableAI() {
+        clearInterval(this.AI);
+        this.AI = null;
+        paddle.setDir(0);
+    }
+
     draw() {
         this.clearScreen();
         this.ctx.beginPath();
@@ -344,6 +429,10 @@ class Game {
     }
 
     update() {
+        if (this.checkSequence()) {
+            this.activateAI();
+        }
+
         if (paddle.dir) {
             paddle.move();
         }
@@ -368,6 +457,6 @@ function startGame() {
     
     paddle = new Paddle(PADDLE_START_X, PADDLE_START_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_COLOR, PADDLE_SPEED);
     ball = new Ball(BALL_START_X, BALL_START_Y, BALL_RADIUS, BALL_COLOR, BALL_SPEED);
-    let game = new Game(CANVAS_WIDTH, CANVAS_HEIGHT, document.getElementById('canvas').getContext('2d'), levels);
+    game = new Game(CANVAS_WIDTH, CANVAS_HEIGHT, document.getElementById('canvas').getContext('2d'), levels);
     game.init();
 }
