@@ -39,12 +39,13 @@ const RESTART_TIMEOUT = 2000;
 const EASTER_EGG = [38, 38, 40, 40, 37, 39, 37, 39, 65, 66];
 
 const LEVEL1 = {name: "Rainbow Road", pattern:[{length: 2, space: 0, basecolor: [255, 0, 0], colorshift: [0, 255, 0], hasbuff: false},
-                {length: 3, space: 1, basecolor: [255, 127, 0], colorshift: [255, 127, 0], hasbuff: true},
-                {length: 2, space: 0, basecolor: [255, 255, 0], colorshift: [255, 255, 0], hasbuff: true},
-                {length: 1, space: 0, basecolor: [0, 255, 0], colorshift: [0, 255, 0], hasbuff: false},
-                {length: 4, space: 1, basecolor: [0, 0, 255], colorshift: [0, 0, 255], hasbuff: false},
-                {length: 6, space: 0, basecolor: [75, 0, 130], colorshift: [75, 0, 130], hasbuff: false},
-                {length: 4, space: 1, basecolor: [148, 0, 211], colorshift: [148, 0, 211], hasbuff: false}]};
+                {length: 2, space: 0, basecolor: [255, 127, 0], colorshift: [0, 255, 0], hasbuff: false},
+                {length: 3, space: 0, basecolor: [255, 127, 0], colorshift: [255, 127, 0], hasbuff: true},
+                {length: 3, space: 0, basecolor: [255, 255, 0], colorshift: [255, 127, 0], hasbuff: true},
+                {length: 2, space: 0, basecolor: [255, 255, 0], colorshift: [0, 0, 255], hasbuff: true},
+                {length: 4, space: 0, basecolor: [75, 0, 130], colorshift: [0, 0, 255], hasbuff: false},
+                {length: 1, space: 0, basecolor: [75, 0, 130], colorshift: [148, 0, 211], hasbuff: false},
+                {length: 4, space: 0, basecolor: [148, 0, 211], colorshift: [148, 0, 211], hasbuff: false}]};
 const LEVELS = [LEVEL1];
 
 // Globals Definition
@@ -308,7 +309,7 @@ class Game {
         for (let i = 0; i < LEVELS.length; i++) {
             this.levels.push(new Level(LEVELS[i], BRICKS_BOARD_WIDTH, BRICKS_BOARD_HEIGHT));
         }
-        
+
         this.currLevel = this.levels[this.levelindex];
     }
 
