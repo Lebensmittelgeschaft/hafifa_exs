@@ -447,7 +447,22 @@ class Game {
 
     // Update the gift info and the operation of the specific gift taken by the player
     updateGiftProperties() {
-        this.game_info.gift_prop.innerHTML = "Gift: " + GIFT_INFO[this.gift_status];             
+        this.game_info.gift_prop.innerHTML = "Gift: " + GIFT_INFO[this.gift_status];
+        switch (this.gift_status) {
+            case (GIFT_LIST.REGAIN_LIVE):
+                this.player.health += 1;
+                this.updateLives();
+                break;
+
+            case (GIFT_LIST.ALIENS_ALIVE):
+                for (let index = 0; index < this.aliens.length; index++) {
+                    this.aliens[index].alive = true;
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 
     // Updates the key input for pressing two keys at the same time or
