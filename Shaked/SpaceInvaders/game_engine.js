@@ -41,6 +41,7 @@ let CONFIG = {
     "ALIENS_MAX_BULLETS": 5,
     "ALIENS_SHOOT_FREQ": 5,
     "ALIENS_SHOOT_FREQ_RANGE": 10,
+    "ALIENS_FREEZE_TIME": 5000,
     get ALIEN_START_POS_X() { return this.GAME_WIDTH / 6 },
     get ALIEN_START_POS_Y() { return this.GAME_HEIGHT / 10 },
     "GIFT_WIDTH": 30,
@@ -72,10 +73,12 @@ let GAME_STATUS = {
 /* Represent gift types in the game */
 let GIFT_LIST = {
     "REGAIN_LIVE": 0,
-    "ALIENS_ALIVE": 1
+    "ALIENS_ALIVE": 1,
+    "ALIENS_FREEZE": 2,
+    "ADD_BULLET": 3
 }
 
-let GIFT_INFO = ["Regain Live!", "Aliens Alive!"];
+let GIFT_INFO = ["Regain Live!", "Aliens Alive!", "Aliens Freeze!", "Add Bullet To Player!"];
 
 /* Represent Location in the game space */
 class Location {
@@ -264,6 +267,7 @@ class Game {
             "y": CONFIG.ALIENS_MOVEMENT.Y
         }
         this.tick_count = 0;
+        this.aliens_freeze = false;
 
         this.gifts = [];
         this.gift_fallen = false;
@@ -460,9 +464,39 @@ class Game {
                 }
                 break;
 
+            case (GIFT_LIST.ALIENS_FREEZE):
+                this.aliens_freeze = true;
+                let counter = CONFIG.ALIENS_FREEZE_TIME / 1000;
+                this.applyGift(CONFIG.ALIENS_FREEZE_TIME,
+                               () => {
+                                   this.game_info.gift_prop.innerHTML = "Gift: " + GIFT_INFO[this.gift_status] + " (" + counter + ")";
+                                   counter--;
+                               },
+                               () => {
+                                   this.aliens_freeze = false;
+                                   this.game_info.gift_prop.innerHTML = "Gift: ";
+                               });
+                break;
+            
+            case (GIFT_LIST.ADD_BULLET): 
+                this.player.bullets_max_size += 1;
+                break;            
+
             default:
                 break;
         }
+    }
+
+    /**
+     * Apply gift properties for number of seconds
+     * @param {*} seconds - number of seconds to apply the gift property
+     */
+    applyGift(seconds, callback, after_callback) {
+        let gift_interval = setInterval(() => {callback();}, 1000);
+        setTimeout(() => {
+            clearInterval(gift_interval);
+            after_callback();
+        }, seconds);
     }
 
     // Updates the key input for pressing two keys at the same time or
@@ -602,7 +636,7 @@ class Game {
                 //-----------------------------------------------------------------------------------------
                 // Player got the gift, do something with that
                 let gift_options = Object.keys(GIFT_LIST);
-                this.gift_status = GIFT_LIST[gift_options[Math.floor(Math.random() * gift_options.length)]];
+                this.gift_status = GIFT_LIST[gift_options[Math.round(Math.random() * (gift_options.length - 1))]];
                 this.updateGiftProperties();
                 //-----------------------------------------------------------------------------------------
                 this.gift_fallen = false;
@@ -632,7 +666,7 @@ class Game {
             this.tick_count++;
 
             // Update aliens positions if they need to move
-            if (this.tick_count % this.aliens_speed == 0) {
+            if (this.tick_count % this.aliens_speed == 0 && !this.aliens_freeze) {
                 this.updateAliens();
                 this.tick_count = 0;
                 this.checkEndGame();
