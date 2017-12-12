@@ -12,8 +12,14 @@ let CONFIG = {
     "GAME_FONT_COLOR": "white",
     "WIN_FONT_COLOR": "gold",
     "LOSE_FONT_COLOR": "red",
+    "GAME_TEXT_MENU": "Space Invaders",
+    "GAME_SUBTEXT_MENU": "Press 'Enter' to start.",
+    "GAME_TEXT_PAUSE": "Game Paused",
+    "GAME_SUBTEXT_PAUSE": "Press 'Enter' to unpause.",
+    "GAME_TEXT_END": "Game Ended",
+    "GAME_SUBTEXT_END": "Press 'Enter' to restart.",
     "GAME_TEXT_WIN": "YOU WIN!",
-    "GAME_TEXT_LOSE": "YOU LOSE :(",
+    "GAME_TEXT_LOSE": "YOU LOSE :(",    
     "GAME_FONT_POSITION": "center",
     "GAME_NAME": "Space Invaders",
     "SPACESHIP_IMAGE": "./images/spaceship.png",
@@ -169,12 +175,40 @@ class AlienShip extends Ship {
     }
 }
 
-/* Represent bullet in the game */
-class Bullet {
+/* Represent falling element in the game */
+class FallenElement {
+    
     constructor(width, height, location) {
         this.width = width;
         this.height = height;
         this.location = location;
+    }
+
+    /**
+     * Update the location of the element
+     * @param {*} movement_y - movement to add for the y-aixs location 
+     */
+    update(movement_y) {
+        this.location.y += movement_y;
+    }
+
+    /**
+     * Checking if the element collides with an element
+     * @param {*} element - element to check for colliding with the bullet
+     */
+    collide(element) {
+        return ((this.location.x <= element.location.x + element.width &&
+                 this.location.x >= element.location.x) &&
+                (this.location.y <= element.location.y + element.height &&
+                 this.location.y >= element.location.y));
+    }
+}
+
+/* Represent bullet in the game */
+class Bullet extends FallenElement {
+    
+    constructor(width, height, location) {
+        super(width, height, location);        
     }
 
     /**
@@ -183,33 +217,19 @@ class Bullet {
      */
     draw(canvas_context) {
         canvas_context.fillRect(this.location.x, this.location.y, this.width, this.height);
-    }
+    }    
+}
 
-    // Updates the bullet location
-    update(movement_y) {
-        this.location.y += movement_y;
+class Gift extends FallenElement {
+    constructor(image, width, height, location) {
+        super(width, height, location);
+        this.image = image;        
     }
 
     /**
-     * Checking if the bullet collides with an element
-     * @param {*} element - element to check for colliding with the bullet
+     * Draw the gift on the canvas
+     * @param {*} canvas_context - canvas context to draw on 
      */
-    collide(element) {
-        return ((this.location.x <= element.location.x + element.width &&
-            this.location.x >= element.location.x) &&
-            (this.location.y <= element.location.y + element.height &&
-                this.location.y >= element.location.y));
-    }
-}
-
-class Gift {
-    constructor(image, width, height, location) {
-        this.image = image;
-        this.width = width;
-        this.height = height;
-        this.location = location;
-    }
-
     draw(canvas_context) {
         if (this.image.complete) {
             canvas_context.drawImage(this.image, this.location.x, this.location.y,
@@ -219,17 +239,6 @@ class Gift {
                 this.draw(canvas_context);
             }
         }
-    }
-
-    update() {
-        this.location.y += CONFIG.GIFT_MOVEMENT;
-    }
-
-    collide(element) {
-        return ((this.location.x <= element.location.x + element.width &&
-            this.location.x >= element.location.x) &&
-            (this.location.y <= element.location.y + element.height &&
-                this.location.y >= element.location.y));
     }
 }
 
@@ -302,7 +311,8 @@ class Game {
 
                 case (CONFIG.KEY_ESC): // Pausing the game
                     if (this.status == GAME_STATUS.PLAY) {
-                        this.pause();
+                        this.status = GAME_STATUS.PAUSE;
+                        this.printScreenMessage(CONFIG.GAME_TEXT_PAUSE, CONFIG.GAME_SUBTEXT_PAUSE);
                     }
 
                 default:
@@ -321,36 +331,22 @@ class Game {
         this.game_context.clearRect(0, 0, CONFIG.GAME_WIDTH, CONFIG.GAME_HEIGHT);
     }
 
+    // Prints into the screen message for the player [used for menu, pausing, ending]
+    printScreenMessage(header_text, subtext) {
+        this.cleanBoard();
+        this.game_context.font = CONFIG.GAME_TITLE_FONT;
+        this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
+        this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
+        this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
+        this.game_context.fillText(header_text, CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 - 40);
+        this.game_context.font = CONFIG.GAME_TEXT_FONT;
+        this.game_context.fillText(subtext, CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);
+    }   
+
     // Initialize game board and game information
     gameStart() {
         this.initializeBoard();
         this.initializeInfo();
-    }
-
-    // Setting the game status to menu and shows the game menu
-    menu() {
-        this.cleanBoard();
-        this.status = GAME_STATUS.MENU;
-        this.game_context.font = CONFIG.GAME_TITLE_FONT;
-        this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
-        this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
-        this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
-        this.game_context.fillText(CONFIG.GAME_NAME, CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 - 40);
-        this.game_context.font = CONFIG.GAME_TEXT_FONT;
-        this.game_context.fillText("Press 'Enter' to start.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);
-    }
-
-    // Setting the game status to pause and pause the game
-    pause() {
-        this.cleanBoard();
-        this.status = GAME_STATUS.PAUSE;
-        this.game_context.font = CONFIG.GAME_TITLE_FONT;
-        this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
-        this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
-        this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
-        this.game_context.fillText(CONFIG.GAME_NAME + " Paused", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2 - 40);
-        this.game_context.font = CONFIG.GAME_TEXT_FONT;
-        this.game_context.fillText("Press 'Enter' to unpause.", CONFIG.GAME_WIDTH / 2, CONFIG.GAME_HEIGHT / 2);
     }
 
     // Initialize the game board for first play
@@ -359,46 +355,8 @@ class Game {
         this.initializeObjects();
     }
 
-    // Initialize the game information for first play
-    initializeInfo() {
-        if (this.player) {
-            this.player.health = CONFIG.SPACESHIP_HEALTH;
-        }
-        this.score = 0;
-        this.level = 1;
-
-        let game_info_div = document.getElementById("game-info");
-        game_info_div.innerHTML = "";
-
-        let player_lives_image = document.createElement("img");
-        player_lives_image.src = CONFIG.SPACESHIP_IMAGE;
-        player_lives_image.height = CONFIG.SPACESHIP_HEIGHT;
-        player_lives_image.width = CONFIG.SPACESHIP_WIDTH;
-        let lives_text = document.createTextNode("Lives: " + (this.player ? this.player.health : CONFIG.SPACESHIP_HEALTH));
-
-        this.game_info.player_lives = document.createElement("h1");
-        this.game_info.player_lives.appendChild(lives_text);
-        this.game_info.player_lives.appendChild(player_lives_image);
-
-        let level_text = document.createTextNode("Level: " + this.level);
-        this.game_info.level = document.createElement("h1");
-        this.game_info.level.appendChild(level_text);
-
-        let score_text = document.createTextNode("Score: " + this.score);
-        this.game_info.score = document.createElement("h1");
-        this.game_info.score.appendChild(score_text);
-
-        this.game_info.gift_prop = document.createElement("h1");
-        this.game_info.gift_prop.innerHTML = "Gift: ";        
-
-        game_info_div.appendChild(this.game_info.score);
-        game_info_div.appendChild(this.game_info.player_lives);
-        game_info_div.appendChild(this.game_info.level);
-        game_info_div.appendChild(this.game_info.gift_prop);
-    }
-
     // Initialize all the objects of the game for the first play    
-    initializeObjects() {
+    initializeObjects() {    
 
         this.aliens_movement = {
             "x": CONFIG.ALIENS_MOVEMENT.X,
@@ -437,16 +395,115 @@ class Game {
         };
     }
 
+    // Initialize the game information for first play
+    initializeInfo() {
+        if (this.player) {
+            this.player.health = CONFIG.SPACESHIP_HEALTH;
+        }
+        this.score = 0;
+        this.level = 1;
+
+        let game_info_div = document.getElementById("game-info");
+        game_info_div.innerHTML = "";
+
+        let player_lives_image = document.createElement("img");
+        player_lives_image.src = CONFIG.SPACESHIP_IMAGE;
+        player_lives_image.height = CONFIG.SPACESHIP_HEIGHT;
+        player_lives_image.width = CONFIG.SPACESHIP_WIDTH;
+        let lives_text = document.createTextNode("Lives: " + (this.player ? this.player.health : CONFIG.SPACESHIP_HEALTH));
+
+        this.game_info.player_lives = document.createElement("h1");
+        this.game_info.player_lives.appendChild(lives_text);
+        this.game_info.player_lives.appendChild(player_lives_image);
+
+        let level_text = document.createTextNode("Level: " + this.level);
+        this.game_info.level = document.createElement("h1");
+        this.game_info.level.appendChild(level_text);
+
+        let score_text = document.createTextNode("Score: " + this.score);
+        this.game_info.score = document.createElement("h1");
+        this.game_info.score.appendChild(score_text);
+
+        this.game_info.gift_prop = document.createElement("h1");
+        this.game_info.gift_prop.innerHTML = "Gift: ";        
+
+        game_info_div.appendChild(this.game_info.score);
+        game_info_div.appendChild(this.game_info.player_lives);
+        game_info_div.appendChild(this.game_info.level);
+        game_info_div.appendChild(this.game_info.gift_prop);
+    }    
+
     // Updates the player score
-    updateScore() {
-        //-----------------------------------------------------------------------------------------
-        this.game_info.score.innerHTML = "Score: " + this.score;
-        //-----------------------------------------------------------------------------------------
+    updateScore() {        
+        this.game_info.score.innerHTML = "Score: " + this.score;        
     }
 
     // Updates the player lives
     updateLives() {
         this.game_info.player_lives.firstChild.data = "Lives: " + this.player.health;
+    }
+
+    // Update the objects location and draw them on the canvas
+    updateGame() {
+
+        // Check for all collisions and update all bullets locations  
+        this.player.updateBullets();
+        this.updateBulletsCollisions();
+        this.updateAliensBullets();
+
+        // Updates the gifts positions
+        this.updateGifts();
+        this.drawObjects();
+        
+    }
+
+    // Draw all the objectss in the game
+    drawObjects() {
+        // Draw all aliens        
+        for (let index = 0; index < this.aliens.length; index++) {
+            if (this.aliens[index].alive) {
+                this.aliens[index].draw(this.game_context);
+            }
+        }
+
+        // Draw player's bullets        
+        for (let index = 0; index < this.player.bullets.length; index++) {
+            this.player.bullets[index].draw(this.game_context);
+        }
+
+        // Draw aliens bullets
+        for (let index = 0; index < this.aliens_bullets.length; index++) {
+            this.aliens_bullets[index].draw(this.game_context);
+        }
+
+        // Draw the gifts
+        for (let index = 0; index < this.gifts.length; index++) {
+            this.gifts[index].draw(this.game_context);
+        }
+
+        // Draw player
+        this.player.draw(this.game_context);
+    }
+
+    // Update gifts status and locations
+    updateGifts() {
+        for (let index = 0; index < this.gifts.length; index++) {
+            if (!Game.isValidLocation(this.gifts[index].location)) {
+                this.gifts.splice(index, 1);
+                this.gift_fallen = false;
+            } else if (this.gifts[index].collide(this.player)) {
+                
+                // Player got the gift, do something with that
+                let gift_options = Object.keys(GIFT_LIST);
+                this.gift_status = GIFT_LIST[gift_options[Math.round(Math.random() * (gift_options.length - 1))]];
+                this.updateGiftProperties();
+                
+                this.gift_fallen = false;
+                this.gifts.splice(index, 1);
+            } else {
+                this.gifts[index].update(CONFIG.GIFT_MOVEMENT);
+            }
+        }
     }
 
     // Update the gift info and the operation of the specific gift taken by the player
@@ -514,44 +571,7 @@ class Game {
             this.player.direction = CONFIG.LEFT_DIR;
             this.player.update();
         }
-    }
-
-    // Update the objects location and draw them on the canvas
-    updateGame() {
-
-        // Check for all collisions and update all bullets locations  
-        this.player.updateBullets();
-        this.updateBulletsCollisions();
-        this.updateAliensBullets();
-
-        // Updates the gifts positions
-        this.updateGifts();
-
-        // Draw all aliens        
-        for (let index = 0; index < this.aliens.length; index++) {
-            if (this.aliens[index].alive) {
-                this.aliens[index].draw(this.game_context);
-            }
-        }
-
-        // Draw player's bullets        
-        for (let index = 0; index < this.player.bullets.length; index++) {
-            this.player.bullets[index].draw(this.game_context);
-        }
-
-        // Draw aliens bullets
-        for (let index = 0; index < this.aliens_bullets.length; index++) {
-            this.aliens_bullets[index].draw(this.game_context);
-        }
-
-        // Draw the gifts
-        for (let index = 0; index < this.gifts.length; index++) {
-            this.gifts[index].draw(this.game_context);
-        }
-
-        // Draw player
-        this.player.draw(this.game_context);
-    }
+    }    
 
     // Update the aliens location
     updateAliens() {
@@ -587,6 +607,7 @@ class Game {
 
     // Update aliens bullets location
     updateAliensBullets() {
+
         for (let index = 0; index < this.aliens_bullets.length; index++) {
             if (this.aliens_bullets[index].location.y > CONFIG.GAME_WIDTH) {
                 this.aliens_bullets.splice(index, 1);
@@ -606,8 +627,7 @@ class Game {
         for (let index = 0; index < this.player.bullets.length; index++) {
             for (let alien_index = this.aliens.length - 1; alien_index >= 0; alien_index--) {
                 if (this.aliens[alien_index].alive &&
-                    this.player.bullets[index].collide(this.aliens[alien_index])) {
-                    
+                    this.player.bullets[index].collide(this.aliens[alien_index])) {                    
                     
                     // Spawn gift
                     if ((!this.gift_fallen) &&
@@ -617,6 +637,7 @@ class Game {
                                                          this.aliens[alien_index].location.y);
                         this.gifts.push(new Gift(this.gift_image, CONFIG.GIFT_WIDTH, CONFIG.GIFT_HEIGHT, gift_location));                        
                     }
+
                     this.aliens[alien_index].alive = false;
                     this.player.bullets.splice(index, 1);
                     this.score += CONFIG.ALIENS_KILL_SCORE;
@@ -625,27 +646,7 @@ class Game {
                 }
             }
         }
-    }
-
-    updateGifts() {
-        for (let index = 0; index < this.gifts.length; index++) {
-            if (!Game.isValidLocation(this.gifts[index].location)) {
-                this.gifts.splice(index, 1);
-                this.gift_fallen = false;
-            } else if (this.gifts[index].collide(this.player)) {
-                //-----------------------------------------------------------------------------------------
-                // Player got the gift, do something with that
-                let gift_options = Object.keys(GIFT_LIST);
-                this.gift_status = GIFT_LIST[gift_options[Math.round(Math.random() * (gift_options.length - 1))]];
-                this.updateGiftProperties();
-                //-----------------------------------------------------------------------------------------
-                this.gift_fallen = false;
-                this.gifts.splice(index, 1);
-            } else {
-                this.gifts[index].update();
-            }
-        }
-    }
+    }    
 
     // Handle the full game engine loop for playing the game
     gameLoop() {
@@ -705,7 +706,7 @@ class Game {
 
         let [font_color, text_endgame] = (this.status == GAME_STATUS.WIN ?
             [CONFIG.WIN_FONT_COLOR, CONFIG.GAME_TEXT_WIN] : [CONFIG.LOSE_FONT_COLOR, CONFIG.GAME_TEXT_LOSE]);
-        this.menu();
+        this.printScreenMessage(CONFIG.GAME_TEXT_END, CONFIG.GAME_SUBTEXT_END);
         this.game_context.font = CONFIG.GAME_TITLE_FONT;
         this.game_context.textBaseline = CONFIG.GAME_FONT_POSITION;
         this.game_context.textAlign = CONFIG.GAME_FONT_POSITION;
@@ -714,6 +715,7 @@ class Game {
 
         // Return font_color to the previous one
         this.game_context.fillStyle = CONFIG.GAME_FONT_COLOR;
+        this.status = GAME_STATUS.MENU;
     }
 
     /**
@@ -722,14 +724,14 @@ class Game {
      */
     static isValidLocation(location) {
         return ((location.x < CONFIG.GAME_WIDTH &&
-            location.x >= 0) &&
-            (location.y < CONFIG.GAME_HEIGHT &&
-                location.y >= 0));
+                 location.x >= 0) &&
+                (location.y < CONFIG.GAME_HEIGHT &&
+                 location.y >= 0));
     }
 }
 
 // Start the game menu when the window load
 window.onload = function () {
     let game = new Game();
-    game.menu();
+    game.printScreenMessage(CONFIG.GAME_TEXT_MENU, CONFIG.GAME_SUBTEXT_MENU);
 }
