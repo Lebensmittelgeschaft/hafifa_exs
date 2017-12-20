@@ -2,7 +2,7 @@
  * @author Shaked Manes */
 
 // This variable contains the configuration options for the game
-let CONFIG = {
+const CONFIG = {
     "GAME_HEIGHT": 600,
     "GAME_WIDTH": 600,
     "GAME_FPS": 30,
@@ -68,7 +68,7 @@ let CONFIG = {
 }
 
 /* Represent status in the game */
-let GAME_STATUS = {
+const GAME_STATUS = {
     "MENU": 0,
     "PLAY": 1,
     "PAUSE": 2,
@@ -77,14 +77,14 @@ let GAME_STATUS = {
 }
 
 /* Represent gift types in the game */
-let GIFT_LIST = {
+const GIFT_LIST = {
     "REGAIN_LIVE": 0,
     "ALIENS_ALIVE": 1,
     "ALIENS_FREEZE": 2,
     "ADD_BULLET": 3
 }
 
-let GIFT_INFO = ["Regain Live!", "Aliens Alive!", "Aliens Freeze!", "Add Bullet To Player!"];
+const GIFT_INFO = ["Regain Live!", "Aliens Alive!", "Aliens Freeze!", "Add Bullet To Player!"];
 
 /* Represent Location in the game space */
 class Location {
@@ -431,6 +431,7 @@ class Game {
         game_info_div.appendChild(this.game_info.player_lives);
         game_info_div.appendChild(this.game_info.level);
         game_info_div.appendChild(this.game_info.gift_prop);
+        game_info_div.style.display = "initial";
     }    
 
     // Updates the player score
