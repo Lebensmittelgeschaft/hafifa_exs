@@ -254,10 +254,9 @@ class Game {
         this.game_canvas.style.backgroundColor = CONFIG.GAME_BACKGROUND_COLOR;
         this.game_context = this.game_canvas.getContext('2d');
 
-        // Will include info about the game - health, level, score, current gift properites
+        // Will include info about the game - health, score, current gift properites
         this.game_info = {};
-        this.score = 0;
-        this.level = 1;
+        this.score = 0;        
 
         this.gift_image = new Image();
         this.gift_image.src = CONFIG.GIFT_IMAGE;        
@@ -401,7 +400,6 @@ class Game {
             this.player.health = CONFIG.SPACESHIP_HEALTH;
         }
         this.score = 0;
-        this.level = 1;
 
         let game_info_div = document.getElementById("game-info");
         game_info_div.innerHTML = "";
@@ -416,10 +414,6 @@ class Game {
         this.game_info.player_lives.appendChild(lives_text);
         this.game_info.player_lives.appendChild(player_lives_image);
 
-        let level_text = document.createTextNode("Level: " + this.level);
-        this.game_info.level = document.createElement("h1");
-        this.game_info.level.appendChild(level_text);
-
         let score_text = document.createTextNode("Score: " + this.score);
         this.game_info.score = document.createElement("h1");
         this.game_info.score.appendChild(score_text);
@@ -429,7 +423,6 @@ class Game {
 
         game_info_div.appendChild(this.game_info.score);
         game_info_div.appendChild(this.game_info.player_lives);
-        game_info_div.appendChild(this.game_info.level);
         game_info_div.appendChild(this.game_info.gift_prop);
         game_info_div.style.display = "initial";
     }    
