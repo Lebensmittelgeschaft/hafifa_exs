@@ -1,0 +1,31 @@
+<html>
+<head>
+<link rel="stylesheet" href="Styles/GameCSS.css">
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="gameUI">
+
+<h1 id="scoretitle">Score</h1>
+<p id="score">0</p>
+
+<img src="Assets/help.png" id="helpic" onclick="help();"></img>
+
+<form action="#" method="post" id="form">
+<input type="text" id="field" placeholder="Default speed: 1">
+<input type="button" id="send" value="change" onclick="ChangeSpeed()"/>
+</form>
+
+<form action="#" method="post" id="form2">
+<input type="text" id="field2" placeholder="Enemy slow: 3">
+<input type="button" id="send2" value="change" onclick="ChangeSlowness()"/>
+</form>
+
+</div>
+
+<script src="Scripts/js.js"></script>
+</body>
+</html>
