@@ -20,6 +20,8 @@ var bonus=[];
 var bonusrate = 1000;
 var winningMass = 500;
 var speedincrease = 0.2;
+var victory;
+var defeat;
 //--------------
 
 init();
@@ -30,7 +32,11 @@ function init() // initial function, configs stuff.
     canvas.width = window.innerWidth;
     canvas.height = (window.innerHeight) * 0.95;
 
+    gamespeed = 1;
+
     paused = false;
+    defeat = false;
+    victory = false;
 
     dot[0] = canvas.width / 2;
     dot[1] = canvas.height / 2;
@@ -38,8 +44,8 @@ function init() // initial function, configs stuff.
     player = {loc:dot,speed:intialspeed,mass:10,color:"rgb(255,0,0)"}
 
     enemies = [];
-    enemies.push(CreateEnemy());
-    enemies.push(CreateEnemy());
+    enemies.push(CreateEnemy(false));
+    enemies.push(CreateEnemy(false));
 
     var img = new Image();
     img.src = 'Assets/help.png';
@@ -56,7 +62,7 @@ function init() // initial function, configs stuff.
         keys[e.keyCode] = (e.type == "keydown");
     })
 
-    window.addEventListener("keypress", pausegame, false )
+    window.addEventListener("keydown", pausegame, false);
     // --------------------
 
     draw();
@@ -70,13 +76,21 @@ function MainLogic() // main interval, checks alot of stuff
         Math.floor(player.mass).toString();
 
         var spawner = Math.floor((Math.random() * spawnRate) + 1);
+        var rare = Math.floor((Math.random() * 3) + 1);
         var gift = Math.floor((Math.random() * bonusrate) + 1);
 
         EnemiesCheck();
 
         if(spawner == spawnRate)
         {
-        enemies.push(CreateEnemy());
+            if(rare == 2)
+            {
+               enemies.push(CreateEnemy(true));
+            }
+            else
+            {
+               enemies.push(CreateEnemy(false));
+            }
         }
 
         if(gift == bonusrate)
@@ -114,7 +128,7 @@ function EnemiesCheck() // checks for each enemy(i) which way to go, collision e
 
         if(IsOutside(enemies[i]))
         {
-            enemies[i]= CreateEnemy();
+            enemies[i]= CreateEnemy(false);
         }
 
         if(Collision(enemies[i]))
@@ -130,7 +144,7 @@ function EnemiesCheck() // checks for each enemy(i) which way to go, collision e
                     diff -= speedincrease;
                 }
                 player.mass += enemies[i].mass/massgrow;
-                enemies[i]= CreateEnemy();
+                enemies[i]= CreateEnemy(false);
             }
         }
     }
@@ -138,30 +152,37 @@ function EnemiesCheck() // checks for each enemy(i) which way to go, collision e
 
 function Defeat() // you lost
 {
-    player.loc[0] = 0;
-    player.loc[1] = 0;
-    player.speed = 0;
-    alert("gg");
-    clearInterval(mainInterval);
-    clearInterval(keysInterval);
-    init();
+    defeat = true;
+    paused = true;
+    window.addEventListener("keydown", restart, false);
+    draw();
 }
 
 function Victory() // you win
 {
-    player.loc[0] = 0;
-    player.loc[1] = 0;
-    player.speed = 0;
-    alert("you are too big you won.");
-    clearInterval(mainInterval);
-    clearInterval(keysInterval);
-    init();
+    victory = true;
+    paused = true;
+    window.addEventListener("keydown", restart, false);
+    draw();
 }
-function pausegame(e) // pause
+
+function restart(a)
 {
-    if(e.keyCode == 32)
+    if(a.keyCode == 82)
+    {
+        paused = false;
+        window.removeEventListener("keydown", restart, false);
+        clearInterval(mainInterval);
+        clearInterval(keysInterval);
+        init();
+    }
+}
+function pausegame(a) // pause
+{
+    if(a.keyCode == 80)
     {
         paused = !paused;
+        draw();
     }
 }
 
@@ -176,6 +197,9 @@ function draw() // draw on canvas
     DrawPlayer(context);
     DrawEnemies(context);
     DrawBonus(context);
+    DrawPause(context);
+    DrawLose(context);
+    DrawVictory(context);
   }
 }
 
@@ -235,7 +259,56 @@ function DrawBonus(context)
         context.drawImage(bonus.pic, bonus.loc[0], bonus.loc[1], bonus.width, bonus.height);
     }
 }
-function CreateEnemy() // creates random enemy.
+
+function DrawPause(context)
+{
+    if(paused && !victory && !defeat)
+    {
+        var width = canvas.width / 3;
+        var height = canvas.height / 6;
+
+        context.fillStyle = "rgba(233,240,199,0.4)";
+        context.fillRect(canvas.width/2 - width/2, canvas.height/2 - height/2, width, height);
+        context.font = "30px Arial";
+        context.fillStyle = "rgb(2,28,144)";
+        context.textAlign = "center";
+        context.fillText("Game is paused", canvas.width/2, canvas.height/2);
+    }
+}
+
+function DrawLose(context)
+{
+    if(defeat)
+    {
+        var width = canvas.width / 3;
+        var height = canvas.height / 6;
+
+        context.fillStyle = "rgba(233,240,199,0.4)";
+        context.fillRect(canvas.width/2 - width/2, canvas.height/2 - height/2, width, height);
+        context.font = "30px Arial";
+        context.fillStyle = "rgb(2,28,144)";
+        context.textAlign = "center";
+        context.fillText("Defeated", canvas.width/2, canvas.height/2);
+        context.fillText("Press R", canvas.width/2, canvas.height/2+height/3);
+    }
+}
+function DrawVictory(context)
+{
+    if(victory)
+    {
+        var width = canvas.width / 3;
+        var height = canvas.height / 6;
+
+        context.fillStyle = "rgba(233,240,199,0.4)";
+        context.fillRect(canvas.width/2 - width/2, canvas.height/2 - height/2, width, height);
+        context.font = "30px Arial";
+        context.fillStyle = "rgb(2,28,144)";
+        context.textAlign = "center";
+        context.fillText("You are too big, victory!", canvas.width/2, canvas.height/2);
+        context.fillText("Press R", canvas.width/2, canvas.height/2+height/3);
+    }
+}
+function CreateEnemy(rare) // creates random enemy.
 {
     var offset = -100;
 
@@ -273,8 +346,17 @@ function CreateEnemy() // creates random enemy.
     var point=[10,10];
     point[0]= x;
     point[1] = y;
+    var enemy;
 
-    var enemy = {loc:point, speed:intialspeed/diff,mass:mass,color:"rgb(25,207,69)",direction: dir};
+    if(rare)
+    {
+       var eh = intialspeed/diff;
+       enemy = {loc:point, speed:eh*2,mass:mass,color:"rgb(0,0,255)",direction: dir};
+    }
+    else
+    {
+       enemy = {loc:point, speed:intialspeed/diff,mass:mass,color:"rgb(25,207,69)",direction: dir};
+    }
     return enemy;
 }
 
@@ -330,7 +412,7 @@ function BonusLogic() // what will you get from bonus?
 
    if(rng == 1)
    {
-     player.mass += 30;
+     player.mass += 20;
    }
    else if(rng == 2)
    {
