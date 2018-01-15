@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pong!</title>
+    <link rel="stylesheet" href="styles/main.css" type='text/css'>
+</head>
+
+<body>
+    <h1 id="header">The pong game!!!</h1>
+    <canvas id="canvas"></canvas>
+    <h3>Who do you play against?</h3>
+    <form>
+        <div>
+            <input type="radio" id="gameChoice1" name="choice" value="cpu" checked onclick="gameType('cpu')">
+            <label for="contactChoice1">Computer</label>
+
+            <input type="radio" id="gameChoice2" name="choice" value="player" onclick="gameType('player')">
+            <label for="contactChoice2">Player</label>
+        </div>
+    </form>
+    <script type="text/javascript" src="scripts/main.js"></script>
+</body>
+
+</html>

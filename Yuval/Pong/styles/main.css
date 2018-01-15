@@ -1,0 +1,27 @@
+body{
+    background-color: black;
+    color: white;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+#header{
+    text-align: center;
+    font-size: 2em;
+    margin-top: 4%;
+    font-weight: bold;
+    color: white;
+    text-shadow: 15px 15px 8px darkgrey;
+    padding-bottom: 5%;
+}
+canvas{
+    display:inline-block;
+    padding-left: 10%;
+}
+
+h3{
+    display:inline-block;
+    padding-left: 3%;
+}
+
+form{
+    display:inline-block;
+}
