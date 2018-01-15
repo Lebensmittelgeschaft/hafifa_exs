@@ -10,13 +10,65 @@ var context = canvas.getContext('2d');
 var typeOfGame = "cpu";
 var timeoutID;
 var isGamePaused = false;
+var hasWon = false;
 
 
 var keysDown = {};
 
-class Computer {
-    constructor() {
-        this.paddle = new Paddle(175, 10, 50, 10);
+// class Computer {
+//     constructor() {
+//         this.paddle = new Paddle(175, 10, 50, 10);
+//     }
+
+//     render() {
+//         this.paddle.render();
+//     }
+
+//     update(ball) {
+//         if (typeOfGame == "cpu") {
+//             var x_pos = ball.x;
+//             var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
+//             if (diff < -4) {
+//                 diff = -5;
+//             } else if (diff > 4) {
+//                 diff = 5;
+//             }
+//             this.paddle.move(diff, 0);
+//             if (this.paddle.x < 0) {
+//                 this.paddle.x = 0;
+//             } else if (this.paddle.x + this.paddle.width > 400) {
+//                 this.paddle.x = 400 - this.paddle.width;
+//             }
+//         }
+//         else {
+//             var moved = false;
+//             for (var key in keysDown) {
+//                 var value = Number(key);
+//                 if (value == 65) {
+//                     this.paddle.move(-4, 0);
+//                     moved = true;
+//                 } else if (value == 83) {
+
+//                     this.paddle.move(4, 0);
+//                     moved = true;
+//                 }
+//             }
+
+//             if (!moved)
+//                 this.paddle.move(0, 0)
+
+//         }
+//     }
+// }
+
+class Player {
+    constructor(height, playerType, right, left) {
+        //this.height=height;
+        this.paddle = new Paddle(175, height, 50, 10);
+        this.playerType = playerType;
+        this.right = right;
+        this.wrong = left;
+
     }
 
     render() {
@@ -24,21 +76,43 @@ class Computer {
     }
 
     update(ball) {
-        var x_pos = ball.x;
-        var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
-        if (diff < -4) {
-            diff = -5;
-        } else if (diff > 4) {
-            diff = 5;
+        if (this.playerType == "cpu") {
+            var x_pos = ball.x;
+            var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
+            if (diff < -4) {
+                diff = -5;
+            } else if (diff > 4) {
+                diff = 5;
+            }
+            this.paddle.move(diff, 0);
+            if (this.paddle.x < 0) {
+                this.paddle.x = 0;
+            } else if (this.paddle.x + this.paddle.width > 400) {
+                this.paddle.x = 400 - this.paddle.width;
+            }
         }
-        this.paddle.move(diff, 0);
-        if (this.paddle.x < 0) {
-            this.paddle.x = 0;
-        } else if (this.paddle.x + this.paddle.width > 400) {
-            this.paddle.x = 400 - this.paddle.width;
+        else {
+            var moved = false;
+            for (var key in keysDown) {
+                var value = Number(key);
+                if (value == this.wrong) {
+                    this.paddle.move(-4, 0);
+                    moved = true;
+                } else if (value == this.right) {
+
+                    this.paddle.move(4, 0);
+                    moved = true;
+                }
+            }
+
+            if (!moved)
+                this.paddle.move(0, 0)
+
         }
     }
+
 }
+
 class Paddle {
     constructor(x, y, width, height) {
         this.x = x;
@@ -70,32 +144,33 @@ class Paddle {
 
 }
 
-class Player {
-    constructor() {
-        this.paddle = new Paddle(175, 580, 50, 10);
-    }
+// class Player {
+//     constructor() {
+//         this.paddle = new Paddle(175, 580, 50, 10);
+//     }
 
-    render() {
-        this.paddle.render();
-    }
+//     render() {
+//         this.paddle.render();
+//     }
 
-    update() {
-        var moved = false;
-        for (var key in keysDown) {
-            var value = Number(key);
-            if (value == 37) {
-                this.paddle.move(-4, 0);
-                moved = true;
-            } else if (value == 39) {
+//     update() {
+//         var moved = false;
+//         for (var key in keysDown) {
+//             var value = Number(key);
+//             if (value == 37) {
+//                 this.paddle.move(-4, 0);
+//                 moved = true;
+//             } else if (value == 39) {
 
-                this.paddle.move(4, 0);
-                moved = true;
-            }
-        }
-        if (!moved)
-            this.paddle.move(0, 0)
-    }
-}
+//                 this.paddle.move(4, 0);
+//                 moved = true;
+//             }
+//         }
+
+//         if (!moved)
+//             this.paddle.move(0, 0)
+//     }
+// }
 
 class Ball {
     constructor(x, y) {
@@ -173,6 +248,7 @@ function gameType(playerType) {
     console.log(playerType);
     document.getElementById('gameChoice1').setAttribute("disabled", "disabled");
     document.getElementById('gameChoice2').setAttribute("disabled", "disabled");
+    computer.playerType = playerType;
 }
 
 function drawNet() {
@@ -190,8 +266,10 @@ function drawScores() {
     context.fillText(player2Score, canvas.width / 2 - 27, canvas.height - 100);
 }
 
-var player = new Player();
-var computer = new Computer();
+var player = new Player(580, "player1", 39, 37);
+
+
+var computer = new Player(10, "cpu", 83, 65);
 var ball = new Ball(200, 300);
 
 
@@ -212,22 +290,37 @@ var render = function () {
 };
 
 var update = function () {
-    player.update();
+    player.update(ball);
     computer.update(ball);
     ball.update(player.paddle, computer.paddle);
 };
 
 var step = function () {
-    if (!isGamePaused) {
+    // if (!isGamePaused) {
+    //     update();
+    //     render();
+    // } else {
+    //     context.fillStyle = 'white';
+    //     context.fillRect(150, 280, 90, 40);
+    //     context.fillStyle = 'black';
+    //     context.font = "30px Jennie";
+    //     context.fillText("paused", 155, 310)
+    // }
+    if(isGamePaused) {
+        context.fillStyle = 'white';
+        context.fillRect(150, 280, 90, 40);
+        context.fillStyle = 'black';
+        context.font = "30px Jennie";
+        context.fillText("paused", 155, 310)
+    } else if(hasWon){
+        context.fillStyle = 'white';
+        context.fillRect(150, 280, 90, 40);
+        context.fillStyle = 'black';
+        context.font = "30px Jennie";
+        context.fillText("paused", 155, 310)
+    } else {
         update();
         render();
-
-    } else {
-        context.fillStyle = 'white';
-        context.fillRect(150,280,90,40);
-        context.fillStyle = 'black';
-        context.font="30px Jennie";
-        context.fillText("paused",155,310)
     }
     animate(step);
 };
