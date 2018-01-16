@@ -1,48 +1,77 @@
 
-//Nice game
+//Nice game - by Grisha.
 
 //Vars
 var canvas;
+var context;
+var audio;
 var player;
 var enemies;
 var dot = [0, 0];
 var gamespeed = 1;
-var intialspeed = 5;
 var keys;
 var diff = 3;
-var spawnRate = 100;
-var maxmass = 100;
-var massgrow = 4;
 var mainInterval;
 var keysInterval;
 var paused;
 var bonus=[];
-var bonusrate = 1000;
-var winningMass = 500;
-var speedincrease = 0.2;
 var victory;
 var defeat;
+var shadowsenabled;
+var godmode=false;
 //--------------
+//Constants
+const WINNING_MASS = 500;
+const BONUS_RATE = 1000;
+const SPAWN_RATE = 100;
+const RARE_SPAWN_RATE = 3;
+const MAX_MASS = 100;
+const INIT_SPEED = 5;
+const SPEED_INCREASE = 0.1;
+const MASS_GROW = 4;
+const PLAYER_COLOR = "rgb(255,0,0)";
+const ENEMY_COLOR = "rgb(25,207,69)";
+const RARE_ENEMY_COLOR = "rgb(0,0,255)";
+const FPS = 60;
 
 init();
 
 function init() // initial function, configs stuff.
 {
+    InitCanvas();
+    ResetGame();
+    ResetIntervals();
+    draw();
+}
+
+function InitCanvas()
+{
     canvas = document.getElementById("canvas");
     canvas.width = window.innerWidth;
     canvas.height = (window.innerHeight) * 0.95;
 
+    if(canvas.getContext)
+    {
+       context = canvas.getContext("2d");
+    }
+}
+
+function ResetGame()
+{
     gamespeed = 1;
+    diff = 3;
 
     paused = false;
     defeat = false;
     victory = false;
+    shadowsenabled=false;
+    Shadows(shadowsenabled);
 
     dot[0] = canvas.width / 2;
     dot[1] = canvas.height / 2;
 
-    player = {loc:dot,speed:intialspeed,mass:10,color:"rgb(255,0,0)"}
-
+    player = {loc:dot,speed:INIT_SPEED,mass:10,color:PLAYER_COLOR};
+    
     enemies = [];
     enemies.push(CreateEnemy(false));
     enemies.push(CreateEnemy(false));
@@ -50,23 +79,23 @@ function init() // initial function, configs stuff.
     var img = new Image();
     img.src = 'Assets/help.png';
     bonus = {pic:img,loc:dot,width:12,height:25,exist:false};
+}
 
-    keysInterval = setInterval(UserInput, 10);
-    mainInterval = setInterval(MainLogic, 10);
-    // User input functions
+function ResetIntervals()
+{
+    keysInterval = setInterval(UserInput, 1000/FPS);
+    mainInterval = setInterval(MainLogic, 1000/FPS);
+
     window.addEventListener('keydown', function (e) {
         keys = (keys || []);
         keys[e.keyCode] = (e.type == "keydown");
-    })
+    });
     window.addEventListener('keyup', function (e) {
         keys[e.keyCode] = (e.type == "keydown");
-    })
-
-    window.addEventListener("keydown", pausegame, false);
-    // --------------------
-
-    draw();
+    });
+    window.addEventListener("keydown", SinglePress, false);
 }
+
 
 function MainLogic() // main interval, checks alot of stuff
 {
@@ -75,15 +104,15 @@ function MainLogic() // main interval, checks alot of stuff
         document.getElementById("score").innerHTML = 
         Math.floor(player.mass).toString();
 
-        var spawner = Math.floor((Math.random() * spawnRate) + 1);
-        var rare = Math.floor((Math.random() * 3) + 1);
-        var gift = Math.floor((Math.random() * bonusrate) + 1);
+        var spawner = Math.floor((Math.random() * SPAWN_RATE) + 1);
+        var rare = Math.floor((Math.random() * RARE_SPAWN_RATE) + 1);
+        var gift = Math.floor((Math.random() * BONUS_RATE) + 1);
 
         EnemiesCheck();
 
-        if(spawner == spawnRate)
+        if(spawner == SPAWN_RATE)
         {
-            if(rare == 2)
+            if(rare == RARE_SPAWN_RATE)
             {
                enemies.push(CreateEnemy(true));
             }
@@ -93,15 +122,14 @@ function MainLogic() // main interval, checks alot of stuff
             }
         }
 
-        if(gift == bonusrate)
+        if(gift == BONUS_RATE)
         {
             createBonus();
         }
-        if(player.mass > winningMass)
+        if(player.mass > WINNING_MASS)
         {
             Victory();
         }
-
         BonusCollision();
     }
 }
@@ -135,15 +163,22 @@ function EnemiesCheck() // checks for each enemy(i) which way to go, collision e
         {
             if(enemies[i].mass > player.mass)
             {
-                Defeat();
+                if(!godmode)
+                {
+                  Defeat();
+                }
             }
             else
             {
                 if(diff > 1)
                 {
-                    diff -= speedincrease;
+                    diff -= SPEED_INCREASE;
                 }
-                player.mass += enemies[i].mass/massgrow;
+                audio = new Audio("./Assets/hit.mp3");
+                audio.play();
+
+                player.mass += enemies[i].mass/MASS_GROW;
+                godmode = false;
                 enemies[i]= CreateEnemy(false);
             }
         }
@@ -152,6 +187,9 @@ function EnemiesCheck() // checks for each enemy(i) which way to go, collision e
 
 function Defeat() // you lost
 {
+    audio = new Audio("./Assets/lose.mp3");
+    audio.play();
+
     defeat = true;
     paused = true;
     window.addEventListener("keydown", restart, false);
@@ -160,6 +198,9 @@ function Defeat() // you lost
 
 function Victory() // you win
 {
+    audio = new Audio("./Assets/win.mp3");
+    audio.play();
+
     victory = true;
     paused = true;
     window.addEventListener("keydown", restart, false);
@@ -177,21 +218,23 @@ function restart(a)
         init();
     }
 }
-function pausegame(a) // pause
+function SinglePress(a) // pause
 {
     if(a.keyCode == 80)
     {
         paused = !paused;
         draw();
     }
+    if(a.keyCode == 83) // shadows on off
+    {
+        shadowsenabled = !shadowsenabled;
+        Shadows(shadowsenabled);
+        draw();
+    }
 }
 
 function draw() // draw on canvas
 {
-  if(canvas.getContext)
-  {
-    var context = canvas.getContext("2d");
-
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     DrawPlayer(context);
@@ -200,7 +243,23 @@ function draw() // draw on canvas
     DrawPause(context);
     DrawLose(context);
     DrawVictory(context);
-  }
+}
+
+function Shadows(shadowsenabled)
+{
+    if(shadowsenabled == true)
+    {
+        context.shadowBlur=15;
+        context.shadowColor='#000'; 
+        context.shadowOffsetX=10; // offset along X axis
+        context.shadowOffsetY=-10;  // offset along Y axis
+    }
+    else
+    {
+        context.shadowBlur=0;
+        context.shadowOffsetX=0;
+        context.shadowOffsetY=0;
+    }
 }
 
 function UserInput() // responsible for user input , arrow keys.
@@ -234,6 +293,13 @@ function UserInput() // responsible for user input , arrow keys.
 
 function DrawPlayer(context)
 {
+    if(godmode)
+    {
+        context.beginPath();
+        context.arc(player.loc[0], player.loc[1], player.mass*2, 0, 2 * Math.PI);
+        context.fillStyle = "rgba(255,255,255,0.3)";
+        context.fill();
+    }
     context.beginPath();
     context.arc(player.loc[0], player.loc[1], player.mass, 0, 2 * Math.PI);
     context.fillStyle = player.color;
@@ -312,7 +378,7 @@ function CreateEnemy(rare) // creates random enemy.
 {
     var offset = -100;
 
-    var mass = Math.floor((Math.random() * maxmass) + 1);
+    var mass = Math.floor((Math.random() * MAX_MASS) + 1);
     var side = Math.floor((Math.random() * 4) + 1);
     var x,y;
     var num = Math.floor((Math.random() * 4) + 1);
@@ -350,12 +416,12 @@ function CreateEnemy(rare) // creates random enemy.
 
     if(rare)
     {
-       var eh = intialspeed/diff;
-       enemy = {loc:point, speed:eh*2,mass:mass,color:"rgb(0,0,255)",direction: dir};
+       var eh = INIT_SPEED/diff;
+       enemy = {loc:point, speed:eh*2,mass:mass,color:RARE_ENEMY_COLOR,direction: dir};
     }
     else
     {
-       enemy = {loc:point, speed:intialspeed/diff,mass:mass,color:"rgb(25,207,69)",direction: dir};
+       enemy = {loc:point, speed:INIT_SPEED/diff,mass:mass,color:ENEMY_COLOR,direction: dir};
     }
     return enemy;
 }
@@ -408,7 +474,10 @@ function BonusCollision() // checks collision with bonus
 function BonusLogic() // what will you get from bonus?
 {
    bonus.exist=false;
-   var rng = Math.floor((Math.random() * 3) + 1);
+   var rng = Math.floor((Math.random() * 4) + 1);
+
+   audio = new Audio("./Assets/bonus.mp3");
+   audio.play();
 
    if(rng == 1)
    {
@@ -418,9 +487,13 @@ function BonusLogic() // what will you get from bonus?
    {
      player.mass = 5;
    }
-   else
+   else if(rng == 3)
    {
      diff = 15;
+   }
+   else
+   {
+       godmode = true;
    }
 
 }
@@ -438,7 +511,7 @@ function IsOutside(enemy) // checks if enemy outside to create new one.
 
 function help()
 {
-    alert("Game help \n *Space - pause \n *Arrow keys to move \n *Try to grow big!");
+    alert("Game help \n *P - pause \n *Arrow keys to move \n *S - shadows on/off \n *Try to grow big!");
 }
 
 function ChangeSpeed() // change game speed.

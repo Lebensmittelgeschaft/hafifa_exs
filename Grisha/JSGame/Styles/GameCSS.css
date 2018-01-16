@@ -10,18 +10,24 @@
 canvas
 { 
 
-  border-style: solid;
+ /* border-style: solid;
   border-width: 2px;
-  border-color: #a38c06;
+  border-color: #a38c06;*/
   background-color: Black;
+  background-image: url("../Assets/bg.jpg");
 }
 
 #gameUI
 {
   display: block;
+  border-style: solid;
+  border-width: 0.5px 0px 0px 0px;
+  border-color: #c0b67e;
   width: 100%;
   height: 5%;
   background-color: rgb(135, 161, 179);
+  background-image: url("../Assets/metal6.jpg");
+  background-repeat: repeat;
   bottom: 0;
   position: fixed;
 }
@@ -33,7 +39,7 @@ canvas
   margin: 0px;
   padding: 0px;
   left: 49%;
-  bottom: 60%;
+  bottom: 50%;
   position: absolute;
 }
 
@@ -45,7 +51,7 @@ canvas
   margin: 0px;
   padding: 0px;
   left: 49.75%;
-  bottom: 25%;
+  bottom: 10%;
   position: absolute;
 }
 
@@ -53,10 +59,9 @@ canvas
 {
   margin: 0px;
   padding: 0px;
-  width: 4%;
   height: 60%;
-  bottom: 30%;  
-  left: 95%; 
+  bottom: 20%;  
+  left: 97%; 
   position: absolute;
 }
 
@@ -65,18 +70,18 @@ canvas
   margin: 0px;
   padding: 0px;
   width: 10%;
-  height: 40%;
+  height: 45%;
   bottom: 40%;
   left: 1%;
-  font-size: 1vmin;
+  font-size: 1.2vmin;
   position: absolute;
 }
 
 #send
 {
-  font-size: 1vmin;
+  font-size: 1.2vmin;
   margin: 0px;
-  padding: 0px;
+  padding-bottom: 0.5%;
   width: 4%;
   height: 40%;
   bottom: 40%;
@@ -89,21 +94,28 @@ canvas
   margin: 0px;
   padding: 0px;
   width: 10%;
-  height: 40%;
+  height: 45%;
   bottom: 40%;
   left: 20%;
-  font-size: 1vmin;
+  font-size: 1.2vmin;
+  color: black;
   position: absolute;
 }
 
 #send2
 {
-  font-size: 1vmin;
+  font-size: 1.2vmin;
   margin: 0px;
-  padding: 0px;
+  padding-bottom: 0.5%;
   width: 4%;
   height: 40%;
   bottom: 40%;
   left: 31%;
   position: absolute;
+}
+
+::placeholder 
+{ 
+  color: black;
+  font-weight: bold;
 }
