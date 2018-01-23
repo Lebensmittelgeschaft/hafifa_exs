@@ -5,22 +5,45 @@
     <meta charset="UTF-8">
     <title>Pong!</title>
     <link rel="stylesheet" href="styles/main.css" type='text/css'>
+    <link rel="icon" href="/favicon.ico" />
 </head>
 
 <body>
     <h1 id="header">The pong game!!!</h1>
-    <canvas id="canvas"></canvas>
-    <h3>Who do you play against?</h3>
+    <div class="game">
+        <div class="player-title" id ="playerTitle2">
+            <img src="images/aKey.png" width="40" height="40" class="keyImg">
+            <h3></h3>
+            <img src="images/sKey.png" width="40" height="40" class="keyImg">
+        </div>
+        <canvas id="canvas"></canvas>
+        <div class="player-title" id="playerTitle1">
+            <img src="images/leftArrow.png" width="40" height="40">
+            <h3></h3>
+            <img src="images/rightArrow.png" width="40" height="40">
+        </div>
+    </div>
+    <h3 class="gameTypeHeader">
+        Welcome to the best game ever! <br>
+        To pause the game, please press SPACE. <br>
+        To move the paddle of player1, use the arrows keys as shown. <br>
+        To move the opponent's paddle(player2), use the A/S keys. <br>
+        You can turn the sound on/off by clicking the sound icon!! <br>
+        You can choose the type of opponent! 
+    </h3>
+    <br>
+    <h3 class="gameTypeHeader">Who do you play against?</h3>
     <form>
         <div>
             <input type="radio" id="gameChoice1" name="choice" value="cpu" checked onclick="gameType('cpu')">
             <label for="contactChoice1">Computer</label>
 
-            <input type="radio" id="gameChoice2" name="choice" value="player" onclick="gameType('player')">
+            <input type="radio" id="gameChoice2" name="choice" value="player" onclick="gameType('player2')">
             <label for="contactChoice2">Player</label>
         </div>
     </form>
     <script type="text/javascript" src="scripts/main.js"></script>
+    
 </body>
 
 </html>

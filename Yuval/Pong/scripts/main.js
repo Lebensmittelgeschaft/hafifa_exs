@@ -2,16 +2,15 @@ var canvas = document.getElementById("canvas");
 const width = 400;
 const height = 600;
 const WINNING_SCORE = 3;
-var player1Score = 0;
-var player2Score = 0;
 canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
 var typeOfGame = "cpu";
 var timeoutID;
 var isGamePaused = false;
-var hasWon = false;
-
+var hasWon = "";
+var paddleAudio = new Audio("sounds/boop_paddle.mp3");
+var wallAudio = new Audio("sounds/beep_wall.mp3");
 
 var keysDown = {};
 
@@ -62,13 +61,14 @@ var keysDown = {};
 // }
 
 class Player {
-    constructor(height, playerType, right, left) {
+    constructor(height, playerType, right, left, titleDiv) {
         //this.height=height;
         this.paddle = new Paddle(175, height, 50, 10);
         this.playerType = playerType;
         this.right = right;
-        this.wrong = left;
-
+        this.left = left;
+        this.playerScore = 0;
+        this.titleDiv = titleDiv;
     }
 
     render() {
@@ -76,6 +76,9 @@ class Player {
     }
 
     update(ball) {
+        this.titleDiv.querySelectorAll("img")[0].style.border = "3px solid black";
+        this.titleDiv.querySelectorAll("img")[1].style.border = "3px solid black";
+        this.titleDiv.querySelector("h3").innerHTML = this.playerType;
         if (this.playerType == "cpu") {
             var x_pos = ball.x;
             var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
@@ -95,13 +98,16 @@ class Player {
             var moved = false;
             for (var key in keysDown) {
                 var value = Number(key);
-                if (value == this.wrong) {
+                if (value == this.left) {
                     this.paddle.move(-4, 0);
                     moved = true;
+                    this.titleDiv.querySelectorAll("img")[0].style.border = "solid 3px yellow";
+
                 } else if (value == this.right) {
 
                     this.paddle.move(4, 0);
                     moved = true;
+                    this.titleDiv.querySelectorAll("img")[1].style.border = "solid 3px yellow";
                 }
             }
 
@@ -198,9 +204,11 @@ class Ball {
         if (this.x - 5 < 0) {
             this.x = 5;
             this.x_speed = -this.x_speed;
+            wallAudio.play();
         } else if (this.x + 5 > 400) {
             this.x = 395;
             this.x_speed = -this.x_speed;
+            wallAudio.play();
         }
 
         if (this.y < 0) {
@@ -209,12 +217,12 @@ class Ball {
             this.x = 200;
             this.y = 300;
 
-            if (player2Score == WINNING_SCORE - 1) {
+            player1.playerScore++;
+            if (player1.playerScore == WINNING_SCORE) {
 
-                player1Score = 0;
-                player2Score = 0;
-            } else {
-                player2Score++;
+                // player1.playerScore = 0;
+                // player2.playerScore = 0;
+                hasWon = player1.playerType;
             }
         } else if (this.y > 600) {
             this.x_speed = 0;
@@ -222,33 +230,35 @@ class Ball {
             this.x = 200;
             this.y = 300;
 
-            if (player1Score == WINNING_SCORE - 1) {
+            player2.playerScore++;
+            if (player2.playerScore == WINNING_SCORE) {
 
-                player1Score = 0;
-                player2Score = 0;
-            } else {
-                player1Score++;
+                // player1.playerScore = 0;
+                // player2.playerScore = 0;
+                hasWon = player2.playerType;
             }
         }
+
 
         if (top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y && top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x) {
             this.y_speed *= -1
             this.x_speed += (paddle1.x_speed / 2);
             this.y += this.y_speed;
+            paddleAudio.play();
         }
         if (top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y && top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x) {
             this.y_speed *= -1;
             this.x_speed += (paddle2.x_speed / 2);
             this.y += this.y_speed;
+            paddleAudio.play();
         }
     };
 }
 
 function gameType(playerType) {
     console.log(playerType);
-    document.getElementById('gameChoice1').setAttribute("disabled", "disabled");
-    document.getElementById('gameChoice2').setAttribute("disabled", "disabled");
-    computer.playerType = playerType;
+    player2.playerType = playerType;
+    document.getElementById("player2Name").innerHTML = player2.playerType;
 }
 
 function drawNet() {
@@ -262,15 +272,14 @@ function drawNet() {
 function drawScores() {
     context.font = "100px  sans-serif"
     context.fillStyle = "rgba(0, 0, 0, 0.5)";
-    context.fillText(player1Score, canvas.width / 2 - 27, 150);
-    context.fillText(player2Score, canvas.width / 2 - 27, canvas.height - 100);
+    context.fillText(player1.playerScore, canvas.width / 2 - 27, canvas.height - 100);
+    context.fillText(player2.playerScore, canvas.width / 2 - 27, 160);
 }
 
-var player = new Player(580, "player1", 39, 37);
-
-
-var computer = new Player(10, "cpu", 83, 65);
+var player1 = new Player(580, "player1", 39, 37, document.getElementById("playerTitle1"));
+var player2 = new Player(10, "cpu", 83, 65, document.getElementById("playerTitle2"));
 var ball = new Ball(200, 300);
+
 
 
 
@@ -281,8 +290,8 @@ var animate = function (callback) {
 var render = function () {
     context.fillStyle = "#FFFFFF";
     context.fillRect(0, 0, width, height);
-    player.render();
-    computer.render();
+    player1.render();
+    player2.render();
     drawNet();
     drawScores();
     ball.render();
@@ -290,9 +299,9 @@ var render = function () {
 };
 
 var update = function () {
-    player.update(ball);
-    computer.update(ball);
-    ball.update(player.paddle, computer.paddle);
+    player1.update(ball);
+    player2.update(ball);
+    ball.update(player1.paddle, player2.paddle);
 };
 
 var step = function () {
@@ -306,22 +315,29 @@ var step = function () {
     //     context.font = "30px Jennie";
     //     context.fillText("paused", 155, 310)
     // }
-    if(isGamePaused) {
+    if (isGamePaused) {
         context.fillStyle = 'white';
         context.fillRect(150, 280, 90, 40);
         context.fillStyle = 'black';
         context.font = "30px Jennie";
         context.fillText("paused", 155, 310)
-    } else if(hasWon){
-        context.fillStyle = 'white';
-        context.fillRect(150, 280, 90, 40);
+    } else if (hasWon != "") {
+        context.fillStyle = 'grey';
+        context.fillRect(110, 280, 170, 40);
         context.fillStyle = 'black';
         context.font = "30px Jennie";
-        context.fillText("paused", 155, 310)
+        if (hasWon == "cpu") {
+            context.fillText("   " + hasWon + " won!", 120, 310)
+        } else {
+            context.fillText(hasWon + " won!", 120, 310)
+        }
+        context.font = "15px Jennie";
+        context.fillText("<PRESS ANY KEY TO START AGAIN>", 80, 360);
     } else {
         update();
         render();
     }
+
     animate(step);
 };
 
@@ -329,9 +345,14 @@ animate(step);
 
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
-    if (key === 32)// space key   
+    if (hasWon != "") {
+        player1 = new Player(580, "player1", 39, 37, document.getElementById("playerTitle1"));
+        player2 = new Player(10, player2.playerType, 83, 65, document.getElementById("playerTitle2"));
+        ball = new Ball(200, 300);
+        hasWon = "";
+    } else if (key === 32)// space key   
     {
-        isGamePaused = !isGamePaused
+        isGamePaused = !isGamePaused;
     } else {
         keysDown[event.keyCode] = true;
     }
@@ -339,4 +360,13 @@ window.addEventListener("keydown", function (event) {
 
 window.addEventListener("keyup", function (event) {
     delete keysDown[event.keyCode];
+});
+
+var gameChoice1 = document.getElementById("gameChoice1")
+var gameChoice2 = document.getElementById("gameChoice2")
+gameChoice1.addEventListener("keydown", function (eve) {
+    eve.preventDefault();
+});
+gameChoice2.addEventListener("keydown", function (eve) {
+    eve.preventDefault();
 });

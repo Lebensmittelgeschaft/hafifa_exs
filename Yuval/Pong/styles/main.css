@@ -13,16 +13,34 @@ body{
     padding-bottom: 5%;
 }
 canvas{
-    display:inline-block;
-    padding-left: 10%;
-    vertical-align: top;
+    display:block;
 }
 
-h3{
+.game {
+    /*display:inline-block;*/
+    padding-left: 10%;
+    vertical-align: top;
+    float: left;
+}
+
+.gameTypeHeader {
     display:inline-block;
     padding-left: 3%;
 }
 
+.player-title {
+    text-align: center;
+}
+.player-title h3 {
+    vertical-align: top;
+    display: inline-block;
+    width:300px;
+    margin-top: 2px;
+    margin-bottom: 2px
+}
+.player-title #player2Name {
+    vertical-align: bottom;
+}
 form{
     display:inline-block;
 }
