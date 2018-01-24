@@ -11,7 +11,8 @@ var isGamePaused = false;
 var hasWon = "";
 var paddleAudio = new Audio("sounds/boop_paddle.mp3");
 var wallAudio = new Audio("sounds/beep_wall.mp3");
-
+var isAudioOn = localStorage.getItem('muted') == null ? true : localStorage.getItem('muted')==="false";
+setSound(isAudioOn);
 var keysDown = {};
 
 // class Computer {
@@ -259,6 +260,19 @@ function gameType(playerType) {
     console.log(playerType);
     player2.playerType = playerType;
     document.getElementById("player2Name").innerHTML = player2.playerType;
+}
+
+function changeSound() {
+    console.log("Fdsfds")
+    isAudioOn = !isAudioOn
+    setSound(isAudioOn);
+
+}
+function setSound(on){
+    localStorage.setItem('muted', !on);
+    document.getElementById("soundIcon").src = !on ? "images/soundOffIcon.png" : "images/soundOnIcon.png";
+    paddleAudio.muted = !on;
+    wallAudio.muted = !on;
 }
 
 function drawNet() {

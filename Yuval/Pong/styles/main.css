@@ -44,3 +44,7 @@ canvas{
 form{
     display:inline-block;
 }
+
+#soundIcon{
+    padding-left: 3%;
+}
