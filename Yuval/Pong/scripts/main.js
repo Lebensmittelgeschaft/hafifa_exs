@@ -1,70 +1,44 @@
-var canvas = document.getElementById("canvas");
-const width = 400;
-const height = 600;
-const WINNING_SCORE = 3;
-canvas.width = width;
-canvas.height = height;
-var context = canvas.getContext('2d');
-var typeOfGame = "cpu";
+// Consts
+const BOARD_WIDTH       = 400;
+const BOARD_HEIGHT      = 600;
+const WINNING_SCORE     = 3;
+const PAUSE_KEY         = 32;  
+const FRAMES_PER_SEC    = 60;
+const PADDLE_HEIGHT     = 10;
+const PADDLE_WIDTH      = 50;
+const PADDLE_X_POSITION = BOARD_WIDTH / 2 - PADDLE_WIDTH / 2;
+const MAX_DIFF_CPU_BALL = 5;
+const DIFF_PADDLE_BOARD = 10;
+const BALL_RADIUS       = 5;
+
+// Vars
+var canvas       = document.getElementById("canvas");
+var context      = canvas.getContext('2d');
+var typeOfGame   = "cpu";
 var timeoutID;
 var isGamePaused = false;
-var hasWon = "";
-var paddleAudio = new Audio("sounds/boop_paddle.mp3");
-var wallAudio = new Audio("sounds/beep_wall.mp3");
-var isAudioOn = localStorage.getItem('muted') == null ? true : localStorage.getItem('muted')==="false";
+var winnerPlayer = "";
+// Create audio for paddles and walls
+var paddleAudio  = new Audio("sounds/boop_paddle.mp3");
+var wallAudio    = new Audio("sounds/beep_wall.mp3");
+// Get from local storage if sound is muted or not
+var isAudioOn    = localStorage.getItem('muted') == null ? true : localStorage.getItem('muted') === "false";
+// All pressed keys
+var keysDown     = {};
+// Get the radio buttons of game type
+var gameChoice1  = document.getElementById("gameChoice1")
+var gameChoice2  = document.getElementById("gameChoice2")
+
+// Setting board sizes
+canvas.width  = BOARD_WIDTH;
+canvas.height = BOARD_HEIGHT;
+
 setSound(isAudioOn);
-var keysDown = {};
 
-// class Computer {
-//     constructor() {
-//         this.paddle = new Paddle(175, 10, 50, 10);
-//     }
-
-//     render() {
-//         this.paddle.render();
-//     }
-
-//     update(ball) {
-//         if (typeOfGame == "cpu") {
-//             var x_pos = ball.x;
-//             var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
-//             if (diff < -4) {
-//                 diff = -5;
-//             } else if (diff > 4) {
-//                 diff = 5;
-//             }
-//             this.paddle.move(diff, 0);
-//             if (this.paddle.x < 0) {
-//                 this.paddle.x = 0;
-//             } else if (this.paddle.x + this.paddle.width > 400) {
-//                 this.paddle.x = 400 - this.paddle.width;
-//             }
-//         }
-//         else {
-//             var moved = false;
-//             for (var key in keysDown) {
-//                 var value = Number(key);
-//                 if (value == 65) {
-//                     this.paddle.move(-4, 0);
-//                     moved = true;
-//                 } else if (value == 83) {
-
-//                     this.paddle.move(4, 0);
-//                     moved = true;
-//                 }
-//             }
-
-//             if (!moved)
-//                 this.paddle.move(0, 0)
-
-//         }
-//     }
-// }
-
+// Class represents a player instance in the game (can be cpu or human)
 class Player {
     constructor(height, playerType, right, left, titleDiv) {
-        //this.height=height;
-        this.paddle = new Paddle(175, height, 50, 10);
+        this.paddle = new Paddle(PADDLE_X_POSITION, height, PADDLE_WIDTH, PADDLE_HEIGHT);
         this.playerType = playerType;
         this.right = right;
         this.left = left;
@@ -77,35 +51,42 @@ class Player {
     }
 
     update(ball) {
+        // Sets the border of keys images to black
         this.titleDiv.querySelectorAll("img")[0].style.border = "3px solid black";
         this.titleDiv.querySelectorAll("img")[1].style.border = "3px solid black";
         this.titleDiv.querySelector("h3").innerHTML = this.playerType;
+
+        // Check whether the player is cpu or human
         if (this.playerType == "cpu") {
             var x_pos = ball.x;
             var diff = -((this.paddle.x + (this.paddle.width / 2)) - x_pos);
-            if (diff < -4) {
-                diff = -5;
-            } else if (diff > 4) {
-                diff = 5;
+            
+            // Check diff between ball center X axis to cpu paddle middle x axis 
+            if (diff < -MAX_DIFF_CPU_BALL) {
+                diff = -MAX_DIFF_CPU_BALL;
+            } else if (diff > MAX_DIFF_CPU_BALL) {
+                diff = MAX_DIFF_CPU_BALL;
             }
+
             this.paddle.move(diff, 0);
+
             if (this.paddle.x < 0) {
                 this.paddle.x = 0;
-            } else if (this.paddle.x + this.paddle.width > 400) {
-                this.paddle.x = 400 - this.paddle.width;
+            } else if (this.paddle.x + this.paddle.width > BOARD_WIDTH) {
+                this.paddle.x = BOARD_WIDTH - this.paddle.width;
             }
-        }
-        else {
+        } else { // Player is human
             var moved = false;
+
             for (var key in keysDown) {
                 var value = Number(key);
+                
+                // Player moved left
                 if (value == this.left) {
                     this.paddle.move(-4, 0);
                     moved = true;
                     this.titleDiv.querySelectorAll("img")[0].style.border = "solid 3px yellow";
-
-                } else if (value == this.right) {
-
+                } else if (value == this.right) { // Player moved right
                     this.paddle.move(4, 0);
                     moved = true;
                     this.titleDiv.querySelectorAll("img")[1].style.border = "solid 3px yellow";
@@ -120,6 +101,7 @@ class Player {
 
 }
 
+// Class represents a paddle instance in the game
 class Paddle {
     constructor(x, y, width, height) {
         this.x = x;
@@ -143,41 +125,13 @@ class Paddle {
         if (this.x < 0) {
             this.x = 0;
             this.x_speed = 0;
-        } else if (this.x + this.width > 400) {
-            this.x = 400 - this.width;
+        } else if (this.x + this.width > BOARD_WIDTH) {
+            this.x = BOARD_WIDTH - this.width;
             this.x_speed = 0;
         }
     };
 
 }
-
-// class Player {
-//     constructor() {
-//         this.paddle = new Paddle(175, 580, 50, 10);
-//     }
-
-//     render() {
-//         this.paddle.render();
-//     }
-
-//     update() {
-//         var moved = false;
-//         for (var key in keysDown) {
-//             var value = Number(key);
-//             if (value == 37) {
-//                 this.paddle.move(-4, 0);
-//                 moved = true;
-//             } else if (value == 39) {
-
-//                 this.paddle.move(4, 0);
-//                 moved = true;
-//             }
-//         }
-
-//         if (!moved)
-//             this.paddle.move(0, 0)
-//     }
-// }
 
 class Ball {
     constructor(x, y) {
@@ -189,7 +143,7 @@ class Ball {
 
     render() {
         context.beginPath();
-        context.arc(this.x, this.y, 5, 2 * Math.PI, false);
+        context.arc(this.x, this.y, BALL_RADIUS, 2 * Math.PI, false);
         context.fillStyle = "#F00000";
         context.fill();
     };
@@ -197,49 +151,44 @@ class Ball {
     update(paddle1, paddle2) {
         this.x += this.x_speed;
         this.y += this.y_speed;
+
         var top_x = this.x - 5;
         var top_y = this.y - 5;
         var bottom_x = this.x + 5;
         var bottom_y = this.y + 5;
 
-        if (this.x - 5 < 0) {
-            this.x = 5;
+        // Hit left side wall
+        if (this.x - BALL_RADIUS < 0) {
+            this.x = BALL_RADIUS;
             this.x_speed = -this.x_speed;
             wallAudio.play();
-        } else if (this.x + 5 > 400) {
-            this.x = 395;
+        } else if (this.x + BALL_RADIUS > BOARD_WIDTH) {
+            this.x = BOARD_WIDTH - BALL_RADIUS;
             this.x_speed = -this.x_speed;
             wallAudio.play();
         }
 
-        if (this.y < 0) {
+        if (this.y < PADDLE_HEIGHT / 2) {
             this.x_speed = 0;
             this.y_speed = 1;
-            this.x = 200;
-            this.y = 300;
+            this.x = BOARD_WIDTH / 2;
+            this.y = BOARD_HEIGHT / 2;
 
             player1.playerScore++;
             if (player1.playerScore == WINNING_SCORE) {
-
-                // player1.playerScore = 0;
-                // player2.playerScore = 0;
-                hasWon = player1.playerType;
+                winnerPlayer = player1.playerType;
             }
-        } else if (this.y > 600) {
+        } else if (this.y > BOARD_HEIGHT - PADDLE_HEIGHT / 2) {
             this.x_speed = 0;
             this.y_speed = 1;
-            this.x = 200;
-            this.y = 300;
+            this.x = BOARD_WIDTH / 2;
+            this.y = BOARD_HEIGHT / 2;
 
             player2.playerScore++;
             if (player2.playerScore == WINNING_SCORE) {
-
-                // player1.playerScore = 0;
-                // player2.playerScore = 0;
-                hasWon = player2.playerType;
+                winnerPlayer = player2.playerType;
             }
         }
-
 
         if (top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y && top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x) {
             this.y_speed *= -1
@@ -256,6 +205,12 @@ class Ball {
     };
 }
 
+// Create players and ball for the game
+var player1 = new Player(BOARD_HEIGHT - 2 * DIFF_PADDLE_BOARD, "player1", 39, 37, document.getElementById("playerTitle1"));
+var player2 = new Player(DIFF_PADDLE_BOARD, "cpu", 83, 65, document.getElementById("playerTitle2"));
+var ball    = new Ball(200, 300);
+
+
 function gameType(playerType) {
     console.log(playerType);
     player2.playerType = playerType;
@@ -263,12 +218,11 @@ function gameType(playerType) {
 }
 
 function changeSound() {
-    console.log("Fdsfds")
     isAudioOn = !isAudioOn
     setSound(isAudioOn);
 
 }
-function setSound(on){
+function setSound(on) {
     localStorage.setItem('muted', !on);
     document.getElementById("soundIcon").src = !on ? "images/soundOffIcon.png" : "images/soundOnIcon.png";
     paddleAudio.muted = !on;
@@ -290,20 +244,13 @@ function drawScores() {
     context.fillText(player2.playerScore, canvas.width / 2 - 27, 160);
 }
 
-var player1 = new Player(580, "player1", 39, 37, document.getElementById("playerTitle1"));
-var player2 = new Player(10, "cpu", 83, 65, document.getElementById("playerTitle2"));
-var ball = new Ball(200, 300);
-
-
-
-
 var animate = function (callback) {
-    timeoutID = window.setTimeout(callback, 1000 / 60)
+    timeoutID = window.setTimeout(callback, 1000 / FRAMES_PER_SEC)
 }
 
 var render = function () {
     context.fillStyle = "#FFFFFF";
-    context.fillRect(0, 0, width, height);
+    context.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
     player1.render();
     player2.render();
     drawNet();
@@ -319,31 +266,21 @@ var update = function () {
 };
 
 var step = function () {
-    // if (!isGamePaused) {
-    //     update();
-    //     render();
-    // } else {
-    //     context.fillStyle = 'white';
-    //     context.fillRect(150, 280, 90, 40);
-    //     context.fillStyle = 'black';
-    //     context.font = "30px Jennie";
-    //     context.fillText("paused", 155, 310)
-    // }
     if (isGamePaused) {
         context.fillStyle = 'white';
         context.fillRect(150, 280, 90, 40);
         context.fillStyle = 'black';
         context.font = "30px Jennie";
         context.fillText("paused", 155, 310)
-    } else if (hasWon != "") {
+    } else if (winnerPlayer != "") {
         context.fillStyle = 'grey';
         context.fillRect(110, 280, 170, 40);
         context.fillStyle = 'black';
         context.font = "30px Jennie";
-        if (hasWon == "cpu") {
-            context.fillText("   " + hasWon + " won!", 120, 310)
+        if (winnerPlayer == "cpu") {
+            context.fillText("   " + winnerPlayer + " won!", 120, 310)
         } else {
-            context.fillText(hasWon + " won!", 120, 310)
+            context.fillText(winnerPlayer + " won!", 120, 310)
         }
         context.font = "15px Jennie";
         context.fillText("<PRESS ANY KEY TO START AGAIN>", 80, 360);
@@ -355,16 +292,18 @@ var step = function () {
     animate(step);
 };
 
+// Start the game
 animate(step);
 
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
-    if (hasWon != "") {
-        player1 = new Player(580, "player1", 39, 37, document.getElementById("playerTitle1"));
-        player2 = new Player(10, player2.playerType, 83, 65, document.getElementById("playerTitle2"));
-        ball = new Ball(200, 300);
-        hasWon = "";
-    } else if (key === 32)// space key   
+
+    if (winnerPlayer != "") {
+        player1 = new Player(BOARD_HEIGHT - 2 * DIFF_PADDLE_BOARD, "player1", 39, 37, document.getElementById("playerTitle1"));
+        player2 = new Player(DIFF_PADDLE_BOARD, player2.playerType, 83, 65, document.getElementById("playerTitle2"));
+        ball = new Ball(BOARD_WIDTH / 2, BOARD_HEIGHT / 2);
+        winnerPlayer = "";
+    } else if (key === PAUSE_KEY)// Pause key   
     {
         isGamePaused = !isGamePaused;
     } else {
@@ -376,11 +315,10 @@ window.addEventListener("keyup", function (event) {
     delete keysDown[event.keyCode];
 });
 
-var gameChoice1 = document.getElementById("gameChoice1")
-var gameChoice2 = document.getElementById("gameChoice2")
 gameChoice1.addEventListener("keydown", function (eve) {
     eve.preventDefault();
 });
+
 gameChoice2.addEventListener("keydown", function (eve) {
     eve.preventDefault();
 });
