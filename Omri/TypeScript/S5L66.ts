@@ -11,8 +11,8 @@ class Car {
         console.log("Toooooooooot!");
     };
 
-    public accelerate = function(speed) {
-        this.acceleration = this.acceleration + speed;
+    public accelerate(speed) {
+        this._acceleration = this._acceleration + speed;
     }
 }
 const car = new Car("BMW");
@@ -49,7 +49,7 @@ console.log(rectangle.calcSize());
 class Person{
     private _firstname:string ="";
     get firstname(){return this._firstname;}
-    set firstname(value){
+    set firstname(value:string){
         this._firstname = (value.length>3)?value:"";
     }
 }

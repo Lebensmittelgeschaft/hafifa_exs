@@ -11,15 +11,15 @@ var Car = (function () {
         this.honk = function () {
             console.log("Toooooooooot!");
         };
-        this.accelerate = function (speed) {
-            this.acceleration = this.acceleration + speed;
-        };
     }
     Object.defineProperty(Car.prototype, "acceleration", {
         get: function () { return this._acceleration; },
         enumerable: true,
         configurable: true
     });
+    Car.prototype.accelerate = function (speed) {
+        this._acceleration = this._acceleration + speed;
+    };
     return Car;
 })();
 var car = new Car("BMW");
