@@ -1,7 +1,5 @@
 // Exercise 1
-const double:(val:number)=>number = (value)=> {
-    return value * 2;
-};
+const double:(val:number)=>number = (value)=> value * 2;
 console.log(double(10));
 
 // Exercise 2
