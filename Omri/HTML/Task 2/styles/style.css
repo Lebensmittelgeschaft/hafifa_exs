@@ -1,0 +1,308 @@
+
+body {
+    font-family: "Lato", sans-serif;
+	font-size:100%;
+}
+
+
+
+/*iframe*/
+#wikiIFrame{
+    width: 100%;
+    height: 100%;
+    overflow:hidden;
+}
+
+/*animations*/
+@keyframes sidenav{
+    from {margin-left:-15vw;;}
+    to{margin-left:0;}
+}
+@keyframes content{
+    from {margin-top:100vh;;}
+    to{margin-top:0;}
+}
+
+
+/*fixed plus button*/
+.plusButton{
+    position:fixed;
+	width:60px;
+	height:60px;
+	bottom:40px;
+	right:40px;
+	background-color:rgba(0,0,0,0);
+	text-align:center;
+}
+.plusButton span{
+    width: 100%;
+    color: black;
+    font-size: 100px;
+    cursor: pointer;
+}
+.plusButton span:hover{
+    color: #e7e7e7;
+}
+
+/*nav bar*/
+.sidenav {
+    height: 100%;
+    width: 15vw;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow: hidden;
+    padding-top: 0.5%;
+
+    animation-name: sidenav;
+    animation-duration: 2s;
+    
+}
+
+.sidenav a {
+    padding: 2% 2% 2% 2%;
+    text-decoration: none;
+    text-align: left;
+    border-bottom: #f3f3f3 solid 2px;
+    font-size: 200%;
+    color: #818181;
+    display: block;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav a[class="active"] {
+    color: white;
+}
+
+.placeholder{
+    overflow: hidden;
+    border-bottom: #f3f3f3 solid 2px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.placeholder span{
+color: white;
+font-size: 150%;
+}
+.placeholder img{
+    max-height: 4%;
+}
+
+.profile{
+    border-bottom: #f3f3f3 solid 2px;
+    font-size:100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.profile img{
+    width: 80%;
+    margin-top: 5%;
+    border-radius: 50%;
+    min-width: 100px;
+}
+.profile h2{
+    color: white;
+    text-align: center;
+    align-self: center;
+}
+.profile h3{
+    color: white;
+    text-align: center;
+    align-self: center;
+    word-break: break-all;
+}
+
+
+.content {
+    margin-left: 15vw; /* Same as the width of the sidenav */
+    font-size:200%;
+    animation-name: content;
+    animation-duration: 2s;
+}
+
+/*buttons*/
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 2vw;
+    width: 20vw;
+    margin: 4px 2px;
+    cursor: pointer;
+    outline-color: rgba(0,0,0,0);
+}
+.button:hover{
+    opacity: 0.9;
+    color: #008CBA;
+}
+.button2:hover{
+    color: red;
+}
+.button2 {background-color: #008CBA;} /* Blue */
+.button3 {background-color: #f44336;} /* Red */ 
+.button4 {background-color: #e7e7e7; color: black;} /* Gray */ 
+.button5 {background-color: #555555;} /* Black */
+
+/*cards*/
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 32.6%;
+    display: inline-block;
+    font-size: 2vw;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.5);
+}
+
+.cardContainer {
+    padding: 2px 16px;
+    
+}
+
+
+
+/*spinners*/
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 20vw;
+    height: 20vw;
+    animation: spin 2s linear infinite;
+  }
+  .loader2 {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
+    border-bottom: 16px solid red;
+    border-radius: 50%;
+    width: 20vw;
+    height: 20vw;
+    animation: spin 2s linear infinite;
+   }
+   .loader3 {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    border-right: 16px solid green;
+    border-bottom: 16px solid red;
+    
+    width: 20vw;
+    height: 20vw;
+    animation: spin 2s linear infinite;
+   }
+   .loader4 {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
+    border-right: 16px solid green;
+    border-bottom: 16px solid red;
+    border-left: 16px solid orange;
+    border-radius: 50%;
+    width: 20vw;
+    height: 20vw;
+    animation: spin 2s linear infinite;
+    margin-bottom: 50px;
+   }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+
+
+
+/*resposive :media query*/
+@media only screen and (max-width: 750px){
+	.sidenav {
+		width: 100%;
+		background-color: #111;
+		z-index:0;
+		position:relative;
+        height:auto;
+		animation-name: none;
+    
+    }
+    .content {
+        margin-left: 0;
+        animation-name: none;
+        font-size:120%;
+    }
+	body {
+		font-family: "Lato", sans-serif;
+		font-size:150%;
+	}
+.profile img{
+		width: 20%;
+		display:block;
+		margin:auto auto;
+		margin-top: 5%;
+        border-radius: 100px;
+	}
+.profile{
+    display:block;
+	}
+.sidenav a {
+    text-decoration: none;
+    text-align: left;
+    border-bottom: #f3f3f3 solid 2px;
+    font-size: 100%;
+    color: #818181;
+   
+}
+
+
+
+
+/*spinners*/
+.loader {
+    width: 40vw;
+    height: 40vw;
+  }
+  .loader2 {
+    width: 40vw;
+    height: 40vw;
+
+   }
+   .loader3 {
+    width: 40vw;
+    height: 40vw;
+   }
+   .loader4 {
+    width: 40vw;
+    height: 40vw;
+
+   }
+/*buttons*/
+.button {
+    width: 50vw;
+    height: 10vw;
+    font-size: 4vw;
+    margin-bottom: 1%;
+    display:block;
+}
+/*cards*/
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 49.3%;
+    display: inline-block;
+    font-size: 4vw;
+}
+}

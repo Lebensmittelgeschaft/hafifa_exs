@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>A Bunch Of Random Sprites And Nic Cage</title>
+    <link rel="stylesheet" href="styles/style.css">
+
+  
+</head>
+<body>
+    <!--canvas element-->
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+        <button type="button" onclick="toggleShowHitBox()">show Hit Box</button>
+ 
+        <button type="button" onclick="toggleImpossibleMode()">toggle Impossible Mode</button>
+      
+        <button type="button" onclick="toggleAI()">toggle AI</button>
+        <br>
+        <p><b>R</b>:restart</p>
+        <p><b>S</b>:start</p>
+        <p><b>P</b>:Pause</p>
+        <p><b>R</b>:restart</p>
+        <p><b>↓</b>:slide</p>
+        <p><b>Space</b>:Jump</p>
+    </div>
+    
+    <!--Photo Assets for game -->
+    <div id="assets"></div>
+    <img src='assets/images/freetileset/png/BG/BG.png' id='background'>
+    <img src='assets/images/freetileset/png/Tiles/2.png' id='ground'>
+    <img src='assets/images/nic_cage.png' id='nicCage'>
+
+    <!--Audio Assets-->
+    <audio id="jump"><source src="assets/audio/meow.wav" type="audio/wav"></audio>
+    <audio id="start"><source src="assets/audio/Show_Me_What_U_got.wav" type="audio/wav"></audio>
+    <audio id="death"><source src="assets/audio/2SAD4ME.mp3" type="audio/mp3"></audio>
+    <audio id="airHorn"><source src="assets/audio/mlg_airhorn.mp3" type="audio/mp3"></audio>
+    <audio id="nicCageAudio"><source src="assets/audio/bird-up.mp3" type="audio/mp3"></audio>
+        
+        <script src='scripts/assets.js'></script>
+        <script src='scripts/util.js'></script>
+        <script src='scripts/character.js'></script>
+        <script src="scripts/obstacle.js"></script>
+        <script src="scripts/background.js"></script>
+        <script src="scripts/ground.js"></script>
+        <script src='scripts/game.js'></script>
+    </body>
+</html>

@@ -1,0 +1,267 @@
+/*remove outline*/
+*:focus {
+    outline: none;
+}
+::placeholder{
+    color:gray;
+    font-size:120%;
+}
+body{
+    margin:0;
+    /*global font settings*/
+    color: white;
+    font-family:'Lucida Sans';
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+.background{
+    background-image: url("../images/background6.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+.content{
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.TOS{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    font-size: 100%;
+    
+}
+.TOS span{
+    width: 90%;
+
+}
+
+.email,.password{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.email>input,.password>input {
+width: 90%;
+min-height: 40px;
+height: 10%;
+padding-left: 2%;
+border-radius: 5px;
+border-color: rgba(0, 0, 0, 0);
+
+}
+
+.email>input:hover,.password>input:hover {
+    width: 90%;
+    
+    padding-left: 2%;
+    outline: none;
+    }
+    
+.signup{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    min-width: 400px;
+    min-height: 500px;
+    height: 50%;
+    width: 30%;
+}
+
+.signup div{
+    justify-content: center;
+}
+
+.socialButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.signUpheader{
+    display: flex;
+    justify-content: center;
+}
+.signIn{
+    display: flex;
+    justify-content: center;
+}
+
+.fa:hover{
+    opacity: 0.8;
+}
+
+.facebookBtn{
+    background-color:rgb(55, 90, 206);
+    border-radius: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    margin-right: 5%;
+    color: white;
+    cursor: pointer;
+    width: 20%;
+    height: 6%;
+    font-size: 100%;
+    min-height: 20px;
+    min-width: 100px;
+}
+.twitterBtn{
+    background-color:rgb(78, 184, 255);
+    border-radius: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    margin-right: 5%;
+    color: white;
+    cursor: pointer;
+    width: 20%;
+    height: 6%;
+    font-size: 100%;
+    min-height: 20px;
+    min-width: 100px;
+}
+.googlePlusBtn{
+    background-color:rgb(238, 70, 40);
+    border-radius: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    margin-right: 5%;
+    color: white;
+    cursor: pointer;
+    width: 20%;
+    height: 6%;
+    min-height: 20px;
+    min-width: 100px;
+}
+.createAccount{
+    display: flex;
+    justify-content: center;
+}
+.createAccount button{
+    width: 90%;
+    height: 10%;
+    color: white;
+    background-color: #4CAF50;
+    border-radius: 5px;
+    border-color: rgba(0, 0, 0, 0);
+    font-size: 100%;
+
+}
+.createAccount button:hover{
+    opacity: 0.9;
+
+}
+
+hr{
+    display: inline-flex;
+    width: 30%;
+
+    
+}
+
+a{
+    text-decoration: gray underline;
+    color: gray;
+}
+
+.hr-sect {
+	display: flex;
+	align-items: center;
+    font-size: 80%;
+    width: 90%;
+    align-self: center;
+
+}
+.hr-sect::before {
+	content: "";
+	flex-grow: 1;
+	background: rgba(255,255, 255,0.5);
+    height: 1px;
+	font-size: 0px;
+    line-height: 0px;
+    margin-right: 5%;
+}
+
+.hr-sect::after {
+	content: "";
+	flex-grow: 1;
+	background: rgba(255,255, 255,0.5);
+    height: 1px;
+	font-size: 0px;
+    line-height: 0px;
+    margin-left: 5%;
+   
+}
+
+.signIn{
+    margin-bottom: 20px;
+}
+
+
+@media only screen and (min-height : 1000px) {
+*{
+    font-size: 120%;
+}
+input[type="checkbox"]{
+    transform: scale(3);
+    margin: 20px;;
+}
+.fa{
+    min-height: 50px;
+    min-width: 250px;
+}
+.signup{
+    min-width: 2000px;
+    min-height: 1000px;
+}
+}
+
+
+
+@media only screen and (max-height : 500px) {
+    .hr-sect,.signIn,.TOS{
+        font-size: 40%;
+    }
+    h1{
+        font-size: 80%;
+    }
+    input[type="checkbox"]{
+        
+        margin: 5px;;
+    }
+    .fa{
+        font-size: 50%;
+        min-height: 20px;
+        min-width: 30px;
+    }
+    .signup{
+        min-width: 200px;
+        min-height: 300px;
+    }
+    .email>input,.password>input {
+       
+        min-height: 10px;
+        height: 7%;
+     
+        
+        }
+
+    }
+
+    @media only screen and (max-height : 300px) {
+            .content *{
+                transform: scale(0.8);
+                
+            }
+            
+        }
