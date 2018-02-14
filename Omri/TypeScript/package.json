@@ -1,0 +1,15 @@
+{
+  "name": "typescriptEx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "S5L66.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc":"tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^2.7.1"
+  }
+}
