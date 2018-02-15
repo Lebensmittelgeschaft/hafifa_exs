@@ -165,7 +165,6 @@
 
 
 
-
-      gameLoop();
+window.onload= gameLoop;
   
 

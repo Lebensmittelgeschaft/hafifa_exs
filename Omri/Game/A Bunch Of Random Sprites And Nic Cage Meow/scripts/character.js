@@ -60,7 +60,8 @@ class Character{
       ((!this._rachedJumpPeak)?this._jumpingSprites[this._currentJumpingSpriteIndex]
       :this._fallingSprites[this._currentJumpingSpriteIndex])
       :this._slidingSprites[this._currentSlidingSpriteIndex]
-        this._context.drawImage(image,
+        this._context.drawImage(
+          image,
           this._xPosition,
           this._yPosition,
           this._width,

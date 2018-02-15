@@ -1,11 +1,11 @@
 const NUMBER_OF_SPRITES_CHARACTRER = 8;
 const NUMBER_OF_SPRITES_OBSTACLE = 4;
-const PNG = '.PNG';
-const RUN_PATH = 'assets/images/cat/Run '
-const JUMP_PATH = 'assets/images/cat/Jump '
-const FALL_PATH = 'assets/images/cat/Fall '
-const SLIDE_PATH = 'assets/images/cat/Slide '
-const OBSTACLE_PATH = 'assets/images/spr_toucan_fly_anim/spr_toucan_fly_anim-'
+const PNG = '.png';
+const RUN_PATH = './assets/images/cat/Run%20'
+const JUMP_PATH = './assets/images/cat/Jump '
+const FALL_PATH = './assets/images/cat/Fall '
+const SLIDE_PATH = './assets/images/cat/Slide '
+const OBSTACLE_PATH = './assets/images/spr_toucan_fly_anim/spr_toucan_fly_anim-'
 const RUN_ID= 'character_running_'
 const JUMP_ID     = 'character_jumping_'
 const FALL_ID     = 'character_falling_'
