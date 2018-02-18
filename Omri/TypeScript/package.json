@@ -5,11 +5,14 @@
   "main": "S5L66.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc":"tsc"
+    "tsc": "tsc"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "typescript": "^2.7.1"
+  },
+  "dependencies": {
+    "systemjs": "^0.21.0"
   }
 }
