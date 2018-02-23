@@ -22,13 +22,116 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>Reveal.js</h1>
-					<h3>The HTML Presentation Framework</h3>
-					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> and <a href="https://github.com/hakimel/reveal.js/graphs/contributors">contributors</a></small>
-					</p>
+					<section>
+						<h1>Functional Programming</h1>
+					</section>
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/ZanWL0MNtv3y0/giphy.gif">
+						
+					</section>
 				</section>
+				<!--first class functions-->
+				<section>
+					<h2>Functions in JS are First Class</h2>
+					<p>In JS functions are treated as values that can be stored in variables/objects/arrays 
+						and can be passed into and returned from functions
+					</p>
+					<pre><code class="hljs" data-trim contenteditable>
+var fun = (f) => {
+	return function(arg) {
+		return f(arg);
+		}
+	};
+var funArray = [console.log,console.dir,console.table];
+												</code></pre>
+			</section>
+				<!--higher order functions-->
+				<section>
+						<section>
+								<h1>Higher Order Functions</h1>
+								<h3>any functions that:</h3>
+								<ul>
+									<li>takes a function as a parameter</li>
+									<li>returns a function</li>
+								</ul>
+								
+							</section>
+						
+					</section>
+				<!--functions building functions-->
+				<!--closures-->
+				<!--haskell curry lame joke-->
+				<!--currying-->
+				<section>
+						<section>
+								<h2>Currying</h2>
+								<p>currying a function is removing a single expected parameter from the a given function and returning
+									a function that accepts the parameter which we removed and returns a function that executes the inital function with the given parameter
+								</p>
+								
+							</section>
+						<section>
+								<h2>Currying</h2>
+								<pre><code class="hljs" data-trim contenteditable>
+function curry(fun) {
+	return function(arg) {
+		return fun(arg);
+	}
+}
+function curry2(fun) {
+	return function(secondArg) {
+		return function(firstArg) {
+			return fun(firstArg, secondArg);
+		}
+	}
+}
+								</code></pre>
+								
+							</section>
+							<section>
+									<h2>Currying</h2>
+									<pre><code class="hljs" data-trim contenteditable>
+var arr = ['11','11','11','11','11','11','11','11','11']
+arr.map(parseInt);// [11, NaN, 3, 4, 5, 6, 7, 8, 9]
+arr.map(curry(parseInt));//[11, 11, 11, 11, 11, 11, 11, 11, 11]
+arr.map(console.log); //11 i | i=0...8
+arr.map(curry2(console.log)(12)); //11 12 | 9 times
+									</code></pre>
+									
+								</section>
+					
+				</section>
+				<!--partial applications-->
+				<!--pure functions-->
+				<!--immutables-->
+				<!--chainning-->
+				<!--flow based development-->
+				<!--promises-->
+				<!--bluebird-->
+				<!--pipelining\thrush combinator-->
+				<!--actions\monads-->
+				<!--mixin base development-->
+				<section>
+					<h2>Pretty Code</h2>
+					<pre><code class="hljs" data-trim contenteditable>
+function linkify( selector ) {
+  	if( supports3DTransforms ) {
 
+    var nodes = document.querySelectorAll( selector );
+
+    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
+      var node = nodes[i];
+
+      if( !node.className ) {
+        node.className += ' roll';
+      }
+    }
+  }
+}
+					</code></pre>
+					
+				</section>
+				
+					
 				<section>
 					<h2>Hello There</h2>
 					<p>
@@ -207,7 +310,7 @@
 					<h2>Pretty Code</h2>
 					<pre><code class="hljs" data-trim contenteditable>
 function linkify( selector ) {
-  if( supports3DTransforms ) {
+  	if( supports3DTransforms ) {
 
     var nodes = document.querySelectorAll( selector );
 
@@ -391,6 +494,5 @@ Reveal.addEventListener( 'customevent', function() {
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/config.js"></script>
     <script src="/js/main.js"></script>
-
     </body>
 </html>
