@@ -7,4 +7,4 @@
 
 ## Presentation
 
-* [Functional Programming](https://htmlpreview.github.io/?https://github.com/Lebensmittelgeschaft/hafifa_exs/blob/omri-H/Omri/Revealer.js/views/client.html)
+* [Functional Programming](http://ec2-54-201-252-18.us-west-2.compute.amazonaws.com:3000/client)
