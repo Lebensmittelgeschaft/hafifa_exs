@@ -25,6 +25,10 @@
 					<section>
 						<h1>Functional Programming</h1>
 					</section>
+					
+					<section data-background-size="50vh" data-background="assets/functionalJavascriptOreilly.png">
+						
+					</section>
 					<section data-background-size="100vh" data-background="https://media.giphy.com/media/ZanWL0MNtv3y0/giphy.gif">
 						
 					</section>
@@ -469,10 +473,11 @@ Reveal.addEventListener( 'customevent', function() {
 
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
-				controls: true,
+				controls: false,
 				progress: true,
 				history: true,
 				center: true,
+				keyboard: false,
 
 				transition: 'slide', // none/fade/slide/convex/concave/zoom
 
@@ -493,13 +498,9 @@ Reveal.addEventListener( 'customevent', function() {
         <!-- Socket.io client-->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/config.js"></script>
-    <script src="/js/main.js"></script>
     <script>
         (function(){
 
-          Reveal.initialize({
-            history: true
-          });
           
           var socket = io.connect(host);
 
