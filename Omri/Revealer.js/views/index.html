@@ -31,41 +31,77 @@
 				</section>
 				<!--first class functions-->
 				<section>
-					<h2>Functions in JS are First Class</h2>
-					<p>In JS functions can be stored in variables/objects/arrays 
-						and can be passed into and returned from functions
-					</p>
-					<pre><code class="hljs" data-trim contenteditable>
-var fun = (f) => {
-	return function(arg) {
-		return f(arg);
+						<!--higher order functions-->
+					<section>
+							<h1>Higher Order Functions</h1>
+							<h3>any function that does atleast one of the following:</h3>
+							<ul>
+								<li>takes a function as an argument.
+									examples: map , each , reduce , call , apply</li>
+								<li>returns a function.
+									examples:bind
+									<pre><code class="hljs" data-trim contenteditable>
+function makeAdder(numberToAdd) {
+return function(num){
+	return num + numberToAdd;
+	}
+};
+																								</code></pre>
+								</li>
+							</ul>
+							
+						</section>
+					<section>
+						<h2>Functions in JS are First Class</h2>
+						<p>In JS functions can be stored in variables/objects/arrays 
+							and can be passed into and returned from functions
+						</p>
+						<pre><code class="hljs" data-trim contenteditable>
+let curry = ( f ) => {
+	return function ( arg ) {
+		return f ( arg );
 		}
 	};
-var funArray = [console.log,console.dir,console.table];
-												</code></pre>
+let funArray = [console.log , console.dir , console.table];
+funArray.map(x=>x(funArray));
+													</code></pre>
+				</section>
 			</section>
-				<!--higher order functions-->
+			
+		
+				<!--closures-->
 				<section>
 						<section>
-								<h1>Higher Order Functions</h1>
-								<h3>any functions that:</h3>
-								<ul>
-									<li>takes a function as a parameter. examples: map , each , reduce</li>
-									<li>returns a function. examples:</li>
-								</ul>
+								<h2>Closures</h2>
+								<p>A closure is a persistent scope which holds on to local variables
+									 even after the code execution has moved out of that block.
+								</p>
+								
+							</section>
+						<section>
+								<h2>Closures</h2>
+								<pre><code class="hljs" data-trim contenteditable>
+function plucker(FIELD) {
+	return function(obj) {
+		//returns obj if it can be converted to false,
+		//otherwise returns obj[FIELD]
+		return (obj && obj[FIELD]);
+	};
+}
+let books = [{title: "Chthon"}, {stars: 5}, {title: "Botchan"}];
+let getTitle = plucker('title');
+_.filter(books, getTitle);// [{title: "Chthon"}, {title: "Botchan"}]
+								</code></pre>
 								
 							</section>
 						
-					</section>
-				<!--functions building functions-->
-				<!--closures-->
-				<!--haskell curry lame joke-->
+					
+				</section>
 				<!--currying-->
 				<section>
 						<section>
 								<h2>Currying</h2>
-								<p>currying a function is removing a single expected parameter from the a given function and returning
-									a function that accepts the parameter which we removed and returns a function that executes the inital function with the given parameter
+								<p>A curried function is one that returns a new function for every logical argument that it takes
 								</p>
 								
 							</section>
@@ -101,6 +137,90 @@ arr.map(curry2(console.log)(12)); //11 12 | 9 times
 					
 				</section>
 				<!--partial applications-->
+				<section>
+						<section>
+								<h2>Partial Application</h2>
+								<p>The process of fixing a number of arguments to a function, producing another function of smaller arity.
+								</p>
+								
+							</section>
+						<section>
+								<h2>Partial Application</h2>
+								<pre><code class="hljs" data-trim contenteditable>
+function partial1(fun, arg1) {
+	return function(/* args */) {
+	var args = construct(arg1, arguments);
+	return fun.apply(fun, args);
+	};
+}
+//or
+function partial1(fun, arg1) {
+	return fun.bind(null, arg1);
+}
+								</code></pre>
+								
+							</section>
+							<section>
+									<h2>Partially Applying an Arbitrary Number of Arguments</h2>
+									<pre><code class="hljs" data-trim contenteditable>
+function existy(x) { return x != null };
+
+function cat() {
+	var head = _.first(arguments);
+	if (existy(head))
+	return head.concat.apply(head, _.rest(arguments));
+	else
+	return [];
+}
+
+function partial(fun /*, pargs */) {
+	let pargs = _.rest(arguments);
+	return function(/* arguments */) {
+	let args = cat(pargs, _.toArray(arguments));
+	return fun.apply(fun, args);
+	};
+}
+
+									</code></pre>
+									
+								</section>
+								<section>
+										<h2>The difference between Currying and Partial Application</h2>
+										<pre><code  class="hljs" data-trim contenteditable>
+function curry3(fun){
+	return function(thirdArg){
+		return function(secondArg){
+			return function(firstArg){
+				return fun(firstArg,secondArg,thirdArg);
+			}
+		}
+	}
+}
+										</code></pre>
+										
+									</section>
+									<section>
+											<h2>The difference between Currying and Partial Application</h2>
+											<pre><code  class="hljs" data-trim contenteditable>
+function doSomething(a,b,c){
+	/*
+	does something
+	...
+	*/
+}
+
+//declare and init a,b,c with some values
+
+let curriedDoSomething = curry3(doSomething);
+let partialDoSomething = partial(doSomething,a,b)
+
+curriedDoSomething(b)(a)(c);
+partialDoSomething(c);
+											</code></pre>
+											
+										</section>
+					
+				</section>
 				<!--pure functions-->
 				<!--immutables-->
 				<!--chainning-->
@@ -136,7 +256,6 @@ arr.map(curry2(console.log)(12)); //11 12 | 9 times
 					{ src: 'components/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'components/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'components/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'components/reveal.js/plugin/search/search.js', async: true },
 					{ src: 'components/reveal.js/plugin/zoom-js/zoom.js', async: true },
 					{ src: 'components/reveal.js/plugin/notes/notes.js', async: true }
 				]
