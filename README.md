@@ -7,4 +7,5 @@
 
 ## Presentation
 
-* [Functional Programming](http://ec2-54-201-252-18.us-west-2.compute.amazonaws.com:3000/client)
+* [Functional Programming - live demo](http://ec2-54-201-252-18.us-west-2.compute.amazonaws.com:3000/client)
+* [Functional Programming - presentation](http://ec2-54-201-252-18.us-west-2.compute.amazonaws.com:3000/pres)

@@ -226,7 +226,7 @@ function doSomething(a,b,c){
 let curriedDoSomething = curry3(doSomething);
 let partialDoSomething = partial(doSomething,a,b)
 
-curriedDoSomething(b)(a)(c);
+curriedDoSomething(c)(b)(a);
 partialDoSomething(c);
 											</code></pre>
 											
@@ -270,7 +270,7 @@ x;// [{a: [1, 2, 3], b: 42}, {c: {d: 100000}}];
 				
 			</section>
 			<!--flow based development-->
-				<!--chainning-->
+				<!--chaining-->
 				<!--promises-->
 				<!--bluebird-->
 				<!--pipelining\thrush combinator-->
@@ -279,7 +279,7 @@ x;// [{a: [1, 2, 3], b: 42}, {c: {d: 100000}}];
 							<h2>Flow Based Development</h2>	
 					</section>
 					<section>
-							<h2>Chainning</h2>	
+							<h2>chaining</h2>	
 							
 							<q>"The “magic” that allows method chains is that each method in the chain returns the
 									same host object reference (Stefanov 2010). The chaining of methods via common re‐
@@ -287,16 +287,16 @@ x;// [{a: [1, 2, 3], b: 42}, {c: {d: 100000}}];
 									even Underscore" [1].p166</q>
 					</section>
 					<section>
-							<h2>chainning example in underscore</h2>
+							<h2>chaining example in underscore</h2>
 							<pre><code  class="hljs" data-trim contenteditable>
 _.chain([1, 2, 3]).reverse().reverse().reverse().value();// [3, 2, 1]
 							</code></pre>
 					</section>
 					<section data-background-size="80vh" data-background="https://media.giphy.com/media/EldfH1VJdbrwY/giphy.gif">
-						<h2>chainning implementation in underscore</h2>
+						<h2>chaining implementation in underscore</h2>
 					</section>
 					<section>
-							<h2>chainning implementation in underscore</h2>
+							<h2>chaining implementation in underscore</h2>
 							<pre><code  class="hljs" data-trim contenteditable>
 var _ = function(obj) {
 		if (obj instanceof _) return obj;    
@@ -306,7 +306,7 @@ var _ = function(obj) {
 							</code></pre>
 					</section>
 					<section>
-							<h2>chainning implementation in underscore</h2>
+							<h2>chaining implementation in underscore</h2>
 							<pre><code  class="hljs" data-trim contenteditable>
 _.chain = function(obj) {
 		var instance = _(obj);
@@ -321,7 +321,7 @@ var chainResult = function(instance, obj) {
 							</code></pre>
 					</section>
 					<section>
-							<h2>chainning implementation in underscore</h2>
+							<h2>chaining implementation in underscore</h2>
 							<pre><code  class="hljs stretch" data-trim contenteditable>
 
 /* ._functions Returns a sorted list of the names */
@@ -346,7 +346,7 @@ _.mixin(_);
 							</code></pre>
 					</section>
 					<section>
-							<h2>chainning implementation in underscore</h2>
+							<h2>chaining implementation in underscore</h2>
 							<pre><code  class="hljs" data-trim contenteditable>
 _.prototype.value = function() {
 	return this._wrapped;

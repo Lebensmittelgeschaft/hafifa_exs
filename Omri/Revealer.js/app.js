@@ -23,6 +23,10 @@ app.get('/client', function (req, res) {
     res.sendfile(__dirname + '/views/client.html');
 });
 
+app.get('/pres', function (req, res) {
+    res.sendfile(__dirname + '/views/pres.html');
+});
+
 var server = http.createServer(app).listen(port, function () {
     console.log("Express server listening on port "+port);
 });
