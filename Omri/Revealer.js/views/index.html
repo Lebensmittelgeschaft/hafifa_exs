@@ -22,10 +22,22 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<section>
+					<section data-background="https://media.giphy.com/media/rrFcUcN3MFmta/giphy.gif">
 						<h1>Functional Programming in JS</h1>
 					</section>
-					<section data-background-size="100vh" data-background="https://media.giphy.com/media/ZanWL0MNtv3y0/giphy.gif">
+					<!--what gif-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/3o752ogsaULr0QzM3u/giphy.gif">
+					</section>
+					<!--ugly/scary code-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/NLq63EU28Z7zi/giphy.gif">
+						<h2>unstructured code</h2>
+					</section>
+					<!--beautiful code-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/uVUSXCdtUhE7m/giphy.gif">
+						<h3>structured code</h3>
+					</section>
+					<!--book-->
+					<section data-background-size="50vh" data-background="assets/functionalJavascriptOreilly.png">
 						
 					</section>
 				</section>
@@ -219,6 +231,9 @@ partialDoSomething(c);
 											</code></pre>
 											
 										</section>
+											<!--understood gif-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/HPsugdDIUsUYU/giphy.gif">
+					</section>
 					
 				</section>
 				<!--pure functions-->
@@ -264,15 +279,6 @@ x;// [{a: [1, 2, 3], b: 42}, {c: {d: 100000}}];
 							<h2>Flow Based Development</h2>	
 					</section>
 					<section>
-							<h2>Monad</h2>
-							<p>A monad is based on a simple symmetry — A way to wrap a value into a context, and a way to unwrap the value from the context.</p>	
-							<ul>
-								<li>Lift/Unit: A type lift from some type into the monad context:<br> a => M(a) </li>
-								<li>Flatten/Join: Unwrapping the type from the context: M(a) => a</li>
-								<li>FlatMap/Chain: Flatten + map: M(M(a)) => M(b)</li>
-							</ul>
-					</section>
-					<section>
 							<h2>Chainning</h2>	
 							
 							<q>"The “magic” that allows method chains is that each method in the chain returns the
@@ -285,6 +291,9 @@ x;// [{a: [1, 2, 3], b: 42}, {c: {d: 100000}}];
 							<pre><code  class="hljs" data-trim contenteditable>
 _.chain([1, 2, 3]).reverse().reverse().reverse().value();// [3, 2, 1]
 							</code></pre>
+					</section>
+					<section data-background-size="80vh" data-background="https://media.giphy.com/media/EldfH1VJdbrwY/giphy.gif">
+						<h2>chainning implementation in underscore</h2>
 					</section>
 					<section>
 							<h2>chainning implementation in underscore</h2>
@@ -345,14 +354,62 @@ _.prototype.value = function() {
 							</code></pre>
 					</section>
 					<section>
+							<h2>Monad</h2>
+							<p>A monad is based on a simple symmetry — A way to wrap a value into a context, and a way to unwrap the value from the context.</p>	
+							<ul>
+								<li>Lift/Unit: A type lift from some type into the monad context:<br> a => M(a) </li>
+								<li>Flatten/Join: Unwrapping the type from the context: M(a) => a</li>
+								<li>FlatMap/Chain: Flatten + map: M(M(a)) => M(b)</li>
+							</ul>
+					</section>
+					<section>
 							<h2>Promises</h2>
 							<ul>
-								<li>Packaging the description of a computation for later execution. </li>
+								<li>Promises package a description of computation for later execution. </li>
 								<li>Promises are intended to provide 
 										a fluent API for sequencing asynchronous operations that run concurrent to the main program logic.</li>
 							</ul>
 							
 					</section>
+					<section>
+							<h2>Promise States</h2>
+							<ul>
+								<li>Pending: the result hasn’t been computed, yet (the initial state of each Promise) </li>
+								<li>Fulfilled: the result was computed successfully</li>
+								<li>Rejected: a failure occurred during computation</li>
+							</ul>
+							
+					</section>
+					<section>
+						<h2>Promises example</h2>
+						<pre><code  class="hljs stretch" data-trim contenteditable>
+function go() {
+	let d = $.Deferred();
+	/* returns a resolved promise. */
+	/* can also pass an ajax request or other deffered objects */
+	$.when("") 
+	.then( function() {
+		setTimeout( function() {
+			console.log("sub-task 1");
+		}, 5000)
+	})
+	.then( function() {
+		setTimeout( function() {
+			console.log("sub-task 2");
+		}, 10000)
+	})
+	.then( function() {
+		setTimeout( function() {
+			d.resolve("done done done done");
+		}, 15000)
+	})
+	return d.promise();
+}
+
+let yearning = go().done(alert);
+					</code></pre>
+						
+				</section>
 					<section>
 							<h2>Pipeline Scikit-Learn Example</h2>
 							<pre><code  class="hljs" data-trim contenteditable>
@@ -409,9 +466,52 @@ pipeline(5,double,double,increment,double); // 42
 				<section>
 						<section>
 								<h2>Mixin</h2>	
+								<q> "If all we have are behaviors, then the way to make new behaviors is to either
+										define them anew or “mix” in existing behaviors"[1].p206</q>
+						</section>
+						<section>
+								<h2>Mixin - example</h2>
+								<pre><code  class="hljs stretch" data-trim contenteditable>
+
+
+// Creating an object
+const obj1 = {
+	name: 'Marcus Aurelius',
+	city: 'Rome',
+	born: '121-04-26'
+};
+
+// Mixin 1
+const mix1 = {
+	toString() {
+	return `${this.name} was born in ${this.city} in ${this.born}`;
+	},
+	age() {
+	const year = new Date().getFullYear();
+	const born = new Date(this.born).getFullYear();
+	return year - born;
+	}
+};
+// Mixin 2
+const mix2 = {
+	toString() {
+	return `${this.name} - ${this.city} - ${this.born}`;
+	}
+};
+								</code></pre>
+						</section>
+						<section>
+								<h2>Mixin - example</h2>
+								<pre><code  class="hljs stretch" data-trim contenteditable>
+...
+//  Adding the methods form mixins to the object using Object.assign()
+Object.assign(obj1, mix1, mix2);
+
+console.log(obj1.toString());   // Marcus Aurelius - Rome - 121-04-26
+console.log(`His age is ${obj1.age()} as of today`);  // His age is 1897 as of today
+								</code></pre>
 						</section>
 				</section>
-				<!--summary-->
 				<!--bibliography-->
 				<section>
 						<h2>bibliography</h2>	
@@ -421,7 +521,17 @@ pipeline(5,double,double,increment,double); // 42
 							<li>underscore <a href="https://github.com/jashkenas/underscore">source code</a></li>
 						</ol>
 				</section>
-		
+				<section>
+						<h2>projects I used in order to make this presentation</h2>	
+						<ol >
+							<li><a href="https://github.com/hakimel/reveal.js/">reveal.js</a></li>
+							<li><a href="https://github.com/shameerc/Revealer.js/">revealer.js</a></li>
+						</ol>
+				</section>
+				<!--end gif-->
+				<section  data-background="https://media.giphy.com/media/HcFxAcCRKW8ow/giphy.gif">
+						<h2>the end</h2>
+				</section>
 
 			</div>
 
@@ -447,13 +557,12 @@ pipeline(5,double,double,increment,double); // 42
 					{ src: 'components/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'components/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'components/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'components/reveal.js/plugin/zoom-js/zoom.js', async: true },
 					{ src: 'components/reveal.js/plugin/notes/notes.js', async: true }
 				]
 			});
 
 		</script>
-        <script src="components/reveal.js/js/reveal.min.js"></script>
+        
         <!-- Socket.io client-->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/config.js"></script>

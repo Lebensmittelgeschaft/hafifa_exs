@@ -22,54 +22,98 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<section>
-						<h1>Functional Programming</h1>
+					<section data-background="https://media.giphy.com/media/rrFcUcN3MFmta/giphy.gif">
+						<h1>Functional Programming in JS</h1>
 					</section>
-					
+					<!--what gif-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/3o752ogsaULr0QzM3u/giphy.gif">
+					</section>
+					<!--ugly/scary code-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/NLq63EU28Z7zi/giphy.gif">
+						<h2>unstructured code</h2>
+					</section>
+					<!--beautiful code-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/uVUSXCdtUhE7m/giphy.gif">
+						<h3>structured code</h3>
+					</section>
+					<!--book-->
 					<section data-background-size="50vh" data-background="assets/functionalJavascriptOreilly.png">
-						
-					</section>
-					<section data-background-size="100vh" data-background="https://media.giphy.com/media/ZanWL0MNtv3y0/giphy.gif">
 						
 					</section>
 				</section>
 				<!--first class functions-->
 				<section>
-					<h2>Functions in JS are First Class</h2>
-					<p>In JS functions are treated as values that can be stored in variables/objects/arrays 
-						and can be passed into and returned from functions
-					</p>
-					<pre><code class="hljs" data-trim contenteditable>
-var fun = (f) => {
-	return function(arg) {
-		return f(arg);
+						<!--higher order functions-->
+					<section>
+							<h1>Higher Order Functions</h1>
+							<h3>any function that does atleast one of the following:</h3>
+							<ul>
+								<li>takes a function as an argument.
+									examples: map , each , reduce , call , apply</li>
+								<li>returns a function.
+									examples:bind
+									<pre><code class="hljs" data-trim contenteditable>
+function makeAdder(numberToAdd) {
+return function(num){
+	return num + numberToAdd;
+	}
+};
+																								</code></pre>
+								</li>
+							</ul>
+							
+						</section>
+					<section>
+						<h2>Functions in JS are First Class</h2>
+						<p>In JS functions can be stored in variables/objects/arrays 
+							and can be passed into and returned from functions
+						</p>
+						<pre><code class="hljs" data-trim contenteditable>
+let curry = ( f ) => {
+	return function ( arg ) {
+		return f ( arg );
 		}
 	};
-var funArray = [console.log,console.dir,console.table];
-												</code></pre>
+let funArray = [console.log , console.dir , console.table];
+funArray.map(x=>x(funArray));
+													</code></pre>
+				</section>
 			</section>
-				<!--higher order functions-->
+			
+		
+				<!--closures-->
 				<section>
 						<section>
-								<h1>Higher Order Functions</h1>
-								<h3>any functions that:</h3>
-								<ul>
-									<li>takes a function as a parameter</li>
-									<li>returns a function</li>
-								</ul>
+								<h2>Closures</h2>
+								<p>A closure is a persistent scope which holds on to local variables
+									 even after the code execution has moved out of that block.
+								</p>
+								
+							</section>
+						<section>
+								<h2>Closures</h2>
+								<pre><code class="hljs" data-trim contenteditable>
+function plucker(FIELD) {
+	return function(obj) {
+		//returns obj if it can be converted to false,
+		//otherwise returns obj[FIELD]
+		return (obj && obj[FIELD]);
+	};
+}
+let books = [{title: "Chthon"}, {stars: 5}, {title: "Botchan"}];
+let getTitle = plucker('title');
+_.filter(books, getTitle);// [{title: "Chthon"}, {title: "Botchan"}]
+								</code></pre>
 								
 							</section>
 						
-					</section>
-				<!--functions building functions-->
-				<!--closures-->
-				<!--haskell curry lame joke-->
+					
+				</section>
 				<!--currying-->
 				<section>
 						<section>
 								<h2>Currying</h2>
-								<p>currying a function is removing a single expected parameter from the a given function and returning
-									a function that accepts the parameter which we removed and returns a function that executes the inital function with the given parameter
+								<p>A curried function is one that returns a new function for every logical argument that it takes
 								</p>
 								
 							</section>
@@ -105,16 +149,389 @@ arr.map(curry2(console.log)(12)); //11 12 | 9 times
 					
 				</section>
 				<!--partial applications-->
+				<section>
+						<section>
+								<h2>Partial Application</h2>
+								<p>The process of fixing a number of arguments to a function, producing another function of smaller arity.
+								</p>
+								
+							</section>
+						<section>
+								<h2>Partial Application</h2>
+								<pre><code class="hljs" data-trim contenteditable>
+function partial1(fun, arg1) {
+	return function(/* args */) {
+	var args = construct(arg1, arguments);
+	return fun.apply(fun, args);
+	};
+}
+//or
+function partial1(fun, arg1) {
+	return fun.bind(null, arg1);
+}
+								</code></pre>
+								
+							</section>
+							<section>
+									<h2>Partially Applying an Arbitrary Number of Arguments</h2>
+									<pre><code class="hljs" data-trim contenteditable>
+function existy(x) { return x != null };
+
+function cat() {
+	var head = _.first(arguments);
+	if (existy(head))
+	return head.concat.apply(head, _.rest(arguments));
+	else
+	return [];
+}
+
+function partial(fun /*, pargs */) {
+	let pargs = _.rest(arguments);
+	return function(/* arguments */) {
+	let args = cat(pargs, _.toArray(arguments));
+	return fun.apply(fun, args);
+	};
+}
+
+									</code></pre>
+									
+								</section>
+								<section>
+										<h2>The difference between Currying and Partial Application</h2>
+										<pre><code  class="hljs" data-trim contenteditable>
+function curry3(fun){
+	return function(thirdArg){
+		return function(secondArg){
+			return function(firstArg){
+				return fun(firstArg,secondArg,thirdArg);
+			}
+		}
+	}
+}
+										</code></pre>
+										
+									</section>
+									<section>
+											<h2>The difference between Currying and Partial Application</h2>
+											<pre><code  class="hljs" data-trim contenteditable>
+function doSomething(a,b,c){
+	/*
+	does something
+	...
+	*/
+}
+
+//declare and init a,b,c with some values
+
+let curriedDoSomething = curry3(doSomething);
+let partialDoSomething = partial(doSomething,a,b)
+
+curriedDoSomething(b)(a)(c);
+partialDoSomething(c);
+											</code></pre>
+											
+										</section>
+											<!--understood gif-->
+					<section data-background-size="100vh" data-background="https://media.giphy.com/media/HPsugdDIUsUYU/giphy.gif">
+					</section>
+					
+				</section>
 				<!--pure functions-->
 				<!--immutables-->
+				<section>
+					<section>
+							<h2>Purity and Immutability</h2>
+							
+					</section>
+					<section>
+						<h2>a functions is said to be "pure" if it has the following properties:</h2>
+						<ul>
+							<li>Its result is calculated only from the values of its arguments</li>
+							<li>It cannot rely on data that changes external to its control</li>
+							<li>It cannot change the state of something external to its body</li>
+						</ul>
+						
+					</section>
+					<section>
+							<h2>Immutability</h2>
+							<p>variables , arrays and objects are mutable by default</p>
+							<p>freeze implementation in js is shallow.</p>
+							<pre><code class="hljs" data-trim contenteditable>
+let x = [ { a : [1 , 2, 3] , b : 42 } , { c : {d : [] } } ];
+Object.freeze(x);
+x[0] = "";
+x;// [{a: [1, 2, 3], b: 42}, {c: {d: []}}];
+x[1]['c']['d'] = 100000;
+x;// [{a: [1, 2, 3], b: 42}, {c: {d: 100000}}];
+
+							</code></pre>
+							
+						</section>
+				
+			</section>
+			<!--flow based development-->
 				<!--chainning-->
-				<!--flow based development-->
 				<!--promises-->
 				<!--bluebird-->
 				<!--pipelining\thrush combinator-->
-				<!--actions\monads-->
+				<section>
+					<section>
+							<h2>Flow Based Development</h2>	
+					</section>
+					<section>
+							<h2>Chainning</h2>	
+							
+							<q>"The “magic” that allows method chains is that each method in the chain returns the
+									same host object reference (Stefanov 2010). The chaining of methods via common re‐
+									turn value is effectively a design pattern in JavaScript finding its way into jQuery and
+									even Underscore" [1].p166</q>
+					</section>
+					<section>
+							<h2>chainning example in underscore</h2>
+							<pre><code  class="hljs" data-trim contenteditable>
+_.chain([1, 2, 3]).reverse().reverse().reverse().value();// [3, 2, 1]
+							</code></pre>
+					</section>
+					<section data-background-size="80vh" data-background="https://media.giphy.com/media/EldfH1VJdbrwY/giphy.gif">
+						<h2>chainning implementation in underscore</h2>
+					</section>
+					<section>
+							<h2>chainning implementation in underscore</h2>
+							<pre><code  class="hljs" data-trim contenteditable>
+var _ = function(obj) {
+		if (obj instanceof _) return obj;    
+		if (!(this instanceof _)) return new _(obj);
+		this._wrapped = obj;  
+};
+							</code></pre>
+					</section>
+					<section>
+							<h2>chainning implementation in underscore</h2>
+							<pre><code  class="hljs" data-trim contenteditable>
+_.chain = function(obj) {
+		var instance = _(obj);
+		instance._chain = true;
+		return instance;  
+};
+
+/*Helper Function to continue chaining intermediate results.*/
+var chainResult = function(instance, obj) {
+	return instance._chain ? _(obj).chain() : obj;
+};
+							</code></pre>
+					</section>
+					<section>
+							<h2>chainning implementation in underscore</h2>
+							<pre><code  class="hljs stretch" data-trim contenteditable>
+
+/* ._functions Returns a sorted list of the names */
+/* of every method in an object — that is to say, */
+/* the name of every Function property of the object. */
+
+/* Add your own custom functions to the Underscore object.*/
+_.mixin = function(obj) {
+	_.each(_.functions(obj), function(name) {
+		var func = _[name] = obj[name];
+		_.prototype[name] = function() {
+			var args = [this._wrapped];
+			push.apply(args, arguments);
+			return chainResult(this, func.apply(_, args));
+		};
+	});
+	return _;
+};
+
+// Add all of the Underscore functions to the wrapper object.
+_.mixin(_);
+							</code></pre>
+					</section>
+					<section>
+							<h2>chainning implementation in underscore</h2>
+							<pre><code  class="hljs" data-trim contenteditable>
+_.prototype.value = function() {
+	return this._wrapped;
+};
+							</code></pre>
+					</section>
+					<section>
+							<h2>Monad</h2>
+							<p>A monad is based on a simple symmetry — A way to wrap a value into a context, and a way to unwrap the value from the context.</p>	
+							<ul>
+								<li>Lift/Unit: A type lift from some type into the monad context:<br> a => M(a) </li>
+								<li>Flatten/Join: Unwrapping the type from the context: M(a) => a</li>
+								<li>FlatMap/Chain: Flatten + map: M(M(a)) => M(b)</li>
+							</ul>
+					</section>
+					<section>
+							<h2>Promises</h2>
+							<ul>
+								<li>Promises package a description of computation for later execution. </li>
+								<li>Promises are intended to provide 
+										a fluent API for sequencing asynchronous operations that run concurrent to the main program logic.</li>
+							</ul>
+							
+					</section>
+					<section>
+							<h2>Promise States</h2>
+							<ul>
+								<li>Pending: the result hasn’t been computed, yet (the initial state of each Promise) </li>
+								<li>Fulfilled: the result was computed successfully</li>
+								<li>Rejected: a failure occurred during computation</li>
+							</ul>
+							
+					</section>
+					<section>
+						<h2>Promises example</h2>
+						<pre><code  class="hljs stretch" data-trim contenteditable>
+function go() {
+	let d = $.Deferred();
+	/* returns a resolved promise. */
+	/* can also pass an ajax request or other deffered objects */
+	$.when("") 
+	.then( function() {
+		setTimeout( function() {
+			console.log("sub-task 1");
+		}, 5000)
+	})
+	.then( function() {
+		setTimeout( function() {
+			console.log("sub-task 2");
+		}, 10000)
+	})
+	.then( function() {
+		setTimeout( function() {
+			d.resolve("done done done done");
+		}, 15000)
+	})
+	return d.promise();
+}
+
+let yearning = go().done(alert);
+					</code></pre>
+						
+				</section>
+					<section>
+							<h2>Pipeline Scikit-Learn Example</h2>
+							<pre><code  class="hljs" data-trim contenteditable>
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+# add your data here
+X_train,y_train = make_my_dataset()
+
+# it takes a list of tuples as parameter
+pipeline = Pipeline([
+	('scaler',StandardScaler()),
+	('clf', LogisticRegression())
+])
+
+# use the pipeline object as you would
+# a regular classifier
+pipeline.fit(X_train,y_train)
+							</code></pre>
+							
+					</section>
+					<section>
+							<h2>Pipeline implementation in JS</h2>
+							<pre><code  class="hljs" data-trim contenteditable>
+function pipeline(seed /*, args */){
+	return _.reduce(_.rest(arguments),
+	function(l,r){return r(l);}
+	,seed);
+}								
+							</code></pre>
+							
+					</section>
+					<section>
+							<h2>Pipeline in JS</h2>
+							<p>firefox from version 58+ has an experimental pipeline operator</p>
+							<pre><code  class="hljs" data-trim contenteditable>	
+const double = (n) => n * 2;
+const increment = (n) => n + 1;
+
+// without pipeline operator
+double(increment(double(double(5)))); // 42
+
+// with pipeline operator
+5 |> double |> double |> increment |> double; // 42	
+
+//with the implementation in the previous slide
+pipeline(5,double,double,increment,double); // 42
+							</code></pre>
+							
+					</section>
+				</section>
 				<!--mixin base development-->
-			
+				<section>
+						<section>
+								<h2>Mixin</h2>	
+								<q> "If all we have are behaviors, then the way to make new behaviors is to either
+										define them anew or “mix” in existing behaviors"[1].p206</q>
+						</section>
+						<section>
+								<h2>Mixin - example</h2>
+								<pre><code  class="hljs stretch" data-trim contenteditable>
+
+
+// Creating an object
+const obj1 = {
+	name: 'Marcus Aurelius',
+	city: 'Rome',
+	born: '121-04-26'
+};
+
+// Mixin 1
+const mix1 = {
+	toString() {
+	return `${this.name} was born in ${this.city} in ${this.born}`;
+	},
+	age() {
+	const year = new Date().getFullYear();
+	const born = new Date(this.born).getFullYear();
+	return year - born;
+	}
+};
+// Mixin 2
+const mix2 = {
+	toString() {
+	return `${this.name} - ${this.city} - ${this.born}`;
+	}
+};
+								</code></pre>
+						</section>
+						<section>
+								<h2>Mixin - example</h2>
+								<pre><code  class="hljs stretch" data-trim contenteditable>
+...
+//  Adding the methods form mixins to the object using Object.assign()
+Object.assign(obj1, mix1, mix2);
+
+console.log(obj1.toString());   // Marcus Aurelius - Rome - 121-04-26
+console.log(`His age is ${obj1.age()} as of today`);  // His age is 1897 as of today
+								</code></pre>
+						</section>
+				</section>
+				<!--bibliography-->
+				<section>
+						<h2>bibliography</h2>	
+						<ol >
+							<li>the entire presentation is based off this book. alot of the code examples are taken from there <a href="http://shop.oreilly.com/product/0636920028857.do">michael fogus functional javascript</a></li>
+							<li>underscore <a href="http://underscorejs.org/#">documentation</a></li>
+							<li>underscore <a href="https://github.com/jashkenas/underscore">source code</a></li>
+						</ol>
+				</section>
+				<section>
+						<h2>projects I used in order to make this presentation</h2>	
+						<ol >
+							<li><a href="https://github.com/hakimel/reveal.js/">reveal.js</a></li>
+							<li><a href="https://github.com/shameerc/Revealer.js/">revealer.js</a></li>
+						</ol>
+				</section>
+				<!--end gif-->
+				<section  data-background="https://media.giphy.com/media/HcFxAcCRKW8ow/giphy.gif">
+					<h2>the end</h2>
+				</section>
 
 			</div>
 
@@ -128,10 +545,10 @@ arr.map(curry2(console.log)(12)); //11 12 | 9 times
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
 				controls: false,
+				keyboard:false,
 				progress: true,
 				history: true,
 				center: true,
-				keyboard: false,
 
 				transition: 'slide', // none/fade/slide/convex/concave/zoom
 
@@ -141,28 +558,27 @@ arr.map(curry2(console.log)(12)); //11 12 | 9 times
 					{ src: 'components/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'components/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'components/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'components/reveal.js/plugin/search/search.js', async: true },
-					{ src: 'components/reveal.js/plugin/zoom-js/zoom.js', async: true },
 					{ src: 'components/reveal.js/plugin/notes/notes.js', async: true }
 				]
 			});
 
 		</script>
-        <script src="components/reveal.js/js/reveal.min.js"></script>
+        
         <!-- Socket.io client-->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/config.js"></script>
-    <script>
-        (function(){
-
-          
-          var socket = io.connect(host);
-
-          socket.on('slidechanged', function (data) {
-            Reveal.slide(data.indexh, data.indexv, data.indexf);
-          });
-          
-        })();
-    </script>
+	<script>
+			(function(){
+	
+			  
+			  var socket = io.connect(host);
+	
+			  socket.on('slidechanged', function (data) {
+				Reveal.slide(data.indexh, data.indexv, data.indexf);
+			  });
+			  
+			})();
+		</script>
     </body>
 </html>
+
