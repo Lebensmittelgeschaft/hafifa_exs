@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <title>AirXonix</title>
+        <link rel="stylesheet" href="../styles/Index.css">
+    </head>
+    <body>
+        <div class="first-flex-container">
+            <canvas id="canvas" height="700" width="800" tabindex="1">
+                    Your browser does not support the HTML5 canvas tag.
+            </canvas>
+            <div class="second-flex-container">
+                <div>Please select number of enemies (note changing the number of enemies will restart the game):</div>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="7" value="4" class="slider" id="enemyRange">
+                    <p>Enemies: <span id="enemyValue"></span></p>
+                </div>
+                <div>Please select number of lives (note changing the number of lives will restart the game):</div>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="5" value="3" class="slider" id="liveRange">
+                    <p>Lives: <span id="liveValue"></span></p>
+                </div>
+                <div>Press 'p' to pause</div>
+                <div>Press 'm' to mute</div>
+            </div>
+        </div>
+        <script src="../script/Area.js"></script>
+        <script src="../script/Global.js"></script>
+        <script src="../script/Canvas.js"></script>
+        <script src="../script/Ball.js"></script>
+        <script src="../script/Enemy.js"></script>
+        <script src="../script/Point.js"></script>
+        <script src="../script/Index.js"></script>
+    </body>
+</html>
