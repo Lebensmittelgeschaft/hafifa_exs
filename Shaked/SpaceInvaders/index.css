@@ -1,0 +1,23 @@
+#game-canvas {
+    margin-left: 35%;
+    margin-top: 5%;
+    border: 2px double black;    
+}
+
+#game-info {    
+    position: absolute;
+    margin: 0 auto;
+    right: 65%;
+    bottom: 65%;
+    left: 5%;
+    border-radius: 20px;
+    border: 4px double black;
+    display: none;
+    margin-top: 5%;
+    width: 20em;
+    text-align: left;
+    border-spacing: 0.5em;
+}
+ #game-info *{
+    margin-left: 5%;
+ }
